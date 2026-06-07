@@ -10,8 +10,8 @@ import time
 
 import requests
 
-LIVE_URL = "https://roseempire.co.uk/"
-CHAT_API = "https://roseempire.co.uk/api/chat"
+LIVE_URL = "https://www.roseempire.co.uk/"
+CHAT_API = None  # set after Cloudflare Worker deploy; see GITHUB_PAGES.md
 
 
 def check_http() -> dict:
@@ -25,14 +25,17 @@ def check_http() -> dict:
         out["site"]["error"] = str(err)
 
     try:
-        r = requests.post(
-            CHAT_API,
-            json={"message": "What is wholesale MOQ?", "context": "sarah"},
-            timeout=45,
-        )
-        out["api"]["status"] = r.status_code
-        body = r.json()
-        out["api"]["reply_preview"] = (body.get("reply") or body.get("error") or "")[:120]
+        if not CHAT_API:
+            out["api"]["skipped"] = "Set CHAT_API in verify_live_chat.py after deploy_chat_worker.bat"
+        else:
+            r = requests.post(
+                CHAT_API,
+                json={"message": "What is wholesale MOQ?", "context": "sarah"},
+                timeout=45,
+            )
+            out["api"]["status"] = r.status_code
+            body = r.json()
+            out["api"]["reply_preview"] = (body.get("reply") or body.get("error") or "")[:120]
     except Exception as err:
         out["api"]["error"] = str(err)
     return out
@@ -101,7 +104,7 @@ def main() -> int:
     print(json.dumps(browser, indent=2))
 
     ok_site = http.get("site", {}).get("has_chat_widget")
-    ok_api = http.get("api", {}).get("status") == 200
+    ok_api = CHAT_API and http.get("api", {}).get("status") == 200
     ok_browser = "bot_reply" in browser and len(browser.get("bot_reply", "")) > 10
 
     if ok_site and ok_api and ok_browser:
@@ -110,9 +113,9 @@ def main() -> int:
 
     print("\nFAIL — Live chat not fully working yet.")
     if not ok_site:
-        print("- Deploy latest site files (chat-widget.js) to Netlify.")
-    if not ok_api:
-        print("- Set GEMINI_API_KEY in Netlify → Site configuration → Environment variables, then redeploy.")
+        print("- Push latest site to GitHub: deploy-github.bat")
+    if CHAT_API and not ok_api:
+        print("- Deploy chat worker: deploy_chat_worker.bat, set URL in site-config.js")
     print()
     return 1
 

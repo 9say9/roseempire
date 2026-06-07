@@ -1,130 +1,59 @@
-# FIX NOW — GoDaddy DNS for roseempire.co.uk
+# FIX NOW — GoDaddy DNS for roseempire.co.uk (GitHub Pages)
 
-**Your website is LIVE here:** https://say9.netlify.app  
-**Your domain still shows GoDaddy "Launching Soon"** — DNS must be updated once.
+**Website host:** GitHub Pages (free) — not Netlify  
+**Preview (live now):** https://9say9.github.io/roseempire/  
+**Target domain:** https://www.roseempire.co.uk  
 
 Give this sheet to your partner (GoDaddy login required).  
 **~10 minutes. Email will keep working if they follow exactly.**
 
----
-
-## What’s already done ✓
-
-- Rose Empire website uploaded to Netlify
-- Live preview: **https://say9.netlify.app**
-- Email uses **Microsoft 365** (`info@roseempire.co.uk`) — MX must not be deleted
+See also: **`GODADDY_LIVE_NOW.html`** (same steps in browser).
 
 ---
 
-## What’s wrong now ✗
+## DNS values — copy exactly
 
-| URL | Shows |
-|-----|--------|
-| https://say9.netlify.app | ✓ Your real website |
-| https://www.roseempire.co.uk | GoDaddy “Launching Soon” placeholder |
-| https://roseempire.co.uk | Same placeholder |
+| Type | Name | Value |
+|------|------|--------|
+| **A** | @ | `185.199.108.153` |
+| **A** | @ | `185.199.109.153` |
+| **A** | @ | `185.199.110.153` |
+| **A** | @ | `185.199.111.153` |
+| **CNAME** | www | `9say9.github.io` |
 
-Domain DNS still points to **GoDaddy Website Builder**, not Netlify.
+**Remove old Netlify records:** A `75.2.60.5`, CNAME `say9.netlify.app`
 
----
-
-## PART 1 — You (Netlify) — 2 minutes
-
-1. Log in: https://app.netlify.com/projects/say9
-2. **Domain management** → **Add a domain** → `roseempire.co.uk`
-3. **Add domain alias** → `www.roseempire.co.uk`
-4. Leave that page open — it shows DNS instructions
-
----
-
-## PART 2 — Partner (GoDaddy) — copy these EXACT values
-
-### Login
-
-1. https://dcc.godaddy.com
-2. **My Products** → **roseempire.co.uk** → **DNS**
-
-### A) Turn OFF GoDaddy website / forwarding
-
-- Find **Forwarding** or **Website Builder** / **Coming Soon**
-- **Delete** or **Turn off** website forwarding for roseempire.co.uk
-- This is why visitors see “Launching Soon”
-
-### B) DO NOT DELETE (email — Microsoft 365)
-
-Keep these records **unchanged**:
+### Do NOT delete (email — Microsoft 365)
 
 | Type | Name | Value |
 |------|------|--------|
 | **MX** | @ | `roseempire-co-uk.mail.protection.outlook.com` |
-| **TXT** | @ | `v=spf1 include:secureserver.net -all` |
-| **TXT** | @ | `NETORGFT20747441.onmicrosoft.com` |
-
-### C) CHANGE website records
-
-**1. A record (root domain)**
-
-Edit the **A** record where Name = `@`:
-
-| Field | Value |
-|-------|--------|
-| Type | A |
-| Name | @ |
-| Value | **`75.2.60.5`** |
-| TTL | 1 Hour |
-
-Delete any **second** A record on `@` that points to GoDaddy (e.g. `13.248.243.5` or `76.223.105.230`).
-
-**2. CNAME record (www)**
-
-Edit or add **CNAME** where Name = `www`:
-
-| Field | Value |
-|-------|--------|
-| Type | CNAME |
-| Name | www |
-| Value | **`say9.netlify.app`** |
-| TTL | 1 Hour |
-
-No `https://` — just `say9.netlify.app`
-
-### D) Save
-
-GoDaddy saves automatically. Wait **30–90 minutes**.
+| **TXT** | @ | SPF / Microsoft rows — leave unchanged |
 
 ---
 
-## PART 3 — After DNS propagates
+## Partner steps (GoDaddy)
 
-1. Netlify → **Domain management** → wait for **Verified** + **HTTPS**
-2. **Set primary domain:** `www.roseempire.co.uk`
-3. Test:
-   - https://www.roseempire.co.uk → Rose Empire site
-   - Email to/from info@roseempire.co.uk still works
-
----
-
-## Quick test commands (optional)
-
-After 1 hour, these should show Netlify (not GoDaddy parking):
-
-- `www.roseempire.co.uk` → CNAME to `say9.netlify.app`
-- `roseempire.co.uk` → A record `75.2.60.5`
+1. https://dcc.godaddy.com → **roseempire.co.uk** → **DNS**
+2. Turn off **Website Builder** / **Forwarding** / “Launching Soon” if still on
+3. Update **A** on `@` to GitHub IPs above (delete Netlify `75.2.60.5`)
+4. Update **www** CNAME to `9say9.github.io` (delete `say9.netlify.app`)
+5. Wait 30–90 min → test https://www.roseempire.co.uk
 
 ---
 
-## Share with customers NOW
+## GitHub (already configured)
 
-While waiting for DNS, use:
-
-**https://say9.netlify.app**
-
-Same site — works worldwide today.
+- Repo: https://github.com/9say9/roseempire  
+- Pages: branch **main**, custom domain **www.roseempire.co.uk**  
+- Settings: https://github.com/9say9/roseempire/settings/pages  
 
 ---
 
-## If stuck
+## After domain works
 
-Send a **screenshot** of the full GoDaddy DNS table (hide passwords) — we can say exactly which rows to edit.
+- [ ] Remove `roseempire.co.uk` from Netlify site **say9** (optional)
+- [ ] Deploy chat worker: `deploy_chat_worker.bat` (replaces Netlify function)
+- [ ] Test quote PDF on live domain
 
-Netlify project: https://app.netlify.com/projects/say9
+Full guide: **`GITHUB_PAGES.md`**

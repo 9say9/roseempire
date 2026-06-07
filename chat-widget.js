@@ -275,9 +275,15 @@
                 const onLocal =
                     location.hostname === '127.0.0.1' ||
                     location.hostname === 'localhost';
+                const onGitHub =
+                    location.hostname.endsWith('.github.io') ||
+                    location.hostname === 'roseempire.co.uk' ||
+                    location.hostname === 'www.roseempire.co.uk';
                 const hint = onLocal
                     ? 'Double-click start_chat_server.bat, keep that window open, then open http://127.0.0.1:5000 (not a file:// or GitHub Pages link).'
-                    : 'This live site is static only — the chat API must run on a hosted server. For now, test locally: run start_chat_server.bat and open http://127.0.0.1:5000';
+                    : onGitHub
+                      ? 'Live chat needs the Cloudflare worker — run deploy_chat_worker.bat, set cloudflareChatApi in site-config.js, then deploy-github.bat. Email info@roseempire.co.uk for quotes meanwhile.'
+                      : 'This live site is static only — the chat API must run on a hosted server. For now, test locally: run start_chat_server.bat and open http://127.0.0.1:5000';
                 loadingEl.innerHTML = formatMessage(
                     `Unable to reach the chat server. ${hint} (${err.message})`
                 );

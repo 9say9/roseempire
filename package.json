@@ -1,13 +1,10 @@
 {
   "name": "rose-empire-website",
   "private": true,
-  "description": "Rose Empire wholesale site — Netlify live + AI chat functions",
+  "description": "Rose Empire wholesale site — GitHub Pages + Cloudflare chat worker",
   "scripts": {
     "serve": "py -3 server.py",
-    "deploy": "netlify deploy --prod --dir .",
+    "deploy": "git push origin main",
     "verify-live": "py -3 verify_live_chat.py"
-  },
-  "devDependencies": {
-    "netlify-cli": "^23.0.0"
   }
 }

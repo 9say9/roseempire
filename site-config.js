@@ -4,21 +4,22 @@
 (function () {
     const host = window.location.hostname;
     const isLocal = host === 'localhost' || host === '127.0.0.1';
-    const isGitHubPages = host.endsWith('.github.io');
+    const isGitHubPreview = host.endsWith('.github.io');
+    const isProductionDomain =
+        host === 'www.roseempire.co.uk' || host === 'roseempire.co.uk';
+
+    // After `deploy_chat_worker.bat`, set your workers.dev URL here (or leave empty).
+    const cloudflareChatApi = '';
 
     function chatApiUrl() {
         if (isLocal) return 'http://127.0.0.1:5000/api/chat';
-        if (isGitHubPages) {
-            // Optional: set after deploying cloudflare/worker (see GITHUB_PAGES.md).
-            return window.RoseEmpireChatApi || null;
-        }
+        if (cloudflareChatApi) return cloudflareChatApi;
+        if (isGitHubPreview || isProductionDomain) return null;
         return '/api/chat';
     }
 
     window.RoseEmpireConfig = {
-        siteUrl: isGitHubPages
-            ? 'https://' + host + window.location.pathname.replace(/\/[^/]*$/, '/')
-            : 'https://www.roseempire.co.uk',
+        siteUrl: 'https://www.roseempire.co.uk',
         linkedInCompanyUrl: 'https://www.linkedin.com/company/rose-empire-wholesale-home-textiles',
         linkedInPersonalUrl: 'https://www.linkedin.com/in/rose-empire-wholesale',
         email: 'info@roseempire.co.uk',

@@ -19,6 +19,7 @@ FILES = [
     "site-config.js",
     "chat-widget.js",
     "chat-prompts.json",
+    "CNAME",
     "quote-pricing.js",
     "quote-shipping.js",
     "quote-pdf.js",
