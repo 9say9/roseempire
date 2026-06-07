@@ -1,8 +1,8 @@
 """
 Rose Empire — enable GitHub Pages (Playwright).
 
-Opens GitHub in a saved browser profile, turns on Pages for 9say9/roseempire,
-then waits until https://9say9.github.io/roseempire/ responds.
+Turns on branch deploy (main / root) for 9say9/roseempire, then waits until
+https://9say9.github.io/roseempire/ is live.
 """
 
 from __future__ import annotations
@@ -17,7 +17,6 @@ ROOT = Path(__file__).resolve().parent
 PROFILE_DIR = ROOT / "github_browser_profile"
 REPO = "9say9/roseempire"
 PAGES_SETTINGS = f"https://github.com/{REPO}/settings/pages"
-ACTIONS_URL = f"https://github.com/{REPO}/actions/workflows/github-pages.yml"
 LIVE_URL = "https://9say9.github.io/roseempire/"
 
 
@@ -47,76 +46,110 @@ def wait_for_live(timeout_sec: int = 600) -> bool:
     return False
 
 
+def wait_for_github_login(page) -> None:
+    if "login" not in page.url:
+        return
+    print("\nLog in to GitHub in the browser window (complete 2FA if asked).")
+    page.wait_for_function(
+        "() => !window.location.href.includes('login')",
+        timeout=300000,
+    )
+    time.sleep(2)
+
+
+def pick_source_option(page, label: str) -> bool:
+    for locator in (
+        page.get_by_label("Source", exact=False),
+        page.locator("#pages-source-select"),
+        page.locator('select[name="source"]'),
+    ):
+        if locator.count():
+            try:
+                locator.first.select_option(label=label)
+                time.sleep(1)
+                return True
+            except Exception:
+                pass
+
+    toggle = page.locator("summary").filter(has_text="Source")
+    if toggle.count():
+        toggle.first.click()
+        time.sleep(0.5)
+
+    item = page.get_by_role("menuitemradio", name=label)
+    if item.count():
+        item.first.click()
+        time.sleep(1)
+        return True
+
+    text = page.get_by_text(label, exact=True)
+    if text.count():
+        text.first.click()
+        time.sleep(1)
+        return True
+    return False
+
+
+def pick_branch_and_folder(page) -> None:
+    for locator in (
+        page.get_by_label("Branch", exact=False),
+        page.locator("#pages-source-branch"),
+        page.locator('select[name="branch"]'),
+    ):
+        if locator.count():
+            try:
+                locator.first.select_option("main")
+                break
+            except Exception:
+                pass
+
+    for locator in (
+        page.get_by_label("Folder", exact=False),
+        page.locator("#pages-source-folder"),
+        page.locator('select[name="path"]'),
+    ):
+        if locator.count():
+            for value in ("/(root)", "/", "root"):
+                try:
+                    locator.first.select_option(value)
+                    break
+                except Exception:
+                    continue
+            break
+
+
 def configure_pages(page) -> None:
     page.goto(PAGES_SETTINGS, wait_until="domcontentloaded", timeout=120000)
     time.sleep(2)
-
-    if "login" in page.url:
-        print("\nLog in to GitHub in the browser window.")
-        page.wait_for_url("**/github.com/**", timeout=300000)
-        page.goto(PAGES_SETTINGS, wait_until="domcontentloaded", timeout=120000)
-        time.sleep(2)
+    wait_for_github_login(page)
+    page.goto(PAGES_SETTINGS, wait_until="domcontentloaded", timeout=120000)
+    time.sleep(2)
 
     body = page.inner_text("body")
-
-    if "Your site is live at" in body or "gihub.io" in body.lower():
-        print("GitHub Pages already appears enabled.")
+    if "Your site is live at" in body:
+        print("GitHub Pages already enabled.")
         return
 
-    # Prefer GitHub Actions source (matches .github/workflows/github-pages.yml).
-    actions_tab = page.get_by_role("link", name="GitHub Actions")
-    if actions_tab.count():
-        actions_tab.first.click()
-        time.sleep(1)
+    print("Configuring: Deploy from a branch → main → / (root)")
+    if not pick_source_option(page, "Deploy from a branch"):
+        print("Could not find Source dropdown — use the open browser window manually:")
+        print(f"  1. Open {PAGES_SETTINGS}")
+        print("  2. Source → Deploy from a branch")
+        print("  3. Branch main, folder / (root), Save")
+        return
 
-    for label in ("GitHub Actions", "Deploy from a branch"):
-        option = page.get_by_text(label, exact=True)
-        if option.count():
-            option.first.click()
-            time.sleep(1)
-            break
-
-    branch_combo = page.locator('select[id*="source"], select[name*="branch"], #pages-source-branch')
-    if branch_combo.count():
-        branch_combo.first.select_option("main")
-        time.sleep(0.5)
-
-    folder_combo = page.locator('select[id*="path"], select[name*="path"]')
-    if folder_combo.count():
-        try:
-            folder_combo.first.select_option("/(root)")
-        except Exception:
-            try:
-                folder_combo.first.select_option("/")
-            except Exception:
-                pass
+    pick_branch_and_folder(page)
 
     save = page.get_by_role("button", name="Save")
     if save.count() and save.first.is_enabled():
         save.first.click()
-        time.sleep(2)
-        print("Saved GitHub Pages settings.")
-
-    if "Configure" in page.inner_text("body"):
-        print(
-            "\nIf you see a suggested workflow in the browser, click "
-            "'Configure' only if our workflow is not listed under Actions."
-        )
-
-
-def trigger_workflow(page) -> None:
-    page.goto(ACTIONS_URL, wait_until="domcontentloaded", timeout=120000)
-    time.sleep(2)
-
-    run_btn = page.get_by_role("button", name="Run workflow")
-    if run_btn.count():
-        run_btn.first.click()
-        time.sleep(0.5)
-        confirm = page.get_by_role("button", name="Run workflow")
-        if confirm.count() > 1:
-            confirm.last.click()
-        print("Triggered GitHub Pages workflow.")
         time.sleep(3)
+        print("Saved GitHub Pages settings.")
+    else:
+        print("Save button not found — click Save manually in the browser if shown.")
+
+    page.screenshot(path=str(ROOT / "github-pages-setup.png"), full_page=True)
+    print(f"Screenshot saved: {ROOT / 'github-pages-setup.png'}")
 
 
 def main() -> int:
@@ -140,15 +173,13 @@ def main() -> int:
             no_viewport=True,
         )
         page = context.pages[0] if context.pages else context.new_page()
-
         configure_pages(page)
-        trigger_workflow(page)
 
-        print("\nComplete any remaining clicks in the browser, then press Enter here...")
+        print("\nIf Pages is not saved yet, finish in the browser, then press Enter...")
         try:
             input()
         except EOFError:
-            page.wait_for_timeout(15000)
+            time.sleep(20)
 
         context.close()
 
@@ -157,9 +188,8 @@ def main() -> int:
         return 0
 
     print(
-        "\nSite not responding yet. Check:\n"
+        "\nSite not live yet. Open Settings → Pages and confirm branch main / (root):\n"
         f"  {PAGES_SETTINGS}\n"
-        f"  {ACTIONS_URL}\n"
     )
     return 1
 
