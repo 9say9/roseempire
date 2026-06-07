@@ -1,8 +1,13 @@
 {
   "name": "rose-empire-website",
   "private": true,
-  "description": "Rose Empire wholesale site — static front-end for GitHub Pages with external chat API bridge",
+  "description": "Rose Empire wholesale site — Netlify live + AI chat functions",
   "scripts": {
-    "serve": "py -3 server.py"
+    "serve": "py -3 server.py",
+    "deploy": "netlify deploy --prod --dir .",
+    "verify-live": "py -3 verify_live_chat.py"
+  },
+  "devDependencies": {
+    "netlify-cli": "^23.0.0"
   }
 }

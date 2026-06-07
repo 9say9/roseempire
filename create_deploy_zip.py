@@ -18,6 +18,7 @@ FILES = [
     "app.js",
     "site-config.js",
     "chat-widget.js",
+    "chat-prompts.json",
     "quote-pricing.js",
     "quote-shipping.js",
     "quote-pdf.js",

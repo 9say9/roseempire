@@ -4,9 +4,14 @@
 (function () {
     'use strict';
 
-    const API_BASE =
-        (typeof RoseEmpireConfig !== 'undefined' && RoseEmpireConfig.chatApiBase) ||
-        'http://127.0.0.1:5000';
+    function getChatApiUrl() {
+        if (typeof RoseEmpireConfig !== 'undefined' && RoseEmpireConfig.chatApiUrl) {
+            return RoseEmpireConfig.chatApiUrl;
+        }
+        const isLocal =
+            location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        return isLocal ? 'http://127.0.0.1:5000/api/chat' : '/api/chat';
+    }
 
     const AGENTS = {
         alex: {
@@ -230,7 +235,7 @@
             const loadingEl = this.appendMessage('bot', '', true);
 
             try {
-                const response = await fetch(`${API_BASE}/api/chat`, {
+                const response = await fetch(getChatApiUrl(), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -254,8 +259,14 @@
                 this.history.push({ role: 'assistant', content: reply });
             } catch (err) {
                 loadingEl.classList.remove('chat-message--loading');
+                const onLocal =
+                    location.hostname === '127.0.0.1' ||
+                    location.hostname === 'localhost';
+                const hint = onLocal
+                    ? 'Double-click start_chat_server.bat, keep that window open, then open http://127.0.0.1:5000 (not a file:// or GitHub Pages link).'
+                    : 'This live site is static only — the chat API must run on a hosted server. For now, test locally: run start_chat_server.bat and open http://127.0.0.1:5000';
                 loadingEl.innerHTML = formatMessage(
-                    `Unable to reach the chat server. Start it with start_chat_server.bat, then refresh. (${err.message})`
+                    `Unable to reach the chat server. ${hint} (${err.message})`
                 );
             } finally {
                 this.isSending = false;
