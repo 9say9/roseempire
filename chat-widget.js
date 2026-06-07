@@ -234,8 +234,21 @@
             this.appendMessage('user', text, false);
             const loadingEl = this.appendMessage('bot', '', true);
 
+            const apiUrl = getChatApiUrl();
+            if (!apiUrl) {
+                loadingEl.classList.remove('chat-message--loading');
+                loadingEl.innerHTML = formatMessage(
+                    'Chat is not configured on this GitHub Pages preview yet. ' +
+                        'Run start_chat_server.bat locally for Alex and Sarah, or deploy the Cloudflare chat worker (see GITHUB_PAGES.md). ' +
+                        'Email info@roseempire.co.uk or call +44 7999 988450 for trade quotes.'
+                );
+                this.isSending = false;
+                this.sendBtn.disabled = false;
+                return;
+            }
+
             try {
-                const response = await fetch(getChatApiUrl(), {
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
