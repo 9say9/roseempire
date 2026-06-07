@@ -50,3 +50,7 @@ yarn-error.log*
 
 # Local Netlify folder
 .netlify
+
+# Playwright browser profiles (local login state)
+github_browser_profile/
+gsc_browser_profile/

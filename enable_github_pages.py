@@ -39,7 +39,7 @@ def wait_for_live(timeout_sec: int = 600) -> bool:
             if r.status_code == 200 and "Rose Empire" in r.text:
                 print(f"Live: {LIVE_URL} (HTTP {r.status_code})")
                 return True
-            print(f"  HTTP {r.status_code} — retrying in 20s...")
+            print(f"  HTTP {r.status_code} - retrying in 20s...")
         except requests.RequestException as err:
             print(f"  {err} — retrying in 20s...")
         time.sleep(20)
@@ -118,23 +118,47 @@ def pick_branch_and_folder(page) -> None:
             break
 
 
+def ensure_repo_admin(page) -> None:
+    page.goto(PAGES_SETTINGS, wait_until="domcontentloaded", timeout=120000)
+    time.sleep(2)
+
+    needs_login = (
+        "login" in page.url
+        or page.locator("text=Sign in to GitHub").count() > 0
+        or "Page not found" in page.title()
+    )
+    if not needs_login:
+        return
+
+    print("\nSign in to GitHub as 9say9 in the browser window (repo owner account).")
+    print(f"After login you should land on: {PAGES_SETTINGS}")
+    page.goto("https://github.com/login", wait_until="domcontentloaded", timeout=120000)
+
+    for _ in range(300):
+        time.sleep(2)
+        page.goto(PAGES_SETTINGS, wait_until="domcontentloaded", timeout=120000)
+        time.sleep(1)
+        if page.locator("text=Sign in to GitHub").count() == 0 and "Page not found" not in page.title():
+            if page.locator("text=GitHub Pages").count() or page.locator("select").count():
+                print("Signed in — GitHub Pages settings loaded.")
+                return
+    raise RuntimeError("Timed out waiting for GitHub login. Run again after signing in.")
+
+
 def configure_pages(page) -> None:
-    page.goto(PAGES_SETTINGS, wait_until="domcontentloaded", timeout=120000)
-    time.sleep(2)
-    wait_for_github_login(page)
-    page.goto(PAGES_SETTINGS, wait_until="domcontentloaded", timeout=120000)
-    time.sleep(2)
+    ensure_repo_admin(page)
+    time.sleep(1)
 
     body = page.inner_text("body")
     if "Your site is live at" in body:
         print("GitHub Pages already enabled.")
         return
 
-    print("Configuring: Deploy from a branch → main → / (root)")
+    print("Configuring: Deploy from a branch -> main -> / (root)")
     if not pick_source_option(page, "Deploy from a branch"):
         print("Could not find Source dropdown — use the open browser window manually:")
         print(f"  1. Open {PAGES_SETTINGS}")
-        print("  2. Source → Deploy from a branch")
+        print("  2. Source -> Deploy from a branch")
         print("  3. Branch main, folder / (root), Save")
         return
 
@@ -188,7 +212,7 @@ def main() -> int:
         return 0
 
     print(
-        "\nSite not live yet. Open Settings → Pages and confirm branch main / (root):\n"
+        "\nSite not live yet. Open Settings > Pages and confirm branch main / (root):\n"
         f"  {PAGES_SETTINGS}\n"
     )
     return 1
