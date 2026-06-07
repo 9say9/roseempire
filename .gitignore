@@ -14,14 +14,11 @@ linkedin-outreach/
 
 # ─── Browser sessions (auth tokens) ───────────────────
 gsc_browser_profile/
-.netlify/
-
 # ─── Build artifacts & deploy zips ────────────────────
 *.zip
 node_modules/
 dist/
 build/
-.netlifyignore
 
 # ─── Python ───────────────────────────────────────────
 __pycache__/

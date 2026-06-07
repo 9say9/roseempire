@@ -1,5 +1,5 @@
 """
-Rose Empire - create Netlify deploy zip (works even if old zip is open in editor).
+Rose Empire - create static site deploy zip (GitHub Pages or manual upload).
 Run: py -3.12 create_deploy_zip.py
 """
 from __future__ import annotations
@@ -17,6 +17,7 @@ FILES = [
     "styles.css",
     "app.js",
     "site-config.js",
+    "chat-widget.js",
     "quote-pricing.js",
     "quote-shipping.js",
     "quote-pdf.js",
@@ -87,11 +88,10 @@ def main() -> None:
         print(f"  Size: {target.stat().st_size:,} bytes")
         print(f"  Path: {target}")
         print()
-        print("  Upload THIS file to Netlify (old zip was locked open).")
+        print("  Upload THIS zip if the default filename was locked open.")
 
     print()
-    print("  Next: https://app.netlify.com/projects/say9")
-    print("        Deploys -> Deploy manually -> drag zip")
+    print("  Next: push to GitHub Pages or upload the zip to your static host.")
     print()
 
 

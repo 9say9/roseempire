@@ -7,5 +7,7 @@ const RoseEmpireConfig = {
     linkedInPersonalUrl: 'https://www.linkedin.com/in/rose-empire-wholesale',
     email: 'info@roseempire.co.uk',
     phone: '+447999988450',
-    phoneDisplay: '+44 7999 988450'
+    phoneDisplay: '+44 7999 988450',
+    // Local chat API (server.py). Override when pointing static GitHub Pages at an external bridge.
+    chatApiBase: 'http://127.0.0.1:5000'
 };

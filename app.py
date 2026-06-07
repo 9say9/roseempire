@@ -1,4 +1,7 @@
-"""Rose Empire — local AI Fleet Command dashboard (Flask)."""
+"""Rose Empire — local AI Fleet Command dashboard (Flask).
+
+For the website chat widget, run server.py instead (port 5000, Gemini 1.5 Flash).
+"""
 from __future__ import annotations
 
 import os

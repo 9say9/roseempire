@@ -1,15 +1,8 @@
 {
   "name": "rose-empire-website",
   "private": true,
-  "description": "Rose Empire wholesale site — Netlify production deploy",
+  "description": "Rose Empire wholesale site — static front-end for GitHub Pages with external chat API bridge",
   "scripts": {
-    "deploy": "netlify deploy --prod --dir .",
-    "deploy:preview": "netlify deploy --dir .",
-    "link": "netlify link --name say9",
-    "login": "netlify login",
-    "status": "netlify status"
-  },
-  "devDependencies": {
-    "netlify-cli": "^23.0.0"
+    "serve": "py -3 server.py"
   }
 }
