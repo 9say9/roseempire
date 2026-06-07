@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Google, Bing and other crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://www.roseempire.co.uk/sitemap.xml
+Host: www.roseempire.co.uk

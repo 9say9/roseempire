@@ -1,0 +1,52 @@
+# ─── Secrets & credentials ────────────────────────────
+.env
+.env.*
+generator.py
+*.pem
+*.key
+
+# ─── AI / local-only data ─────────────────────────────
+ai_context.txt
+rose_empire_leads.csv
+
+# ─── LinkedIn automation (kept local — ToS risk) ───────
+linkedin-outreach/
+
+# ─── Browser sessions (auth tokens) ───────────────────
+gsc_browser_profile/
+.netlify/
+
+# ─── Build artifacts & deploy zips ────────────────────
+*.zip
+node_modules/
+dist/
+build/
+.netlifyignore
+
+# ─── Python ───────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# ─── IDE / editor local state ─────────────────────────
+.claude/
+.cursor/
+.vscode/
+.idea/
+*.code-workspace
+antigravity.code-workspace
+
+# ─── OS junk ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# ─── Logs ─────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

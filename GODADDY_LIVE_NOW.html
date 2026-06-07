@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Live — roseempire.co.uk (3 edits only)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Segoe UI, system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 24px 20px 48px; background: #f7f4ef; color: #0a1628; line-height: 1.55; }
+        h1 { font-size: 1.5rem; margin-bottom: 8px; }
+        .note { background: #fff3cd; border: 1px solid #e8b923; padding: 12px 14px; border-radius: 10px; margin: 16px 0; font-size: 0.95rem; }
+        .step { background: #fff; border-radius: 12px; padding: 18px 20px; margin: 16px 0; box-shadow: 0 4px 16px rgba(10,22,40,.08); }
+        .step h2 { margin: 0 0 10px; font-size: 1.1rem; color: #8b3a52; }
+        .copy { background: #0a1628; color: #f5d76e; padding: 10px 14px; border-radius: 8px; font-family: Consolas, monospace; font-size: 1.05rem; user-select: all; margin: 8px 0; }
+        .btn { display: inline-block; margin-top: 10px; padding: 10px 16px; background: #8b3a52; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        .btn:hover { background: #c45c7a; }
+        ul { padding-left: 1.2rem; }
+        li { margin: 6px 0; }
+        .ok { color: #15803d; font-weight: 600; }
+        .bad { color: #b91c1c; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <h1>Make roseempire.co.uk live — 3 DNS edits</h1>
+    <p>Your site is already on Netlify. GoDaddy DNS must point to Netlify. <strong>Email stays working</strong> if you only edit the rows below.</p>
+
+    <div class="note">
+        <strong>Step 2 (turn off Launching Soon):</strong> You do NOT need a separate page for this.
+        Changing DNS in Step 3 removes the GoDaddy placeholder automatically.
+        Skip Step 2 — go straight to DNS below.
+    </div>
+
+    <p><a class="btn" href="https://dcc.godaddy.com/control/portfolio/roseempire.co.uk/settings?tab=dns" target="_blank" rel="noopener">Open GoDaddy DNS for roseempire.co.uk</a></p>
+
+    <div class="step">
+        <h2>Edit 1 — A record (Name = @)</h2>
+        <ul>
+            <li>Find row: Type <strong>A</strong>, Name <strong>@</strong></li>
+            <li>Click the <strong>pencil (Edit)</strong></li>
+            <li>Change <strong>Value</strong> to:</li>
+        </ul>
+        <div class="copy">75.2.60.5</div>
+        <ul>
+            <li>Save</li>
+            <li>If there is a <strong>second</strong> A record on @ (e.g. 13.248.243.5 or 76.223.105.230) — click <strong>Delete</strong> on that extra row</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h2>Edit 2 — www record</h2>
+        <ul>
+            <li>Find row: Name <strong>www</strong></li>
+            <li>If Type is <strong>A</strong> or points to GoDaddy IP — click Edit, change Type to <strong>CNAME</strong> (or delete A and Add new CNAME)</li>
+            <li>Set Value to:</li>
+        </ul>
+        <div class="copy">say9.netlify.app</div>
+        <ul>
+            <li>No https:// — just the text above</li>
+            <li>Save</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h2>Do NOT touch</h2>
+        <ul>
+            <li class="ok">Keep all <strong>MX</strong> rows (email)</li>
+            <li class="ok">Keep all <strong>TXT</strong> rows (email)</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h2>After saving — Netlify</h2>
+        <p><a class="btn" href="https://app.netlify.com/projects/say9/domain-management" target="_blank" rel="noopener">Open Netlify Domain settings</a></p>
+        <ul>
+            <li>Add domain <strong>roseempire.co.uk</strong> if not added</li>
+            <li>Add alias <strong>www.roseempire.co.uk</strong></li>
+            <li>Wait 30–90 minutes → status <strong>Verified</strong> + HTTPS</li>
+            <li>Set primary: <strong>www.roseempire.co.uk</strong></li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h2>Test when ready</h2>
+        <ul>
+            <li><a href="https://www.roseempire.co.uk" target="_blank" rel="noopener">www.roseempire.co.uk</a> → Rose Empire site</li>
+            <li class="bad">If still "Launching Soon" → wait longer or send DNS screenshot to Cursor</li>
+        </ul>
+    </div>
+</body>
+</html>
