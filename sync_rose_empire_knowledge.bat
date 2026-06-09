@@ -4,8 +4,8 @@ cd /d "%~dp0"
 
 echo.
 echo  Rose Empire knowledge lives in:
-echo    C:\Users\ADLSH\.continue\knowledge\
-echo    C:\Users\ADLSH\.continue\rules\rose-empire-agent.md
+echo    %USERPROFILE%\.continue\knowledge\
+echo    %USERPROFILE%\.continue\rules\rose-empire-agent.md
 echo.
 echo  Loaded automatically by:
 echo    - VS Code Continue (config: Rose Empire AI Stack)
@@ -14,7 +14,7 @@ echo.
 echo  To refresh after site changes, re-run this script or edit knowledge files.
 echo.
 
-C:\Windows\py.exe -3.12 -c "from pathlib import Path; d=Path(r'C:\Users\ADLSH\.continue\knowledge'); print('Knowledge files:'); [print('  OK', f.name) for f in sorted(d.glob('*.md'))]"
+py -3.12 -c "from pathlib import Path; import os; d=Path(os.path.expanduser('~'))/'.continue'/'knowledge'; print('Knowledge files:'); [print('  OK', f.name) for f in sorted(d.glob('*.md'))] if d.exists() else print('  (none yet — run setup_new_pc.bat)')"
 
 echo.
 pause

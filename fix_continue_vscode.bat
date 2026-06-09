@@ -8,7 +8,7 @@ REM Ensure Ollama is running
 call "%~dp0start_ollama.bat" silent
 
 echo  1. Cloud models removed from main config (fixes API key hang)
-echo  2. Main config: C:\Users\ADLSH\.continue\config.yaml
+echo  2. Main config: %USERPROFILE%\.continue\config.yaml
 echo  3. Optional cloud config: config-cloud.yaml (needs API keys)
 echo.
 echo  In VS Code:

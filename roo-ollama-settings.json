@@ -1,0 +1,13 @@
+{
+  "providerProfiles": {
+    "currentApiConfigName": "default",
+    "apiConfigs": {
+      "default": {
+        "id": "local-ollama-default",
+        "apiProvider": "ollama",
+        "ollamaBaseUrl": "http://127.0.0.1:11434",
+        "ollamaModelId": "qwen2.5-coder:7b"
+      }
+    }
+  }
+}

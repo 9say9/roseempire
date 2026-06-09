@@ -12,8 +12,8 @@ OLLAMA_GENERATE_URL = os.getenv("OLLAMA_GENERATE_URL", "http://127.0.0.1:11434/a
 OLLAMA_CHAT_URL = os.getenv("OLLAMA_API_URL", "http://127.0.0.1:11434/api/chat")
 MODELS = ["qwen2.5-coder:1.5b", "gemma3:4b", "qwen2.5-coder:7b"]
 REQUEST_TIMEOUT_SEC = 120
-KNOWLEDGE_DIR = Path(r"C:\Users\ADLSH\.continue\knowledge")
-RULES_PATH = Path(r"C:\Users\ADLSH\.continue\rules\rose-empire-agent.md")
+KNOWLEDGE_DIR = Path.home() / ".continue" / "knowledge"
+RULES_PATH = Path.home() / ".continue" / "rules" / "rose-empire-agent.md"
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 KNOWLEDGE_FILES = [

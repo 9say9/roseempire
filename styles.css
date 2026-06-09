@@ -1252,6 +1252,41 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     gap: 28px;
 }
 
+.catalog-subsection-header {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    padding: 20px 0 4px;
+    border-top: 1px solid var(--border-subtle, rgba(13, 31, 60, 0.08));
+}
+
+.catalog-subsection-header:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.catalog-subsection-header h3 {
+    font-family: var(--font-display, 'Cormorant Garamond', serif);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin: 0 0 6px;
+}
+
+.catalog-subsection-header p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.dark-mode .catalog-subsection-header {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .catalog-subsection-header h3 {
+    color: var(--gold);
+}
+
 .product-card {
     background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
