@@ -45,7 +45,7 @@ def _call_ollama(prompt: str, agent_label: str) -> str:
             response = requests.post(
                 OLLAMA_URL,
                 json={"model": model, "prompt": prompt, "stream": False},
-                timeout=60,
+                timeout=(5, 60),
             )
             response.raise_for_status()
             text = response.json().get("response", "").strip()
@@ -70,6 +70,7 @@ def draft_email_pitch_with_ollama(customer_data: str) -> str:
         "Include a compelling Subject Line emphasizing asset protection and hygiene for their mattresses.\n"
         "Keep the email tone polite, professional, and explicitly focused on how Rose Empire "
         "saves them money on mattress replacements.\n"
+        "CRITICAL: Include the link to the Rose Empire website (https://www.roseempire.co.uk) as a call to action.\n"
         "Add clear [Bracket Placeholders] for names and details where necessary."
     )
     return _call_ollama(prompt, "James B2B pitch")

@@ -21,9 +21,17 @@ SEARCH_HEADERS = {
 
 
 def _is_valid_lead_name(name: str) -> bool:
-    bad = {"unknown", "?", "website", "visit site", "directions", "share"}
+    # Expanded list of bad keywords to filter out ads and non-business links
+    bad = {
+        "unknown", "?", "website", "visit site", "directions", "share",
+        "sponsored", "ad", "advertisement", "learn more", "book now",
+        "clearing halls", "uni halls", "student apartments"
+    }
     cleaned = name.strip().lower()
-    return len(cleaned) >= 4 and cleaned not in bad and not cleaned.startswith("http")
+    # Filter out entries that are purely promotional or contain common ad keywords
+    if any(b in cleaned for b in bad):
+        return False
+    return len(cleaned) >= 4 and not cleaned.startswith("http")
 
 
 def _keywords(mission: str) -> list[str]:
@@ -84,16 +92,21 @@ def scrape_openstreetmap(mission: str, limit: int = 5) -> list[str]:
 
 
 def scrape_google_maps_leads(mission: str, limit: int = 5) -> list[str]:
-    """Try OpenStreetMap first, then local CSV archive, then Playwright Maps."""
+    """Try OpenStreetMap first, then local CSV archive, and finally Playwright Maps if needed."""
     leads = scrape_openstreetmap(mission, limit=limit)
-    if leads:
+    if len(leads) >= limit:
         return leads
 
-    leads = scrape_local_csv(mission, limit=limit)
-    if leads:
-        return leads
+    leads_csv = scrape_local_csv(mission, limit=limit - len(leads))
+    leads.extend(leads_csv)
+    if len(leads) >= limit:
+        return leads[:limit]
 
-    return leads
+    # Fallback to heavy-duty browser scraping if we still haven't hit the limit
+    browser_leads = _scrape_google_maps_browser(mission, limit=limit - len(leads))
+    leads.extend(browser_leads)
+    
+    return leads[:limit]
 
 
 def scrape_duckduckgo(mission: str, limit: int = 5) -> list[str]:
@@ -163,16 +176,28 @@ def _scrape_google_maps_browser(mission: str, limit: int = 5) -> list[str]:
             if "continue to Google" in page.title():
                 return []
 
+            # Improved scrolling logic to load more results
             feed = page.locator('div[role="feed"]')
             if feed.count():
-                for _ in range(4):
-                    feed.first.evaluate("el => el.scrollBy(0, 1500)")
-                    page.wait_for_timeout(1500)
+                # Scroll more times and use a larger scroll distance for better depth
+                for _ in range(8):
+                    feed.first.evaluate("el => el.scrollBy(0, 2000)")
+                    page.wait_for_timeout(1000)
 
+            # Use a more specific selector to target the business name in Google Maps results
+            # Usually the title of the link in the feed
             for node in page.locator('a[href*="/maps/place/"]').all():
-                name = (node.inner_text() or "").strip().split("\n")[0]
+                # Extract text and clean up
+                full_text = (node.inner_text() or "").strip()
+                if not full_text:
+                    continue
+                
+                # The first line is usually the business name
+                name = full_text.split("\n")[0].strip()
+                
                 if not _is_valid_lead_name(name) or name.lower() in seen:
                     continue
+                
                 seen.add(name.lower())
                 leads.append(f"Lead #{len(leads) + 1}: {name}")
                 if len(leads) >= limit:

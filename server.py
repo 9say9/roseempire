@@ -38,6 +38,8 @@ GEMINI_URL = (
 _PROMPTS_PATH = ROOT / "chat-prompts.json"
 SYSTEM_PROMPTS = json.loads(_PROMPTS_PATH.read_text(encoding="utf-8"))
 
+from email_agent import send_email
+
 app = Flask(__name__, static_folder=str(ROOT), static_url_path="")
 
 
@@ -46,6 +48,8 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    # Prevent connection hanging by adding a Keep-Alive header
+    response.headers["Connection"] = "keep-alive"
     return response
 
 
@@ -101,7 +105,7 @@ def chat():
             GEMINI_URL,
             params={"key": GEMINI_API_KEY},
             json=payload,
-            timeout=30,
+            timeout=(5, 30),
         )
         resp.raise_for_status()
         body = resp.json()
@@ -124,6 +128,23 @@ def chat():
         return jsonify({"error": f"Gemini API error: {detail}"}), 502
     except requests.RequestException as err:
         return jsonify({"error": f"Could not reach Gemini API: {err}"}), 502
+
+
+@app.route("/api/send-email", methods=["POST"])
+def api_send_email():
+    data = request.get_json(silent=True) or {}
+    recipient = data.get("recipient")
+    subject = data.get("subject")
+    body = data.get("body")
+
+    if not recipient or not subject or not body:
+        return jsonify({"error": "Recipient, subject, and body are required."}), 400
+
+    success = send_email(recipient, subject, body)
+    if success:
+        return jsonify({"status": "success", "message": f"Email sent to {recipient}"})
+    else:
+        return jsonify({"status": "error", "message": "Failed to send email"}), 500
 
 
 @app.route("/health")

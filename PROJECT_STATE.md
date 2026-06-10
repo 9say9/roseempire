@@ -20,7 +20,7 @@ This file serves as the "Long-Term Memory" for Roo Code. Since AI chat sessions 
 ## 📅 Pending Tasks / Roadmap
 - [ ] Connect Meta Graph API for Facebook/Instagram.
 - [ ] Connect TikTok for Developers API.
-- [ ] Optimize Google Maps scraping logic.
+- [x] Optimize Google Maps scraping logic (Improved browser scrolling, refined lead validation, and tiered fallback system).
 - [ ] Finalize GoDaddy DNS migration to official domain.
 
 ## ⚠️ Critical Notes for Next Session
