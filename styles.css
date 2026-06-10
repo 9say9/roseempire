@@ -1817,9 +1817,64 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 .tier-item strong { color: var(--gold-on-light); font-weight: 800; }
 .tier-item.active { border-color: var(--gold); }
 
-.detail-purchase-controls { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
-.detail-purchase-controls .form-group { flex: 1; min-width: 130px; }
-.detail-purchase-controls label { font-size: 0.72rem; font-weight: 700; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
+.detail-purchase-controls { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.detail-purchase-controls .form-group label { font-size: 0.72rem; font-weight: 700; display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+.detail-size-group { flex: 1 1 280px; min-width: 0; }
+.detail-qty-group { flex: 0 0 auto; min-width: 150px; align-self: flex-end; }
+
+.detail-size-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+}
+.detail-size-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 2px solid var(--border-subtle, rgba(13, 31, 60, 0.12));
+    border-radius: var(--radius-sm);
+    background: var(--surface, #fff);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+}
+.detail-size-option:hover {
+    border-color: var(--gold);
+    background: rgba(201, 162, 39, 0.06);
+}
+.detail-size-option.active {
+    border-color: var(--gold);
+    background: rgba(201, 162, 39, 0.12);
+    box-shadow: 0 0 0 1px var(--gold);
+}
+.detail-size-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.3;
+}
+.detail-size-price {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--gold-on-light);
+}
+.dark-mode .detail-size-option {
+    background: var(--surface-elevated, #1a2744);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.dark-mode .detail-size-name { color: var(--text-primary, #f0f0f0); }
+.dark-mode .detail-size-option.active {
+    background: rgba(201, 162, 39, 0.18);
+}
+.detail-moq-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 8px 0 0;
+}
+
 .detail-purchase-controls select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); }
 
 /* ==========================================================================

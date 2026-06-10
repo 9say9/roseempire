@@ -23,14 +23,14 @@ const products = [
         ],
         moq: 20,
         boxLabel: '1 trade box = 20 pieces',
-        basePrice: 4.01,
+        basePrice: 6.01,
         sizes: [
-            { name: 'Pillow Pair',              price: 3.44 },
-            { name: 'Single (90×190cm)',        price: 4.01 },
-            { name: '4ft / Small Double (120×190cm)', price: 4.91 },
-            { name: 'Double (135×190cm)',       price: 5.25 },
-            { name: 'King (150×200cm)',         price: 5.88 },
-            { name: 'Super King (180×200cm)',   price: 6.97 }
+            { name: 'Pillow Pair',              price: 5.44 },
+            { name: 'Single (90×190cm)',        price: 6.01 },
+            { name: '4ft / Small Double (120×190cm)', price: 6.91 },
+            { name: 'Double (135×190cm)',       price: 7.25 },
+            { name: 'King (150×200cm)',         price: 7.88 },
+            { name: 'Super King (180×200cm)',   price: 8.97 }
         ],
         highlights: ['100% Waterproof', 'Quilted Top', 'OEKO-TEX Certified', 'Silent TPU Backing']
     },
@@ -52,14 +52,14 @@ const products = [
         ],
         moq: 20,
         boxLabel: '1 trade box = 20 pieces',
-        basePrice: 3.40,
+        basePrice: 5.40,
         sizes: [
-            { name: 'Pillow Pair',              price: 2.74 },
-            { name: 'Single (90×190cm)',        price: 3.40 },
-            { name: '4ft / Small Double (120×190cm)', price: 3.95 },
-            { name: 'Double (135×190cm)',       price: 4.19 },
-            { name: 'King (150×200cm)',         price: 4.54 },
-            { name: 'Super King (180×200cm)',   price: 5.21 }
+            { name: 'Pillow Pair',              price: 4.74 },
+            { name: 'Single (90×190cm)',        price: 5.40 },
+            { name: '4ft / Small Double (120×190cm)', price: 5.95 },
+            { name: 'Double (135×190cm)',       price: 6.19 },
+            { name: 'King (150×200cm)',         price: 6.54 },
+            { name: 'Super King (180×200cm)',   price: 7.21 }
         ],
         highlights: ['Quilted Surface', 'Breathable', 'Hypoallergenic', 'Polycotton Shell']
     },
@@ -81,15 +81,15 @@ const products = [
         ],
         moq: 20,
         boxLabel: '1 trade box = 20 pieces',
-        basePrice: 3.20,
+        basePrice: 5.20,
         sizes: [
-            { name: 'Pillow Pair',              price: 2.40 },
-            { name: 'Cot',                      price: 2.40 },
-            { name: 'Single (90×190cm)',        price: 3.20 },
-            { name: '4ft / Small Double (120×190cm)', price: 3.60 },
-            { name: 'Double (135×190cm)',       price: 3.70 },
-            { name: 'King (150×200cm)',         price: 4.30 },
-            { name: 'Super King (180×200cm)',   price: 4.85 }
+            { name: 'Pillow Pair',              price: 4.40 },
+            { name: 'Cot',                      price: 4.40 },
+            { name: 'Single (90×190cm)',        price: 5.20 },
+            { name: '4ft / Small Double (120×190cm)', price: 5.60 },
+            { name: 'Double (135×190cm)',       price: 5.70 },
+            { name: 'King (150×200cm)',         price: 6.30 },
+            { name: 'Super King (180×200cm)',   price: 6.85 }
         ],
         highlights: ['Terry Cotton Surface', '100% Waterproof', 'Highly Absorbent', 'Hotel Grade']
     },
@@ -116,10 +116,10 @@ const products = [
         ],
         moq: 20,
         boxLabel: '1 trade box = 20 pieces',
-        basePrice: 8.50,
+        basePrice: 10.50,
         sizes: [
-            { name: 'Standard (50×75cm) – 2 Piece',  price: 8.50  },
-            { name: 'King Size (50×90cm) – 2 Piece',  price: 11.50 }
+            { name: 'Standard (50×75cm) – 2 Piece',  price: 10.50  },
+            { name: 'King Size (50×90cm) – 2 Piece',  price: 13.50 }
         ],
         highlights: ['Cotton Shell', 'Goose Feather & Down', '233TC Cotton', 'Set of 2 Pieces']
     },
@@ -144,10 +144,10 @@ const products = [
         ],
         moq: 20,
         boxLabel: '1 trade box = 20 pieces',
-        basePrice: 7.50,
+        basePrice: 9.50,
         sizes: [
-            { name: 'Standard (50×75cm) – 2 Piece',  price: 7.50  },
-            { name: 'King Size (50×90cm) – 2 Piece',  price: 10.00 }
+            { name: 'Standard (50×75cm) – 2 Piece',  price: 9.50  },
+            { name: 'King Size (50×90cm) – 2 Piece',  price: 12.00 }
         ],
         highlights: ['Cotton Shell', 'Duck Feather & Down', '233TC Cotton', 'Set of 2 Pieces']
     },
@@ -174,10 +174,10 @@ const products = [
         ],
         moq: 20,
         boxLabel: '1 trade box = 20 pieces',
-        basePrice: 7.00,
+        basePrice: 9.00,
         sizes: [
-            { name: 'Standard (50×75cm) – 2 Piece',  price: 7.00  },
-            { name: 'King Size (50×90cm) – 2 Piece',  price: 9.50  }
+            { name: 'Standard (50×75cm) – 2 Piece',  price: 9.00  },
+            { name: 'King Size (50×90cm) – 2 Piece',  price: 11.50  }
         ],
         highlights: ['Polyester Shell', 'Goose Feather & Down', 'Trade Value', 'Set of 2 Pieces']
     },
@@ -202,10 +202,10 @@ const products = [
         ],
         moq: 20,
         boxLabel: '1 trade box = 20 pieces',
-        basePrice: 6.50,
+        basePrice: 8.50,
         sizes: [
-            { name: 'Standard (50×75cm) – 2 Piece',  price: 6.50  },
-            { name: 'King Size (50×90cm) – 2 Piece',  price: 9.00  }
+            { name: 'Standard (50×75cm) – 2 Piece',  price: 8.50  },
+            { name: 'King Size (50×90cm) – 2 Piece',  price: 11.00  }
         ],
         highlights: ['Polyester Shell', 'Duck Feather & Down', 'Best Value', 'Set of 2 Pieces']
     }
@@ -517,9 +517,12 @@ function openProductDetail(productId) {
         `<li><i class="fa-solid fa-circle-check"></i> ${s}</li>`
     ).join('');
 
-    const sizesHTML = p.sizes.map((s, i) =>
-        `<option value="${i}">${s.name} — £${s.price.toFixed(2)}/piece</option>`
-    ).join('');
+    const sizePickerHTML = p.sizes.map((s, i) => `
+        <button type="button" class="detail-size-option${i === 0 ? ' active' : ''}"
+                data-size-index="${i}" onclick="selectDetailSize(${i})">
+            <span class="detail-size-name">${s.name}</span>
+            <span class="detail-size-price">£${s.price.toFixed(2)}/pc</span>
+        </button>`).join('');
 
     // Extra feature section per product type
     let extraHTML = '';
@@ -588,27 +591,17 @@ function openProductDetail(productId) {
                 <ul>${specsHTML}</ul>
             </div>
 
-            <div class="detail-pricing-box">
-                <strong>Wholesale Pricing Options:</strong>
-                <div class="pricing-tiers-list">
-                    ${p.sizes.map((s, i) => `
-                        <div class="tier-item ${i === 0 ? 'active' : ''}">
-                            <span>${s.name}</span>
-                            <strong>£${s.price.toFixed(2)}/piece</strong>
-                        </div>`).join('')}
-                </div>
-                <p style="font-size:0.72rem;color:var(--text-muted);margin-top:8px">
-                    *MOQ is <strong>${p.moq} pieces</strong> — one full trade box per size.
-                </p>
-            </div>
-
             <div class="detail-purchase-controls">
-                <div class="form-group">
-                    <label for="detail-size-select">Select Size Option:</label>
-                    <select id="detail-size-select">${sizesHTML}</select>
+                <div class="form-group detail-size-group">
+                    <label>Select Size</label>
+                    <div class="detail-size-picker" id="detail-size-picker">
+                        ${sizePickerHTML}
+                    </div>
+                    <input type="hidden" id="detail-size-index" value="0">
+                    <p class="detail-moq-hint">MOQ <strong>${p.moq} pieces</strong> per size — one full trade box.</p>
                 </div>
-                <div class="form-group" style="min-width:130px;max-width:150px">
-                    <label for="detail-qty-input">Pieces Qty:</label>
+                <div class="form-group detail-qty-group">
+                    <label for="detail-qty-input">Pieces Qty</label>
                     <div class="qty-selector" style="height:42px">
                         <button class="qty-btn" type="button" onclick="adjustDetailQty(-10)">-10</button>
                         <input type="number" id="detail-qty-input" class="qty-input"
@@ -629,6 +622,17 @@ function openProductDetail(productId) {
     document.body.style.overflow = 'hidden';
 }
 
+function selectDetailSize(index) {
+    const picker = document.getElementById('detail-size-picker');
+    const hidden = document.getElementById('detail-size-index');
+    if (!picker || !hidden) return;
+
+    picker.querySelectorAll('.detail-size-option').forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+    });
+    hidden.value = String(index);
+}
+
 function adjustDetailQty(amount) {
     const input  = document.getElementById('detail-qty-input');
     const minVal = parseInt(input.getAttribute('min')) || 1;
@@ -636,9 +640,9 @@ function adjustDetailQty(amount) {
 }
 
 function triggerAddToCart(productId) {
-    const sizeSelect = document.getElementById('detail-size-select');
+    const sizeIndex = document.getElementById('detail-size-index');
     const qtyInput   = document.getElementById('detail-qty-input');
-    addToCart(productId, parseInt(sizeSelect.value), parseInt(qtyInput.value));
+    addToCart(productId, parseInt(sizeIndex.value, 10), parseInt(qtyInput.value, 10));
 }
 
 function closeModal() {
