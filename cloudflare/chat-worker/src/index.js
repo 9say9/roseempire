@@ -98,7 +98,7 @@ export default {
       const body = await resp.json();
       if (!resp.ok) {
         const detail = body?.error?.message || resp.statusText;
-        return jsonResponse({ error: AI service error:  }, 502);
+        return jsonResponse({ error: "AI service error: " + detail }, 502);
       }
 
       const parts = body?.candidates?.[0]?.content?.parts || [];
@@ -107,7 +107,7 @@ export default {
 
       return jsonResponse({ reply, context, catalogUpdatedAt: catalog?.updatedAt || null });
     } catch (err) {
-      return jsonResponse({ error: Could not reach AI service:  }, 502);
+      return jsonResponse({ error: "Could not reach AI service: " + err.message }, 502);
     }
   },
 };

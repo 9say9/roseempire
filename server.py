@@ -63,7 +63,12 @@ def chat():
     if not GEMINI_API_KEY:
         return jsonify(
             {
-                "error": "Chat service is not configured on this server.", 503
+                "error": (
+                    "GEMINI_API_KEY is not set. Add it to your .env file or environment "
+                    "variables, then restart the server."
+                )
+            }
+        ), 503
 
     data = request.get_json(silent=True) or {}
     message = (data.get("message") or "").strip()
