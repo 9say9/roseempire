@@ -9,7 +9,7 @@
         host === 'www.roseempire.co.uk' || host === 'roseempire.co.uk';
 
     // After `deploy_chat_worker.bat`, set your workers.dev URL here (or leave empty).
-    const cloudflareChatApi = '';
+    const cloudflareChatApi = 'https://rose-empire-chat.adeelcolchester.workers.dev/api/chat';
 
     function chatApiUrl() {
         if (isLocal) return 'http://127.0.0.1:5000/api/chat';
