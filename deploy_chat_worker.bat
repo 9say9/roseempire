@@ -7,7 +7,6 @@ echo  Rose Empire Chat Worker (replaces Netlify function)
 echo  Requires: wrangler login + wrangler secret put GEMINI_API_KEY
 echo.
 
-copy /Y "chat-prompts.json" "cloudflare\chat-worker\src\chat-prompts.json" >nul
 cd cloudflare\chat-worker
 
 where wrangler >nul 2>&1

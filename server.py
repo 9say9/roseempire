@@ -63,12 +63,7 @@ def chat():
     if not GEMINI_API_KEY:
         return jsonify(
             {
-                "error": (
-                    "GEMINI_API_KEY is not set. Add it to your .env file or environment "
-                    "variables, then restart the server."
-                )
-            }
-        ), 503
+                "error": "Chat service is not configured on this server.", 503
 
     data = request.get_json(silent=True) or {}
     message = (data.get("message") or "").strip()
@@ -92,7 +87,7 @@ def chat():
     contents.append({"role": "user", "parts": [{"text": message}]})
 
     payload = {
-        "systemInstruction": {"parts": [{"text": SYSTEM_PROMPTS[context]}]},
+        "systemInstruction": {"parts": [{"text": build_system_prompt(context, rules)}]},
         "contents": contents,
         "generationConfig": {
             "temperature": 0.7,

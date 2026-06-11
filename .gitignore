@@ -54,3 +54,7 @@ yarn-error.log*
 # Playwright browser profiles (local login state)
 github_browser_profile/
 gsc_browser_profile/
+
+# Cloudflare Worker local secrets
+.dev.vars
+.wrangler/

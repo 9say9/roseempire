@@ -1,0 +1,224 @@
+{
+  "updatedAt": "2026-06-11",
+  "contact": {
+    "email": "info@roseempire.co.uk",
+    "phone": "+447999988450",
+    "phoneDisplay": "+44 7999 988450",
+    "siteUrl": "https://www.roseempire.co.uk"
+  },
+  "wholesale": {
+    "moqPerSize": 20,
+    "boxLabel": "1 trade box = 20 pieces",
+    "volumeDiscounts": [
+      {
+        "minPieces": 50,
+        "percent": 10,
+        "label": "10% off at 50+ pieces"
+      },
+      {
+        "minPieces": 200,
+        "percent": 20,
+        "label": "20% off at 200+ pieces"
+      }
+    ],
+    "quoteNote": "Formal quotes confirmed within 24 hours via RFQ form or email."
+  },
+  "products": [
+    {
+      "id": "protector-wqmp",
+      "title": "WQMP – Waterproof Quilted Mattress Protector",
+      "category": "protectors",
+      "tag": "Bestseller",
+      "tagClass": "",
+      "image": "assets/mattress_protector.png",
+      "desc": "The ultimate combination of protection and comfort. A soft quilted top layer paired with our 100% waterproof TPU backing that is completely silent. Machine washable and OEKO-TEX certified.",
+      "specs": [
+        "Type: Waterproof Quilted Mattress Protector (WQMP)",
+        "Top Layer: Soft quilted microfiber surface (150 GSM)",
+        "Backing: 100% Silent Waterproof TPU membrane",
+        "Certification: OEKO-TEX Standard 100 Certified",
+        "Fit: Deep elasticated skirt – fits up to 40cm mattress depth",
+        "Washable: Machine washable at 60°C"
+      ],
+      "moq": 20,
+      "boxLabel": "1 trade box = 20 pieces",
+      "basePrice": 6.01,
+      "sizes": [
+        {
+          "name": "Pillow Pair",
+          "price": 5.44
+        },
+        {
+          "name": "Single (90×190cm)",
+          "price": 6.01
+        },
+        {
+          "name": "4ft / Small Double (120×190cm)",
+          "price": 6.91
+        },
+        {
+          "name": "Double (135×190cm)",
+          "price": 7.25
+        },
+        {
+          "name": "King (150×200cm)",
+          "price": 7.88
+        },
+        {
+          "name": "Super King (180×200cm)",
+          "price": 8.97
+        }
+      ],
+      "highlights": [
+        "100% Waterproof",
+        "Quilted Top",
+        "OEKO-TEX Certified",
+        "Silent TPU Backing"
+      ],
+      "stockStatus": "In stock"
+    },
+    {
+      "id": "protector-qmp",
+      "title": "QMP – Quilted Mattress Protector",
+      "category": "protectors",
+      "tag": "Essential",
+      "tagClass": "",
+      "image": "assets/mattress_protector.png",
+      "desc": "A premium non-waterproof quilted protector for everyday comfort and hygiene. Breathable polycotton shell with a soft microfiber quilted fill. Ideal for homes and guest houses.",
+      "specs": [
+        "Type: Quilted Mattress Protector (QMP)",
+        "Top Layer: Soft quilted polycotton surface",
+        "Fill: Lightweight microfiber padding (120 GSM)",
+        "Backing: Breathable non-waterproof polycotton base",
+        "Hypoallergenic: Dust mite and allergen resistant",
+        "Washable: Machine washable at 60°C"
+      ],
+      "moq": 20,
+      "boxLabel": "1 trade box = 20 pieces",
+      "basePrice": 5.4,
+      "sizes": [
+        {
+          "name": "Pillow Pair",
+          "price": 4.74
+        },
+        {
+          "name": "Single (90×190cm)",
+          "price": 5.4
+        },
+        {
+          "name": "4ft / Small Double (120×190cm)",
+          "price": 5.95
+        },
+        {
+          "name": "Double (135×190cm)",
+          "price": 6.19
+        },
+        {
+          "name": "King (150×200cm)",
+          "price": 6.54
+        },
+        {
+          "name": "Super King (180×200cm)",
+          "price": 7.21
+        }
+      ],
+      "highlights": [
+        "Quilted Surface",
+        "Breathable",
+        "Hypoallergenic",
+        "Polycotton Shell"
+      ],
+      "stockStatus": "In stock"
+    },
+    {
+      "id": "protector-terry",
+      "title": "Terry Waterproof Mattress Protector",
+      "category": "protectors",
+      "tag": "Hotel Grade",
+      "tagClass": "tag-gold",
+      "image": "assets/mattress_protector.png",
+      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent, soft underfoot, and incredibly durable — the preferred choice for hotels and care homes.",
+      "specs": [
+        "Type: Terry Towelling Waterproof Mattress Protector",
+        "Surface: 100% Cotton Terry towelling top layer",
+        "Backing: 100% Waterproof PU/TPU membrane",
+        "Absorbency: High-absorbent cotton loop pile surface",
+        "Fit: Elasticated skirt fits mattresses up to 35cm deep",
+        "Durability: Industrial-laundry resistant – up to 60°C wash"
+      ],
+      "moq": 20,
+      "boxLabel": "1 trade box = 20 pieces",
+      "basePrice": 5.2,
+      "sizes": [
+        {
+          "name": "Pillow Pair",
+          "price": 4.4
+        },
+        {
+          "name": "Cot",
+          "price": 4.4
+        },
+        {
+          "name": "Single (90×190cm)",
+          "price": 5.2
+        },
+        {
+          "name": "4ft / Small Double (120×190cm)",
+          "price": 5.6
+        },
+        {
+          "name": "Double (135×190cm)",
+          "price": 5.7
+        },
+        {
+          "name": "King (150×200cm)",
+          "price": 6.3
+        },
+        {
+          "name": "Super King (180×200cm)",
+          "price": 6.85
+        }
+      ],
+      "highlights": [
+        "Terry Cotton Surface",
+        "100% Waterproof",
+        "Highly Absorbent",
+        "Hotel Grade"
+      ],
+      "stockStatus": "In stock"
+    },
+    {
+      "id": "pillow-feather-down",
+      "title": "Goose Feather & Duck Down Pillows (2-Piece)",
+      "category": "pillows",
+      "tag": "Wholesale",
+      "tagClass": "tag-gold",
+      "image": "assets/down_pillows.png",
+      "desc": "Wholesale feather and down pillows with goose feather or duck down filling. Down-proof cover, medium loft, sold as a pair of 2 pillows per piece. Standard size only.",
+      "specs": [
+        "Sold as: Pair of 2 pillows per piece",
+        "Fill options: Goose feather & down, or duck feather & down",
+        "Goose fill: 85% white goose feather, 15% soft goose down",
+        "Duck fill: 80% duck feather, 20% soft duck down",
+        "Size: Standard (50×75cm) only",
+        "Care: Machine washable at 40°C"
+      ],
+      "moq": 20,
+      "boxLabel": "1 trade box = 20 pieces",
+      "basePrice": 8.5,
+      "sizes": [
+        {
+          "name": "Standard (50×75cm) – 2 Piece",
+          "price": 8.5
+        }
+      ],
+      "highlights": [
+        "Goose Feather & Down",
+        "Duck Feather & Down",
+        "Standard Size",
+        "Set of 2 Pieces"
+      ],
+      "stockStatus": "In stock"
+    }
+  ]
+}
