@@ -2,7 +2,7 @@
    Rose Empire Catalog Application Logic
    ========================================================================== */
 
-// 1. Product Dataset — 3 Mattress Protectors + 4 Pillow Types (cotton / polyester × goose / duck)
+// 1. Product Dataset — 3 Mattress Protectors + 1 Pillow line (goose feather / duck down, standard size)
 const products = [
     // ---- MATTRESS PROTECTORS ----
     {
@@ -94,133 +94,33 @@ const products = [
         highlights: ['Terry Cotton Surface', '100% Waterproof', 'Highly Absorbent', 'Hotel Grade']
     },
 
-    // ---- PILLOWS — Premium cotton shell (higher price) ----
+    // ---- PILLOWS ----
     {
-        id: 'pillow-cotton-goose',
-        title: 'Cotton Shell · Goose Feather & Down (2-Piece)',
+        id: 'pillow-feather-down',
+        title: 'Goose Feather & Duck Down Pillows (2-Piece)',
         category: 'pillows',
-        pillowGroup: 'cotton',
-        shellMaterial: 'cotton',
-        fillType: 'goose',
-        tag: 'Luxury',
+        tag: 'Wholesale',
         tagClass: 'tag-gold',
         image: 'assets/down_pillows.png',
-        desc: 'Our premium cotton range. Hotel-quality goose feather and down inside a 233-thread-count 100% cotton down-proof cover. Double-needle stitched edges with elegant gold piping.',
+        desc: 'Wholesale feather and down pillows with goose feather or duck down filling. Down-proof cover, medium loft, sold as a pair of 2 pillows per piece. Standard size only.',
         specs: [
             'Sold as: Pair of 2 pillows per piece',
-            'Shell: 100% Down-Proof Cotton (233 Thread Count)',
-            'Filling: 85% White Goose Feather, 15% Soft Goose Down',
-            'Firmness: Medium-firm loft for all sleep positions',
-            'Edges: Gold piping with reinforced double stitching',
-            'Safety: Sterilised fill – dust-mite and feather-poke resistant'
-        ],
-        moq: 20,
-        boxLabel: '1 trade box = 20 pieces',
-        basePrice: 10.50,
-        sizes: [
-            { name: 'Standard (50×75cm) – 2 Piece',  price: 10.50  },
-            { name: 'King Size (50×90cm) – 2 Piece',  price: 13.50 }
-        ],
-        highlights: ['Cotton Shell', 'Goose Feather & Down', '233TC Cotton', 'Set of 2 Pieces']
-    },
-    {
-        id: 'pillow-cotton-duck',
-        title: 'Cotton Shell · Duck Feather & Down (2-Piece)',
-        category: 'pillows',
-        pillowGroup: 'cotton',
-        shellMaterial: 'cotton',
-        fillType: 'duck',
-        tag: 'Premium',
-        tagClass: '',
-        image: 'assets/down_pillows.png',
-        desc: 'Premium cotton cover with soft duck feather and down filling. The same 233TC down-proof cotton shell as our luxury goose line, with excellent loft at a lower fill cost.',
-        specs: [
-            'Sold as: Pair of 2 pillows per piece',
-            'Shell: 100% Down-Proof Cotton (233 Thread Count)',
-            'Filling: 80% Duck Feather, 20% Soft Duck Down',
-            'Firmness: Medium loft – suitable for all sleep styles',
-            'Hypoallergenic: Fully cleansed filling',
-            'Care: Machine washable at 40°C'
-        ],
-        moq: 20,
-        boxLabel: '1 trade box = 20 pieces',
-        basePrice: 9.50,
-        sizes: [
-            { name: 'Standard (50×75cm) – 2 Piece',  price: 9.50  },
-            { name: 'King Size (50×90cm) – 2 Piece',  price: 12.00 }
-        ],
-        highlights: ['Cotton Shell', 'Duck Feather & Down', '233TC Cotton', 'Set of 2 Pieces']
-    },
-
-    // ---- PILLOWS — Value polyester shell (lower price) ----
-    {
-        id: 'pillow-polyester-goose',
-        title: 'Polyester Shell · Goose Feather & Down (2-Piece)',
-        category: 'pillows',
-        pillowGroup: 'polyester',
-        shellMaterial: 'polyester',
-        fillType: 'goose',
-        tag: 'Premium',
-        tagClass: '',
-        image: 'assets/down_pillows.png',
-        desc: 'Trade-value goose feather and down pillows with a smooth down-proof polyester shell. Natural goose loft and support at a lower shell cost — ideal for high-volume hospitality programmes.',
-        specs: [
-            'Sold as: Pair of 2 pillows per piece',
-            'Shell: Soft Down-Proof Polyester Cover',
-            'Filling: 85% White Goose Feather, 15% Soft Goose Down',
-            'Firmness: Medium-firm loft for all sleep positions',
-            'Breathable: Lightweight polyester shell keeps pillow cool',
-            'Care: Machine washable at 40°C'
-        ],
-        moq: 20,
-        boxLabel: '1 trade box = 20 pieces',
-        basePrice: 9.00,
-        sizes: [
-            { name: 'Standard (50×75cm) – 2 Piece',  price: 9.00  },
-            { name: 'King Size (50×90cm) – 2 Piece',  price: 11.50  }
-        ],
-        highlights: ['Polyester Shell', 'Goose Feather & Down', 'Trade Value', 'Set of 2 Pieces']
-    },
-    {
-        id: 'pillow-polyester-duck',
-        title: 'Polyester Shell · Duck Feather & Down (2-Piece)',
-        category: 'pillows',
-        pillowGroup: 'polyester',
-        shellMaterial: 'polyester',
-        fillType: 'duck',
-        tag: 'Value',
-        tagClass: '',
-        image: 'assets/down_pillows.png',
-        desc: 'Our best-value pillow line. Soft duck feather and down in a smooth down-proof polyester shell. Great loft and medium firmness for B&Bs, hotels, and budget-conscious retail buyers.',
-        specs: [
-            'Sold as: Pair of 2 pillows per piece',
-            'Shell: Soft Down-Proof Polyester Cover',
-            'Filling: 80% Duck Feather, 20% Soft Duck Down',
-            'Firmness: Medium loft – suitable for all sleep styles',
-            'Hypoallergenic: Fully cleansed filling',
+            'Fill options: Goose feather & down, or duck feather & down',
+            'Goose fill: 85% white goose feather, 15% soft goose down',
+            'Duck fill: 80% duck feather, 20% soft duck down',
+            'Size: Standard (50×75cm) only',
             'Care: Machine washable at 40°C'
         ],
         moq: 20,
         boxLabel: '1 trade box = 20 pieces',
         basePrice: 8.50,
         sizes: [
-            { name: 'Standard (50×75cm) – 2 Piece',  price: 8.50  },
-            { name: 'King Size (50×90cm) – 2 Piece',  price: 11.00  }
+            { name: 'Standard (50×75cm) – 2 Piece', price: 8.50 }
         ],
-        highlights: ['Polyester Shell', 'Duck Feather & Down', 'Best Value', 'Set of 2 Pieces']
+        highlights: ['Goose Feather & Down', 'Duck Feather & Down', 'Standard Size', 'Set of 2 Pieces']
     }
 ];
 
-const PILLOW_GROUP_LABELS = {
-    cotton: {
-        title: 'Premium Cotton Shell Pillows',
-        desc: '233-thread-count down-proof cotton cover — our luxury wholesale range'
-    },
-    polyester: {
-        title: 'Value Polyester Shell Pillows',
-        desc: 'Down-proof polyester cover — excellent trade value for high-volume orders'
-    }
-};
 
 // ==========================================================================
 // Application State
@@ -300,21 +200,7 @@ function renderProducts() {
         return;
     }
 
-    let lastPillowGroup = null;
-
     filtered.forEach((product, i) => {
-        if (product.pillowGroup && product.pillowGroup !== lastPillowGroup) {
-            lastPillowGroup = product.pillowGroup;
-            const group = PILLOW_GROUP_LABELS[product.pillowGroup];
-            const header = document.createElement('div');
-            header.className = 'catalog-subsection-header animate-in';
-            header.style.animationDelay = `${i * 0.06}s`;
-            header.innerHTML = `
-                <h3>${group.title}</h3>
-                <p>${group.desc}</p>`;
-            productsGrid.appendChild(header);
-        }
-
         const card = document.createElement('div');
         card.className = 'product-card animate-in';
         card.style.animationDelay = `${i * 0.06}s`;
@@ -556,20 +442,14 @@ function openProductDetail(productId) {
             </div>
         </div>`;
     } else if (p.category === 'pillows') {
-        const shellLabel = p.shellMaterial === 'cotton' ? 'Premium cotton shell' : 'Value polyester shell';
-        const fillLabel = p.fillType === 'goose'
-            ? '85% White Goose Feather, 15% Soft Goose Down'
-            : '80% Duck Feather, 20% Soft Duck Down';
-        const shellDetail = p.shellMaterial === 'cotton'
-            ? '233TC down-proof cotton — prevents feather poke'
-            : 'Breathable down-proof polyester — keeps pillow cool';
         extraHTML = `
         <div class="layers-container">
-            <h4>${p.shellMaterial === 'cotton' ? 'Cotton' : 'Polyester'} Shell · ${p.fillType === 'goose' ? 'Goose' : 'Duck'} Fill</h4>
+            <h4>Goose Feather &amp; Duck Down Fill</h4>
             <div class="layer-list">
-                <div class="layer-item"><i class="fa-solid fa-layer-group gold-text"></i> ${shellLabel} — ${shellDetail}.</div>
-                <div class="layer-item"><i class="fa-solid fa-feather gold-text"></i> ${fillLabel} for natural loft.</div>
-                <div class="layer-item"><i class="fa-solid fa-box-open gold-text"></i> Sold as a pair of 2 pillows per wholesale piece.</div>
+                <div class="layer-item"><i class="fa-solid fa-feather gold-text"></i> <strong>Goose:</strong> 85% white goose feather, 15% soft goose down.</div>
+                <div class="layer-item"><i class="fa-solid fa-feather gold-text"></i> <strong>Duck:</strong> 80% duck feather, 20% soft duck down.</div>
+                <div class="layer-item"><i class="fa-solid fa-ruler gold-text"></i> Standard size only (50×75cm) — pair of 2 pillows per piece.</div>
+                <div class="layer-item"><i class="fa-solid fa-box-open gold-text"></i> Specify goose or duck fill when requesting your quote.</div>
             </div>
         </div>`;
     }
