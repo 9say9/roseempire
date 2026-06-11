@@ -14,7 +14,7 @@
     function chatApiUrl() {
         if (isLocal) return 'http://127.0.0.1:5000/api/chat';
         if (cloudflareChatApi) return cloudflareChatApi;
-        if (isGitHubPreview || isProductionDomain) return null;
+        if (isGitHubPreview || isProductionDomain) return 'https://rose-empire-chat.adeelcolchester.workers.dev/api/chat';
         return '/api/chat';
     }
 

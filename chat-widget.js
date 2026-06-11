@@ -4,13 +4,21 @@
 (function () {
     'use strict';
 
+    const PRODUCTION_CHAT_API = 'https://rose-empire-chat.adeelcolchester.workers.dev/api/chat';
+
     function getChatApiUrl() {
         if (typeof RoseEmpireConfig !== 'undefined' && RoseEmpireConfig.chatApiUrl) {
             return RoseEmpireConfig.chatApiUrl;
         }
-        const isLocal =
-            location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        return isLocal ? 'http://127.0.0.1:5000/api/chat' : '/api/chat';
+        const host = location.hostname;
+        const isLocal = host === 'localhost' || host === '127.0.0.1';
+        const isProduction =
+            host.endsWith('.github.io') ||
+            host === 'roseempire.co.uk' ||
+            host === 'www.roseempire.co.uk';
+        if (isLocal) return 'http://127.0.0.1:5000/api/chat';
+        if (isProduction) return PRODUCTION_CHAT_API;
+        return '/api/chat';
     }
 
     const AGENTS = {
