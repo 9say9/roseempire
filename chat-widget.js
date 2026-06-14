@@ -1,5 +1,5 @@
-/**
- * Rose Empire — floating chat widget (Alex retail / Sarah wholesale)
+﻿/**
+ * Rose Empire — floating chat widget (Adeel retail / Sarah wholesale)
  */
 (function () {
     'use strict';
@@ -22,13 +22,13 @@
     }
 
     const AGENTS = {
-        alex: {
-            context: 'alex',
-            name: 'Alex',
+        adeel: {
+            context: 'adeel',
+            name: 'Adeel',
             role: 'Retail Assistant',
-            label: 'Alex (Retail Assistant)',
+            label: 'Adeel (Retail Assistant)',
             greeting:
-                "Hi! I'm Alex, your Rose Empire retail assistant. Ask me about mattress protectors, pillows, sizes, materials, or care instructions.",
+                "Hi! I'm Adeel, your Rose Empire retail assistant. Ask me about mattress protectors, pillows, sizes, materials, or care instructions.",
             placeholder: 'Ask about products, sizes, or care…',
             avatarIcon: 'fa-bag-shopping',
         },
@@ -49,7 +49,7 @@
 
     function detectPageContext() {
         const explicit = document.body.dataset.page;
-        if (explicit === 'retail' || explicit === 'alex') return 'alex';
+        if (explicit === 'retail' || explicit === 'alex' || explicit === 'adeel') return 'adeel';
         if (explicit === 'wholesale' || explicit === 'sarah') return 'sarah';
 
         const path = window.location.pathname.toLowerCase();
@@ -64,7 +64,7 @@
             hash.includes('product') ||
             RETAIL_HASHES.some((segment) => hash === segment || hash.startsWith(segment + '-'))
         ) {
-            return 'alex';
+            return 'adeel';
         }
 
         if (
@@ -77,7 +77,7 @@
             return 'sarah';
         }
 
-        return path.endsWith('index.html') || path === '/' || path.endsWith('/') ? 'sarah' : 'alex';
+        return path.endsWith('index.html') || path === '/' || path.endsWith('/') ? 'sarah' : 'adeel';
     }
 
     function escapeHtml(text) {
@@ -247,7 +247,7 @@
                 loadingEl.classList.remove('chat-message--loading');
                 loadingEl.innerHTML = formatMessage(
                     'Chat is not configured on this GitHub Pages preview yet. ' +
-                        'Run start_chat_server.bat locally for Alex and Sarah, or deploy the Cloudflare chat worker (see GITHUB_PAGES.md). ' +
+                        'Run start_chat_server.bat locally for Adeel and Sarah, or deploy the Cloudflare chat worker (see GITHUB_PAGES.md). ' +
                         'Email info@roseempire.co.uk or call +44 7999 988450 for trade quotes.'
                 );
                 this.isSending = false;
@@ -309,3 +309,4 @@
         new RoseEmpireChat();
     }
 })();
+

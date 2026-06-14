@@ -4,7 +4,7 @@
 
 /* ---- Variables ---- */
 :root {
-    --font-heading: 'Outfit', sans-serif;
+    --font-heading: 'DM Sans', 'Inter', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-display: 'Cormorant Garamond', Georgia, serif;
 
@@ -876,6 +876,63 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     color: var(--text-muted);
 }
 
+/* Value strip — key trade proof points */
+.value-strip {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: 28px 0;
+    box-shadow: var(--shadow-sm);
+}
+.value-strip-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+.value-strip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+}
+.value-strip-item:hover {
+    border-color: rgba(154, 116, 40, 0.35);
+    box-shadow: var(--shadow-sm);
+}
+.value-strip-item i {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(16, 34, 65, 0.08);
+    color: var(--navy-mid);
+    font-size: 1.1rem;
+}
+.value-strip-item strong {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    color: var(--navy);
+    margin-bottom: 4px;
+}
+.value-strip-item span {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+.value-strip-item a {
+    color: var(--gold-on-light, var(--gold));
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
 /* ==========================================================================
    Stats Bar
    ========================================================================== */
@@ -1218,8 +1275,10 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 }
 
 .compliance-section {
-    padding: 56px 0 48px;
-    background: linear-gradient(180deg, rgba(13, 31, 60, 0.04) 0%, transparent 100%);
+    padding: 72px 0 64px;
+    background: linear-gradient(180deg, rgba(16, 34, 65, 0.05) 0%, var(--bg-surface) 100%);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 .compliance-downloads {
     display: grid;
@@ -2158,6 +2217,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     .hero-title { font-size: 2.4rem; }
     .stats-bar-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .stat-item:nth-child(2) { border-right: none; }
+    .value-strip-grid { grid-template-columns: repeat(2, 1fr); }
     .features-grid { grid-template-columns: repeat(2, 1fr); }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
 }
@@ -2165,6 +2225,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     .moq-promo-inner { justify-content: center; text-align: center; }
     .moq-promo-inner .btn { width: 100%; }
     .stats-bar-grid { grid-template-columns: repeat(2, 1fr); }
+    .value-strip-grid { grid-template-columns: 1fr; }
     .stat-item:nth-child(2) { border-right: none; }
     .mobile-nav-toggle { display: flex; }
     .nav-menu {
