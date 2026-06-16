@@ -1,4 +1,4 @@
-﻿"""Build Sarah/Alex prompts from catalog-data.json + chat-rules (mirrors Cloudflare worker)."""
+﻿"""Build Sarah/Adeel prompts from catalog-data.json + chat-rules (mirrors Cloudflare worker)."""
 from __future__ import annotations
 
 import json
@@ -55,3 +55,4 @@ def build_system_prompt(context: str, rules: dict | None = None, catalog: dict |
     catalog = catalog if catalog is not None else load_catalog()
     base = rules.get(context) or rules.get("sarah", "")
     return f"{base}\n\n---\n{format_catalog_for_bots(catalog)}"
+

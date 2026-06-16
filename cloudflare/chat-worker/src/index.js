@@ -1,7 +1,8 @@
-import rules from "./chat-rules.json";
+﻿import rules from "./chat-rules.json";
 import { buildSystemPrompt } from "./build-prompt.js";
 
 const GEMINI_MODEL = "gemini-2.5-flash-lite";
+const OPENAI_MODEL = "gpt-4o-mini";
 const DEFAULT_CATALOG_URL = "https://www.roseempire.co.uk/catalog-data.json";
 const CATALOG_TTL_MS = 5 * 60 * 1000;
 
@@ -47,8 +48,10 @@ export default {
       return jsonResponse({ error: "Method not allowed." }, 405);
     }
 
-    const apiKey = env.GEMINI_API_KEY;
-    if (!apiKey) {
+    const openaiKey = env.OPENAI_API_KEY;
+    const geminiKey = env.GEMINI_API_KEY;
+    const provider = openaiKey ? "openai" : geminiKey ? "gemini" : null;
+    if (!provider) {
       return jsonResponse({ error: "Chat service is not configured." }, 503);
     }
 
@@ -60,7 +63,7 @@ export default {
     }
 
     const message = (data.message || "").trim();
-    const context = (data.context || "sarah").toLowerCase();
+    let context = (data.context || "sarah").toLowerCase();\n    if (context === "alex") context = "adeel";
     const history = Array.isArray(data.history) ? data.history : [];
 
     if (!message) return jsonResponse({ error: "Message is required." }, 400);
@@ -82,30 +85,56 @@ export default {
     }
     contents.push({ role: "user", parts: [{ text: message }] });
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-
     try {
-      const resp = await fetch(geminiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          contents,
-          generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
-        }),
-      });
-
-      const body = await resp.json();
-      if (!resp.ok) {
-        const detail = body?.error?.message || resp.statusText;
-        return jsonResponse({ error: "AI service error: " + detail }, 502);
+      let reply;
+      if (provider === "openai") {
+        const messages = [{ role: "system", content: systemInstruction }];
+        for (const turn of history.slice(-10)) {
+          const content = (turn.content || "").trim();
+          if (!content) continue;
+          messages.push({ role: turn.role === "user" ? "user" : "assistant", content });
+        }
+        messages.push({ role: "user", content: message });
+        const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${openaiKey}`,
+          },
+          body: JSON.stringify({
+            model: OPENAI_MODEL,
+            messages,
+            temperature: 0.7,
+            max_tokens: 1024,
+          }),
+        });
+        const body = await resp.json();
+        if (!resp.ok) {
+          const detail = body?.error?.message || resp.statusText;
+          return jsonResponse({ error: "AI service error: " + detail }, 502);
+        }
+        reply = (body?.choices?.[0]?.message?.content || "").trim();
+      } else {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`;
+        const resp = await fetch(geminiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents,
+            generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+          }),
+        });
+        const body = await resp.json();
+        if (!resp.ok) {
+          const detail = body?.error?.message || resp.statusText;
+          return jsonResponse({ error: "AI service error: " + detail }, 502);
+        }
+        const parts = body?.candidates?.[0]?.content?.parts || [];
+        reply = parts.map((p) => p.text || "").join("").trim();
       }
-
-      const parts = body?.candidates?.[0]?.content?.parts || [];
-      const reply = parts.map((p) => p.text || "").join("").trim();
       if (!reply) return jsonResponse({ error: "Empty AI response." }, 502);
-
-      return jsonResponse({ reply, context, catalogUpdatedAt: catalog?.updatedAt || null });
+      return jsonResponse({ reply, context, provider, catalogUpdatedAt: catalog?.updatedAt || null });
     } catch (err) {
       return jsonResponse({ error: "Could not reach AI service: " + err.message }, 502);
     }

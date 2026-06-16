@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,7 +18,7 @@
         .agent-card:hover { border-color: #38bdf8; background: #1a2332; transform: translateY(-2px); }
         .agent-card.selected { border-color: #38bdf8; background: #1c283a; box-shadow: 0 0 15px rgba(56, 189, 248, 0.15); }
         .agent-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-        .agent-icon { font-size: 24px; }
+        .agent-icon { font-size: 16px; font-weight: 700; width: 28px; height: 28px; line-height: 28px; text-align: center; background: rgba(56, 189, 248, 0.15); border-radius: 6px; color: #38bdf8; }
         .agent-name { font-size: 16px; font-weight: 600; color: #fff; }
         .agent-role { font-size: 12px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 4px; margin-left: auto; }
         .agent-desc { font-size: 14px; color: #94a3b8; line-height: 1.5; margin: 0; }
@@ -30,6 +30,11 @@
         .btn-deploy:hover { background: #7dd3fc; }
         .terminal-log { margin-top: 25px; background: #0f131a; border: 1px solid #242f41; border-radius: 8px; padding: 15px; font-family: 'Courier New', monospace; font-size: 13px; color: #a7f3d0; max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
         .placeholder-card { border: 2px dashed #242f41; background: transparent; text-align: center; color: #64748b; padding: 25px; border-radius: 12px; font-weight: 500; }
+        .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 12px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .stat-box { background: #0f131a; border: 1px solid #242f41; border-radius: 8px; padding: 10px; font-size: 12px; }
+        .stat-box b { color: #38bdf8; display: block; font-size: 18px; }
+        select.mission-preset { width: 100%; background: #0f131a; border: 1px solid #242f41; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
         @media (max-width: 900px) {
             .main-layout { grid-template-columns: 1fr; padding: 20px; }
             .control-room { position: static; }
@@ -39,8 +44,8 @@
 <body>
 
     <div class="navbar">
-        <h2>👑 Rose Empire — Agent Panel Core</h2>
-        <div class="system-status offline" id="systemStatus">● Checking server...</div>
+        <h2>Rose Empire - Agent Panel Core</h2>
+        <div class="system-status offline" id="systemStatus">Checking server...</div>
     </div>
 
     <div class="main-layout">
@@ -57,7 +62,7 @@
                     <p class="agent-desc">{{ agent.description }}</p>
                 </div>
                 {% endfor %}
-                <div class="placeholder-card">➕ Add Custom Agent Module Slot</div>
+                <div class="placeholder-card">+ Add Custom Agent Module Slot</div>
             </div>
         </div>
 
@@ -68,6 +73,19 @@
                 <p style="color: #64748b; font-size: 14px; margin: 0;" id="commandDesc">Allocate task details to launch execution parameters.</p>
 
                 <div class="mission-box" id="interactionBox" style="display: none;">
+                    <label style="font-weight: 600; font-size: 14px;">Quick mission preset:</label>
+                    <select class="mission-preset" id="missionPreset" onchange="applyPreset()">
+                        <option value="">Custom mission...</option>
+                        <option value="care homes Manchester UK">Care homes - Manchester</option>
+                        <option value="boutique hotels Manchester UK">Boutique hotels - Manchester</option>
+                        <option value="guest houses Manchester UK">Guest houses</option>
+                        <option value="student accommodation Manchester UK">Student accommodation</option>
+                    </select>
+                    <div class="stats-grid" id="statsGrid"></div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
+                        <button class="btn-secondary" type="button" onclick="runSalesCycle(false)">Dry-run pipeline</button>
+                        <button class="btn-secondary" type="button" onclick="runSalesCycle(true)">Scrape + dry-run</button>
+                    </div>
                     <label style="font-weight: 600; font-size: 14px;">Input Target Instructions or URL Link:</label>
                     <textarea id="missionInput" placeholder="Type instructions for this specific bot..."></textarea>
                     <button class="btn-deploy" onclick="deploySelectedAgent()">Launch Agent Process</button>
@@ -89,20 +107,55 @@
                 const data = await response.json();
                 if (response.ok && data.status === 'ok') {
                     badge.className = 'system-status online';
-                    const ai = data.ollama ? ' + Ollama AI' : '';
-                    badge.innerText = `● Online — Port ${data.port}${ai}`;
-                    logBox.innerText = `Server connected on port ${data.port}${data.ollama ? ' with Ollama AI ready.' : '. Start start_ollama.bat for Sarah AI ranking.'}\nSelect an agent from the left to begin.`;
+                    badge.innerText = 'Online - Port ' + data.port + (data.ai ? ' + ' + (data.provider || 'AI') : '');
+                    logBox.innerText = `Server connected on port ${data.port}${data.ai ? ' with ' + (data.model || 'AI') + ' ready.' : '. Run start_ollama.bat for free AI.'}\nSelect an agent from the left to begin.`;
                     return true;
                 }
             } catch (error) {
                 badge.className = 'system-status offline';
-                badge.innerText = '● Offline — Server not running';
+                badge.innerText = 'Offline - Server not running';
                 logBox.innerText = 'Cannot reach server.\n\n1. Double-click run_ai_fleet.bat\n2. Wait for: Running on http://127.0.0.1:5050\n3. Refresh this page (F5)\n\nDo NOT open HTML files directly from the folder.';
             }
             return false;
         }
 
+
+        async function loadSystemStatus() {
+            try {
+                const r = await fetch('/system-status');
+                const d = await r.json();
+                const grid = document.getElementById('statsGrid');
+                if (!grid) return;
+                grid.innerHTML = '<div class="stat-box"><b>' + (d.qualified_leads || 0) + '</b>Qualified leads</div>'
+                    + '<div class="stat-box"><b>' + (d.leads_with_valid_email || 0) + '</b>Valid emails</div>'
+                    + '<div class="stat-box"><b>' + (d.smtp ? 'OK' : 'OFF') + '</b>SMTP</div>'
+                    + '<div class="stat-box"><b>' + (d.ai_provider || (d.openai ? 'OK' : 'OFF')) + '</b>AI</div>';
+            } catch (e) {}
+        }
+        function applyPreset() {
+            const v = document.getElementById('missionPreset').value;
+            if (v) document.getElementById('missionInput').value = v;
+        }
+        async function runSalesCycle(scrape) {
+            const mission = document.getElementById('missionInput').value.trim() || 'care homes hotels Manchester UK';
+            logToTerminal('[ENGINE]: Starting dry-run sales cycle...');
+            try {
+                const r = await fetch('/run-sales-cycle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mission, limit: 5, scrape, send: false })
+                });
+                const d = await r.json();
+                logToTerminal('[ENGINE]: ' + (d.message || d.status));
+                if (d.stats) logToTerminal('[STATS]: ' + JSON.stringify(d.stats));
+                loadSystemStatus();
+            } catch (e) {
+                logToTerminal('[ERROR]: Sales cycle failed');
+            }
+        }
+
         checkServerHealth();
+        loadSystemStatus();
 
         function selectAgent(id, name) {
             activeAgentId = id;
@@ -127,11 +180,11 @@
 
             logToTerminal('[SYSTEM]: Sending directives over local channel...');
             if (activeAgentId === 'lead_scraper') {
-                logToTerminal('[SARAH]: Scraping + AI analysis — can take up to 2 minutes...');
+                logToTerminal('[SARAH]: Multi-source scrape (Google, LinkedIn, web, Reddit) - can take 2-4 minutes...');
             } else if (activeAgentId === 'email_writer') {
-                logToTerminal('[JAMES]: Drafting B2B cold pitch via Ollama — please wait...');
+                logToTerminal('[JAMES]: Drafting B2B cold pitch via local AI - please wait...');
             } else if (activeAgentId === 'data_cleaner') {
-                logToTerminal('[ALEX]: Cleaning data + building CSV rows — please wait...');
+                logToTerminal('[ADEEL]: Cleaning data + building CSV rows - please wait...');
             }
             try {
                 const controller = new AbortController();
@@ -154,7 +207,7 @@
                 } else if (activeAgentId === 'email_writer') {
                     logToTerminal('[JAMES]: Cold pitch draft ready. Copy from the log above.');
                 } else if (activeAgentId === 'data_cleaner') {
-                    logToTerminal('[ALEX]: Spreadsheet rows ready. Copy the CSV block into Excel.');
+                    logToTerminal('[ADEEL]: Spreadsheet rows ready. Copy the CSV block into Excel.');
                 } else {
                     logToTerminal('[READY]: Structuring background logic frame.');
                 }
@@ -175,3 +228,4 @@
     </script>
 </body>
 </html>
+
