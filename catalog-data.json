@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-11",
+  "updatedAt": "2026-06-16",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -30,7 +30,11 @@
       "category": "protectors",
       "tag": "Bestseller",
       "tagClass": "",
-      "image": "assets/mattress_protector.png",
+      "image": "assets/products/wqmp-waterproof-quilted.jpg",
+      "gallery": [
+        "assets/products/wqmp-waterproof-quilted.jpg",
+        "assets/mattress_protector.png"
+      ],
       "desc": "The ultimate combination of protection and comfort. A soft quilted top layer paired with our 100% waterproof TPU backing that is completely silent. Machine washable, OEKO-TEX Standard 100 certified, with independent UK test report available for trade buyers.",
       "specs": [
         "Type: Waterproof Quilted Mattress Protector (WQMP)",
@@ -84,7 +88,11 @@
       "category": "protectors",
       "tag": "Essential",
       "tagClass": "",
-      "image": "assets/mattress_protector.png",
+      "image": "assets/products/qmp-quilted.jpg",
+      "gallery": [
+        "assets/products/qmp-quilted.jpg",
+        "assets/mattress_protector.png"
+      ],
       "desc": "A premium non-waterproof quilted protector for everyday comfort and hygiene. Breathable polycotton shell with a soft microfiber quilted fill. Ideal for homes and guest houses.",
       "specs": [
         "Type: Quilted Mattress Protector (QMP)",
@@ -137,7 +145,10 @@
       "category": "protectors",
       "tag": "Hotel Grade",
       "tagClass": "tag-gold",
-      "image": "assets/mattress_protector.png",
+      "image": "assets/products/terry-waterproof.jpg",
+      "gallery": [
+        "assets/products/terry-waterproof.jpg"
+      ],
       "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent, soft underfoot, and incredibly durable — the preferred choice for hotels and care homes.",
       "specs": [
         "Type: Terry Towelling Waterproof Mattress Protector",
