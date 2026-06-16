@@ -89,11 +89,10 @@
       "category": "protectors",
       "tag": "Essential",
       "tagClass": "",
-      "image": "assets/products/qmp-folded.png",
+      "image": "assets/products/qmp-quilted.jpg",
       "gallery": [
-        "assets/products/qmp-folded.png",
-        "assets/products/qmp-3ply.png",
-        "assets/products/protector-lifestyle.png"
+        "assets/products/qmp-quilted.jpg",
+        "assets/mattress_protector.png"
       ],
       "desc": "A premium non-waterproof quilted protector for everyday comfort and hygiene. Breathable polycotton shell with a soft microfiber quilted fill. Ideal for homes and guest houses.",
       "specs": [
@@ -149,7 +148,8 @@
       "tagClass": "tag-gold",
       "image": "assets/products/terry-waterproof.jpg",
       "gallery": [
-        "assets/products/terry-waterproof.jpg"
+        "assets/products/terry-waterproof.jpg",
+        "assets/mattress_protector.png"
       ],
       "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent, soft underfoot, and incredibly durable — the preferred choice for hotels and care homes.",
       "specs": [
