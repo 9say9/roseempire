@@ -30,10 +30,11 @@
       "category": "protectors",
       "tag": "Bestseller",
       "tagClass": "",
-      "image": "assets/products/wqmp-waterproof-quilted.jpg",
+      "image": "assets/products/wqmp-promo.png",
       "gallery": [
-        "assets/products/wqmp-waterproof-quilted.jpg",
-        "assets/mattress_protector.png"
+        "assets/products/wqmp-promo.png",
+        "assets/products/wqmp-layers.png",
+        "assets/products/protector-lifestyle.png"
       ],
       "desc": "The ultimate combination of protection and comfort. A soft quilted top layer paired with our 100% waterproof TPU backing that is completely silent. Machine washable, OEKO-TEX Standard 100 certified, with independent UK test report available for trade buyers.",
       "specs": [
@@ -88,10 +89,11 @@
       "category": "protectors",
       "tag": "Essential",
       "tagClass": "",
-      "image": "assets/products/qmp-quilted.jpg",
+      "image": "assets/products/qmp-folded.png",
       "gallery": [
-        "assets/products/qmp-quilted.jpg",
-        "assets/mattress_protector.png"
+        "assets/products/qmp-folded.png",
+        "assets/products/qmp-3ply.png",
+        "assets/products/protector-lifestyle.png"
       ],
       "desc": "A premium non-waterproof quilted protector for everyday comfort and hygiene. Breathable polycotton shell with a soft microfiber quilted fill. Ideal for homes and guest houses.",
       "specs": [
