@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-16",
+  "updatedAt": "2026-06-17",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -30,11 +30,11 @@
       "category": "protectors",
       "tag": "Bestseller",
       "tagClass": "",
-      "image": "assets/products/wqmp-promo.png",
+      "image": "assets/mattress_protector.png",
       "gallery": [
-        "assets/products/wqmp-promo.png",
-        "assets/products/wqmp-layers.png",
-        "assets/products/protector-lifestyle.png"
+        "assets/mattress_protector.png",
+        "assets/products/protector-lifestyle.png",
+        "assets/products/wqmp-layers.png"
       ],
       "desc": "The ultimate combination of protection and comfort. A soft quilted top layer paired with our 100% waterproof TPU backing that is completely silent. Machine washable, OEKO-TEX Standard 100 certified, with independent UK test report available for trade buyers.",
       "specs": [
@@ -89,10 +89,10 @@
       "category": "protectors",
       "tag": "Essential",
       "tagClass": "",
-      "image": "assets/products/qmp-quilted.jpg",
+      "image": "assets/products/protector-lifestyle.png",
       "gallery": [
-        "assets/products/qmp-quilted.jpg",
-        "assets/mattress_protector.png"
+        "assets/products/protector-lifestyle.png",
+        "assets/products/qmp-folded.png"
       ],
       "desc": "A premium non-waterproof quilted protector for everyday comfort and hygiene. Breathable polycotton shell with a soft microfiber quilted fill. Ideal for homes and guest houses.",
       "specs": [
@@ -146,9 +146,9 @@
       "category": "protectors",
       "tag": "Hotel Grade",
       "tagClass": "tag-gold",
-      "image": "assets/products/terry-waterproof.jpg",
+      "image": "assets/products/terry-lifestyle-bed.png",
       "gallery": [
-        "assets/products/terry-waterproof.jpg",
+        "assets/products/terry-lifestyle-bed.png",
         "assets/mattress_protector.png"
       ],
       "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent, soft underfoot, and incredibly durable — the preferred choice for hotels and care homes.",
