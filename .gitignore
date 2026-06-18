@@ -11,7 +11,8 @@ ai_context.txt
 rose_empire_leads.csv
 
 # ─── LinkedIn automation (kept local — ToS risk) ───────
-linkedin-outreach/
+linkedin-outreach/*
+!linkedin-outreach/README.txt
 
 # ─── Browser sessions (auth tokens) ───────────────────
 gsc_browser_profile/
@@ -30,7 +31,9 @@ venv/
 
 # ─── IDE / editor local state ─────────────────────────
 .claude/
-.cursor/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .vscode/
 .idea/
 *.code-workspace

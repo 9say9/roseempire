@@ -25,7 +25,6 @@ where wrangler >nul 2>&1 && wrangler --version
 echo.
 echo  Installing/updating Python packages...
 py -3.12 -m pip install -q -r requirements-fleet.txt
-py -3.12 -m pip install -q -r linkedin-outreach\requirements.txt
 py -3.12 -m playwright install chromium
 
 echo.
@@ -35,10 +34,10 @@ if exist "%USERPROFILE%\.continue\config.yaml" (echo [OK] Continue config found)
 echo.
 if %FAIL%==0 (
     echo  Core tools OK. Next steps:
-    echo    1. Run setup_rose_empire_ai.bat to download Ollama models ^(~10 GB^)
-    echo    2. Copy .env with GEMINI_API_KEY into this folder for chat server
-    echo    3. Optional: Install VS Code + Continue extension for local AI coding
-    echo    4. Open this folder in Cursor ^(already installed^)
+    echo    1. Run setup_partner.bat or setup_rose_empire_ai.bat ^(~10 GB models^)
+    echo    2. Copy .env from .env.example ^(get secrets from repo owner^)
+    echo    3. Open in Cursor - Agent reads AGENTS.md
+    echo    4. Guide: PARTNER_BOT_SETUP.md
 ) else (
     echo  Some tools missing - install them first.
 )
