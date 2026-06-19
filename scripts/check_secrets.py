@@ -2,13 +2,26 @@
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "github_browser_profile", "gsc_browser_profile"}
+SKIP_DIRS = {
+    ".git",
+    "node_modules",
+    ".venv",
+    "venv",
+    "github_browser_profile",
+    "gsc_browser_profile",
+    "m365_browser_profile",
+}
 SKIP_FILES = {".env.example"}
+SKIP_SUFFIXES = {
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".zip", ".pdf",
+    ".pma", ".db", ".wal", ".pb", ".dat", ".bin", ".tmp",
+}
 
 PATTERNS = [
     (re.compile(r"GEMINI_API_KEY\s*=\s*['\"]?[A-Za-z0-9._\-]{20,}"), "GEMINI_API_KEY assignment"),
@@ -20,6 +33,23 @@ PATTERNS = [
 ]
 
 ALLOW_PLACEHOLDER = re.compile(r"your_.*_here|placeholder|example|xxx|<", re.I)
+
+
+def _tracked_files() -> list[Path]:
+    try:
+        result = subprocess.run(
+            ["git", "ls-files", "-z"],
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
+        )
+        return [
+            ROOT / rel
+            for rel in result.stdout.decode("utf-8", errors="replace").split("\0")
+            if rel
+        ]
+    except Exception:
+        return [p for p in ROOT.rglob("*") if p.is_file()]
 
 
 def scan_file(path: Path) -> list[str]:
@@ -41,14 +71,14 @@ def scan_file(path: Path) -> list[str]:
 
 def main() -> int:
     issues: list[str] = []
-    for path in ROOT.rglob("*"):
+    for path in _tracked_files():
         if not path.is_file():
             continue
         if any(part in SKIP_DIRS for part in path.parts):
             continue
         if path.name in SKIP_FILES:
             continue
-        if path.suffix in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".zip", ".pdf"}:
+        if path.suffix.lower() in SKIP_SUFFIXES:
             continue
         issues.extend(scan_file(path))
 
