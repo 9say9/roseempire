@@ -14,10 +14,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:1.5b")
 OLLAMA_FALLBACK_MODELS = [
     m.strip()
-    for m in os.getenv("OLLAMA_FALLBACK_MODELS", "qwen2.5-coder:1.5b,llama3.1:8b").split(",")
+    for m in os.getenv("OLLAMA_FALLBACK_MODELS", "qwen2.5-coder:1.5b,qwen2.5-coder:7b").split(",")
     if m.strip()
 ]
 
@@ -62,6 +62,47 @@ def ollama_online() -> bool:
         return False
 
 
+def _installed_ollama_models() -> list[str]:
+    if not ollama_online():
+        return []
+    try:
+        req = urllib.request.Request(f"{OLLAMA_URL}/api/tags", method="GET")
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+        return [m.get("name", "") for m in body.get("models", []) if m.get("name")]
+    except Exception:
+        return []
+
+
+def _resolve_ollama_model(name: str, installed: list[str]) -> str | None:
+    if name in installed:
+        return name
+    base = name.split(":")[0]
+    for item in installed:
+        if item == name or item.startswith(base + ":"):
+            return item
+    return None
+
+
+def _ollama_models_to_try() -> list[str]:
+    installed = [m for m in _installed_ollama_models() if not m.endswith("-cloud")]
+    ordered: list[str] = []
+    for candidate in [OLLAMA_MODEL, *OLLAMA_FALLBACK_MODELS]:
+        resolved = _resolve_ollama_model(candidate, installed) if installed else candidate
+        if resolved and resolved not in ordered:
+            ordered.append(resolved)
+    if installed:
+        for item in installed:
+            if item not in ordered:
+                ordered.append(item)
+    return ordered or [OLLAMA_MODEL, *OLLAMA_FALLBACK_MODELS]
+
+
+def _primary_ollama_model() -> str:
+    models = _ollama_models_to_try()
+    return models[0] if models else OLLAMA_MODEL
+
+
 def ai_provider(prefer: str | None = None) -> str:
     mode = (prefer or AI_PROVIDER).lower()
     if mode == "gemini":
@@ -86,7 +127,7 @@ def ai_available(prefer: str | None = None) -> bool:
 def active_model(prefer: str | None = None) -> str:
     provider = ai_provider(prefer)
     if provider == "ollama":
-        return OLLAMA_MODEL
+        return _primary_ollama_model()
     if provider == "gemini":
         return GEMINI_MODEL
     if provider == "openai":
@@ -106,13 +147,13 @@ def _post_json(url: str, payload: dict, *, timeout: int = 180) -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 
-def _call_ollama(system: str, user: str, *, temperature: float = 0.55, max_tokens: int = 1800) -> str:
+def _call_ollama(system: str, user: str, *, temperature: float = 0.55, max_tokens: int = 1800) -> tuple[str, str]:
     if not ollama_online():
         raise RuntimeError(
             "Ollama offline. Run start_ollama.bat or setup_free_bots.bat first."
         )
 
-    models = [OLLAMA_MODEL, *OLLAMA_FALLBACK_MODELS]
+    models = _ollama_models_to_try()
     last_error = ""
     for model in models:
         try:
@@ -131,14 +172,17 @@ def _call_ollama(system: str, user: str, *, temperature: float = 0.55, max_token
             )
             text = (data.get("message") or {}).get("content", "").strip()
             if text:
-                return text
+                return text, model
             last_error = f"Empty response from {model}"
         except urllib.error.HTTPError as exc:
             last_error = f"HTTP {exc.code} from {model}"
         except Exception as exc:
             last_error = str(exc)
 
-    raise RuntimeError(f"Ollama failed: {last_error}. Run: ollama pull {OLLAMA_MODEL}")
+    raise RuntimeError(
+        f"Ollama failed: {last_error}. Installed: {', '.join(_installed_ollama_models()) or 'none'}. "
+        f"Run: ollama pull {OLLAMA_MODEL}"
+    )
 
 
 def _call_openai(system: str, user: str, *, temperature: float = 0.55, max_tokens: int = 1800) -> str:
@@ -194,7 +238,8 @@ def _call_ai(
 ) -> tuple[str, str]:
     provider = ai_provider(prefer)
     if provider == "ollama":
-        return _call_ollama(system, user, temperature=temperature, max_tokens=max_tokens), OLLAMA_MODEL
+        text, model = _call_ollama(system, user, temperature=temperature, max_tokens=max_tokens)
+        return text, model
     if provider == "gemini":
         return _call_gemini(system, user, temperature=temperature, max_tokens=max_tokens), GEMINI_MODEL
     if provider == "openai":
