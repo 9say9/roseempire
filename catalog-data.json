@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-17",
+  "updatedAt": "2026-06-19",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -77,7 +77,7 @@
       ],
       "highlights": [
         "100% Waterproof",
-        "Quilted Top",
+        "Elastic Fitted Skirt",
         "OEKO-TEX Certified",
         "Silent TPU Backing"
       ],
@@ -101,6 +101,7 @@
         "Fill: Lightweight microfiber padding (120 GSM)",
         "Backing: Breathable non-waterproof polycotton base",
         "Hypoallergenic: Dust mite and allergen resistant",
+        "Fit: Deep elasticated fitted skirt — fits up to 35cm mattress depth",
         "Washable: Machine washable at 60°C"
       ],
       "moq": 20,
@@ -134,9 +135,9 @@
       ],
       "highlights": [
         "Quilted Surface",
+        "Elastic Fitted Skirt",
         "Breathable",
-        "Hypoallergenic",
-        "Polycotton Shell"
+        "Hypoallergenic"
       ],
       "stockStatus": "In stock"
     },
@@ -146,18 +147,19 @@
       "category": "protectors",
       "tag": "Hotel Grade",
       "tagClass": "tag-gold",
-      "image": "assets/products/terry-lifestyle-bed.png",
+      "image": "assets/products/terry-lifestyle-bed.jpg",
       "gallery": [
-        "assets/products/terry-lifestyle-bed.png",
-        "assets/mattress_protector.png"
+        "assets/products/terry-lifestyle-bed.jpg",
+        "assets/products/terry-elastic-skirt.jpg",
+        "assets/products/terry-waterproof-product.jpg"
       ],
-      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent, soft underfoot, and incredibly durable — the preferred choice for hotels and care homes.",
+      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent cotton loop pile, deep elastic fitted skirt on every size, and industrial-laundry durability — the preferred choice for hotels and care homes.",
       "specs": [
         "Type: Terry Towelling Waterproof Mattress Protector",
-        "Surface: 100% Cotton Terry towelling top layer",
+        "Surface: 100% Cotton Terry loop pile top layer",
         "Backing: 100% Waterproof PU/TPU membrane",
         "Absorbency: High-absorbent cotton loop pile surface",
-        "Fit: Elasticated skirt fits mattresses up to 35cm deep",
+        "Fit: Deep elasticated fitted skirt — all sizes, fits mattresses up to 35cm deep",
         "Durability: Industrial-laundry resistant – up to 60°C wash"
       ],
       "moq": 20,
@@ -195,8 +197,8 @@
       ],
       "highlights": [
         "Terry Cotton Surface",
+        "Deep Elastic Skirt",
         "100% Waterproof",
-        "Highly Absorbent",
         "Hotel Grade"
       ],
       "stockStatus": "In stock"

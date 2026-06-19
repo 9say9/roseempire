@@ -340,6 +340,7 @@ function openProductDetail(productId) {
                 <div class="layer-item"><span class="layer-num">1</span><strong>Quilted Top:</strong> Ultra-soft brushed microfiber surface.</div>
                 <div class="layer-item"><span class="layer-num">2</span><strong>Fill:</strong> 150 GSM microfiber padding for comfort.</div>
                 <div class="layer-item"><span class="layer-num">3</span><strong>Barrier:</strong> 100% silent waterproof TPU backing.</div>
+                <div class="layer-item"><span class="layer-num">4</span><strong>Fit:</strong> Deep elasticated fitted skirt — up to 40cm mattress depth.</div>
             </div>
         </div>`;
     } else if (p.id === 'protector-qmp') {
@@ -350,6 +351,7 @@ function openProductDetail(productId) {
                 <div class="layer-item"><span class="layer-num">1</span><strong>Top:</strong> Quilted polycotton surface for softness.</div>
                 <div class="layer-item"><span class="layer-num">2</span><strong>Fill:</strong> 120 GSM lightweight microfiber padding.</div>
                 <div class="layer-item"><span class="layer-num">3</span><strong>Base:</strong> Breathable polycotton backing (non-waterproof).</div>
+                <div class="layer-item"><span class="layer-num">4</span><strong>Fit:</strong> Deep elasticated fitted skirt — up to 35cm mattress depth.</div>
             </div>
         </div>`;
     } else if (p.id === 'protector-terry') {
@@ -359,6 +361,7 @@ function openProductDetail(productId) {
             <div class="layer-list">
                 <div class="layer-item"><span class="layer-num">1</span><strong>Surface:</strong> 100% Cotton Terry loop pile — soft & highly absorbent.</div>
                 <div class="layer-item"><span class="layer-num">2</span><strong>Barrier:</strong> 100% Waterproof PU/TPU membrane backing.</div>
+                <div class="layer-item"><span class="layer-num">3</span><strong>Fit:</strong> Deep elasticated fitted skirt on every size — up to 35cm depth.</div>
             </div>
         </div>`;
     } else if (p.category === 'pillows') {
