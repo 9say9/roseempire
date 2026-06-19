@@ -3,229 +3,578 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rose Empire - AI Fleet Command</title>
+    <title>Rose Empire — B2B Outreach Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f131a; color: #e2e8f0; margin: 0; padding: 0; }
-        .navbar { background-color: #161c26; padding: 15px 40px; border-bottom: 1px solid #242f41; display: flex; justify-content: space-between; align-items: center; }
-        .navbar h2 { margin: 0; font-size: 20px; color: #fff; }
-        .system-status { background: #1c2b3e; padding: 6px 14px; border-radius: 20px; font-size: 13px; color: #38bdf8; border: 1px solid #243c56; }
-        .system-status.online { color: #4ade80; border-color: #166534; background: #14532d; }
-        .system-status.offline { color: #f87171; border-color: #7f1d1d; background: #450a0a; }
-        .main-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; padding: 40px; max-width: 1400px; margin: 0 auto; }
-        .panel-title { font-size: 18px; margin-top: 0; margin-bottom: 20px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-        .agent-grid { display: flex; flex-direction: column; gap: 16px; }
-        .agent-card { background: #161c26; border: 1px solid #242f41; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s ease; }
-        .agent-card:hover { border-color: #38bdf8; background: #1a2332; transform: translateY(-2px); }
-        .agent-card.selected { border-color: #38bdf8; background: #1c283a; box-shadow: 0 0 15px rgba(56, 189, 248, 0.15); }
-        .agent-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-        .agent-icon { font-size: 16px; font-weight: 700; width: 28px; height: 28px; line-height: 28px; text-align: center; background: rgba(56, 189, 248, 0.15); border-radius: 6px; color: #38bdf8; }
-        .agent-name { font-size: 16px; font-weight: 600; color: #fff; }
-        .agent-role { font-size: 12px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 4px; margin-left: auto; }
-        .agent-desc { font-size: 14px; color: #94a3b8; line-height: 1.5; margin: 0; }
-        .control-room { background: #161c26; border: 1px solid #242f41; border-radius: 12px; padding: 30px; position: sticky; top: 40px; }
-        .mission-box { display: flex; flex-direction: column; gap: 20px; margin-top: 25px; }
-        textarea { width: 100%; height: 120px; background: #0f131a; border: 1px solid #242f41; border-radius: 8px; color: white; padding: 15px; font-size: 15px; box-sizing: border-box; resize: none; }
-        textarea:focus { border-color: #38bdf8; outline: none; }
-        .btn-deploy { background: #38bdf8; color: #0f131a; border: none; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 8px; cursor: pointer; }
-        .btn-deploy:hover { background: #7dd3fc; }
-        .terminal-log { margin-top: 25px; background: #0f131a; border: 1px solid #242f41; border-radius: 8px; padding: 15px; font-family: 'Courier New', monospace; font-size: 13px; color: #a7f3d0; max-height: 200px; overflow-y: auto; white-space: pre-wrap; }
-        .placeholder-card { border: 2px dashed #242f41; background: transparent; text-align: center; color: #64748b; padding: 25px; border-radius: 12px; font-weight: 500; }
-        .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 12px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .stat-box { background: #0f131a; border: 1px solid #242f41; border-radius: 8px; padding: 10px; font-size: 12px; }
-        .stat-box b { color: #38bdf8; display: block; font-size: 18px; }
-        select.mission-preset { width: 100%; background: #0f131a; border: 1px solid #242f41; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-        @media (max-width: 900px) {
-            .main-layout { grid-template-columns: 1fr; padding: 20px; }
-            .control-room { position: static; }
+        :root {
+            --bg: #f4f5f7;
+            --surface: #ffffff;
+            --text: #1a1d26;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --indigo: #4f46e5;
+            --indigo-light: #eef2ff;
+            --orange: #ea580c;
+            --green: #059669;
+            --green-bg: #ecfdf5;
+            --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+            --radius: 12px;
         }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            line-height: 1.5;
+        }
+        .wrap { max-width: 1280px; margin: 0 auto; padding: 24px 28px 48px; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .brand { display: flex; align-items: center; gap: 14px; }
+        .logo {
+            width: 44px; height: 44px; border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff; font-weight: 700; font-size: 22px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .brand h1 { margin: 0; font-size: 1.35rem; font-weight: 700; }
+        .brand p { margin: 2px 0 0; font-size: 0.8rem; color: var(--muted); }
+        .hub-tag { font-size: 0.75rem; color: var(--indigo); font-weight: 600; margin-top: 4px; }
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .badge {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: .04em;
+            padding: 6px 12px; border-radius: 999px; text-transform: uppercase;
+        }
+        .badge-ready { background: var(--green-bg); color: var(--green); }
+        .badge-ollama-on { background: #dbeafe; color: #1d4ed8; }
+        .badge-ollama-off { background: #f3f4f6; color: #6b7280; }
+        .badge-gemma { background: var(--indigo-light); color: var(--indigo); }
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 800px) { .kpi-row { grid-template-columns: 1fr; } }
+        .kpi {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            box-shadow: var(--shadow);
+        }
+        .kpi-label {
+            font-size: 0.7rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: .06em;
+        }
+        .kpi-value { font-size: 2rem; font-weight: 700; margin: 6px 0 10px; }
+        .kpi-pill {
+            display: inline-block; font-size: 0.72rem; font-weight: 600;
+            padding: 4px 10px; border-radius: 6px;
+        }
+        .pill-green { background: var(--green-bg); color: var(--green); }
+        .pill-indigo { background: var(--indigo-light); color: var(--indigo); }
+        .pill-orange { background: #fff7ed; color: var(--orange); }
+        .grid-main {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 960px) { .grid-main { grid-template-columns: 1fr; } }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--shadow);
+        }
+        .card h2 {
+            margin: 0 0 4px; font-size: 1.05rem; font-weight: 700;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card h2 .icon { color: var(--indigo); }
+        .card-sub { font-size: 0.82rem; color: var(--muted); margin: 0 0 18px; }
+        .active-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--indigo-light); color: var(--indigo);
+            font-size: 0.78rem; font-weight: 600;
+            padding: 6px 12px; border-radius: 8px; margin-bottom: 16px;
+        }
+        .active-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+        label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+        input, select, textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 0.9rem; font-family: inherit;
+            margin-bottom: 14px; background: #fafafa;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--indigo); background: #fff;
+        }
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 11px 18px; border-radius: 8px; font-size: 0.88rem;
+            font-weight: 600; cursor: pointer; border: none; transition: .15s;
+        }
+        .btn-primary { background: var(--indigo); color: #fff; width: 100%; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-secondary { background: #f3f4f6; color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .btn-orange { background: var(--orange); color: #fff; }
+        .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+        .pitch-out {
+            margin-top: 16px; padding: 14px; background: #f9fafb;
+            border: 1px solid var(--border); border-radius: 8px;
+            font-size: 0.85rem; white-space: pre-wrap; max-height: 280px; overflow-y: auto;
+        }
+        .pitch-out h4 { margin: 0 0 8px; font-size: 0.8rem; color: var(--indigo); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        th {
+            text-align: left; padding: 10px 8px; border-bottom: 2px solid var(--border);
+            color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: .04em;
+        }
+        td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+        tr.lead-row { cursor: pointer; transition: background .1s; }
+        tr.lead-row:hover { background: var(--indigo-light); }
+        tr.lead-row.selected { background: #e0e7ff; }
+        .status-sent { color: var(--green); font-weight: 600; }
+        .status-pending { color: var(--orange); }
+        .import-box textarea { min-height: 90px; font-family: monospace; font-size: 0.78rem; }
+        .blueprint {
+            margin-top: 12px; padding: 12px; background: #1a1d26; color: #a7f3d0;
+            border-radius: 8px; font-family: 'Consolas', monospace; font-size: 0.75rem;
+            white-space: pre-wrap; position: relative;
+        }
+        .blueprint-title { font-size: 0.8rem; font-weight: 600; color: var(--text); margin: 14px 0 6px; }
+        .copy-btn {
+            position: absolute; top: 8px; right: 8px;
+            font-size: 0.7rem; padding: 4px 8px;
+            background: #374151; color: #fff; border: none; border-radius: 4px; cursor: pointer;
+        }
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff;
+            padding: 12px 18px; border-radius: 8px; font-size: 0.85rem; opacity: 0;
+            transition: opacity .3s; pointer-events: none; z-index: 99;
+        }
+        .toast.show { opacity: 1; }
+        .legacy-link { text-align: center; margin-top: 20px; font-size: 0.8rem; }
+        .legacy-link a { color: var(--indigo); }
     </style>
 </head>
 <body>
-
-    <div class="navbar">
-        <h2>Rose Empire - Agent Panel Core</h2>
-        <div class="system-status offline" id="systemStatus">Checking server...</div>
-    </div>
-
-    <div class="main-layout">
-        <div>
-            <div class="panel-title">Active AI Fleet</div>
-            <div class="agent-grid">
-                {% for agent in agents %}
-                <div class="agent-card" id="card-{{ agent.id }}" onclick="selectAgent('{{ agent.id }}', '{{ agent.name }}')">
-                    <div class="agent-header">
-                        <span class="agent-icon">{{ agent.icon }}</span>
-                        <span class="agent-name">{{ agent.name }}</span>
-                        <span class="agent-role">{{ agent.role }}</span>
-                    </div>
-                    <p class="agent-desc">{{ agent.description }}</p>
-                </div>
-                {% endfor %}
-                <div class="placeholder-card">+ Add Custom Agent Module Slot</div>
+<div class="wrap">
+    <header>
+        <div class="brand">
+            <div class="logo">R</div>
+            <div>
+                <h1>Rose Empire</h1>
+                <p>Waterproof Protectors &bull; Feather/Down Pillows</p>
+                <div class="hub-tag">Automation Hub v1.2</div>
             </div>
         </div>
+        <div class="badges">
+            <span class="badge badge-ready" id="badgeScrape">Scraping Bots Ready</span>
+            <span class="badge badge-ollama-off" id="badgeOllama">Ollama Checking…</span>
+            <span class="badge badge-gemma" id="badgeModel">Gemma 7B Local Exporter</span>
+        </div>
+    </header>
 
-        <div>
-            <div class="panel-title">Mission Command</div>
-            <div class="control-room">
-                <h3 style="margin-top:0;" id="commandTitle">Select an AI agent from the left...</h3>
-                <p style="color: #64748b; font-size: 14px; margin: 0;" id="commandDesc">Allocate task details to launch execution parameters.</p>
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="kpi-label">Scraped B2B Leads</div>
+            <div class="kpi-value" id="kpiLeads">—</div>
+            <span class="kpi-pill pill-green">No Limit Scrapes</span>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Active Pitches Sent</div>
+            <div class="kpi-value" id="kpiSent">—</div>
+            <span class="kpi-pill pill-indigo">100% Free Setup</span>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Target Orders Gained</div>
+            <div class="kpi-value" id="kpiOrders">—</div>
+            <span class="kpi-pill pill-orange" id="kpiOrdersNote">Based on contracts</span>
+        </div>
+    </div>
 
-                <div class="mission-box" id="interactionBox" style="display: none;">
-                    <label style="font-weight: 600; font-size: 14px;">Quick mission preset:</label>
-                    <select class="mission-preset" id="missionPreset" onchange="applyPreset()">
-                        <option value="">Custom mission...</option>
-                        <option value="care homes Manchester UK">Care homes - Manchester</option>
-                        <option value="boutique hotels Manchester UK">Boutique hotels - Manchester</option>
-                        <option value="guest houses Manchester UK">Guest houses</option>
-                        <option value="student accommodation Manchester UK">Student accommodation</option>
+    <div class="grid-main">
+        <div class="card">
+            <h2><span class="icon">&#9993;</span> Wholesale B2B AI Pitch Generator</h2>
+            <p class="card-sub">Draft tailored cold emails with sector pain points. Gemini (cloud) or Ollama (free local).</p>
+            <div class="active-pill" id="activeLeadPill" style="display:none">
+                <span class="dot"></span>
+                <span id="activeLeadName">No lead selected</span>
+            </div>
+            <div class="row-2">
+                <div>
+                    <label>Target B2B Partner</label>
+                    <input type="text" id="pitchCompany" placeholder="e.g. The Savoy Brighton Boutique Hotel">
+                </div>
+                <div>
+                    <label>Target Commercial Sector</label>
+                    <select id="pitchSector">
+                        <option>Boutique Hotel &amp; Resort Spas</option>
+                        <option>Care Home &amp; Nursing</option>
+                        <option>Student Accommodation</option>
+                        <option>Guest House &amp; B&amp;B</option>
+                        <option>Procurement / Facilities</option>
+                        <option>Commercial Buyer</option>
                     </select>
-                    <div class="stats-grid" id="statsGrid"></div>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
-                        <button class="btn-secondary" type="button" onclick="runSalesCycle(false)">Dry-run pipeline</button>
-                        <button class="btn-secondary" type="button" onclick="runSalesCycle(true)">Scrape + dry-run</button>
-                    </div>
-                    <label style="font-weight: 600; font-size: 14px;">Input Target Instructions or URL Link:</label>
-                    <textarea id="missionInput" placeholder="Type instructions for this specific bot..."></textarea>
-                    <button class="btn-deploy" onclick="deploySelectedAgent()">Launch Agent Process</button>
                 </div>
+            </div>
+            <div class="row-2">
+                <div>
+                    <label>Website URL</label>
+                    <input type="text" id="pitchWebsite" placeholder="https://">
+                </div>
+                <div>
+                    <label>Products Interested</label>
+                    <select id="pitchProducts">
+                        <option>Protectors, Pillows</option>
+                        <option>Protectors Only</option>
+                        <option>Pillows Only</option>
+                        <option>Full Catalog</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row-2">
+                <div>
+                    <label>AI Provider</label>
+                    <select id="pitchProvider">
+                        <option value="gemini">Gemini (cloud — dashboard)</option>
+                        <option value="ollama">Ollama (free local)</option>
+                        <option value="auto">Auto (Ollama → Gemini → OpenAI)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Recipient Email</label>
+                    <input type="email" id="pitchEmail" placeholder="contact@business.co.uk">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" style="flex:1" onclick="generatePitch()">Generate AI Pitch</button>
+            </div>
+            <div id="pitchOutput" class="pitch-out" style="display:none"></div>
+            <div class="btn-row" id="pitchActions" style="display:none">
+                <button class="btn btn-secondary" onclick="copyPitch()">Copy Email</button>
+                <button class="btn btn-orange" onclick="sendPitch()">Send via SMTP</button>
+            </div>
+        </div>
 
-                <div class="terminal-log" id="terminalLog">Connecting to local server...</div>
+        <div class="card">
+            <h2><span class="icon">&#9881;</span> Quick Actions</h2>
+            <p class="card-sub">Run Sarah scrape, Adeel qualify, or full pipeline from the dashboard.</p>
+            <label>Mission / scrape query</label>
+            <input type="text" id="scrapeMission" value="care homes boutique hotels Manchester UK">
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="runScrape()">Sarah Scrape</button>
+                <button class="btn btn-secondary" onclick="runQualify()">Adeel Qualify</button>
+                <button class="btn btn-secondary" onclick="refreshAll()">Refresh</button>
+            </div>
+            <p class="card-sub" style="margin-top:18px;margin-bottom:8px">Import scraped CSV (paste rows)</p>
+            <div class="import-box">
+                <textarea id="importCsv" placeholder="name,email,website,facility_type&#10;Oak Care Home,info@oak.co.uk,https://oak.co.uk,Care Home"></textarea>
+                <button class="btn btn-secondary" onclick="importCsv()">Import to Pipeline</button>
+            </div>
+            <div class="btn-row" style="margin-top:12px">
+                <a class="btn btn-secondary" href="/api/leads/export" download>Export CSV</a>
             </div>
         </div>
     </div>
 
-    <script>
-        let activeAgentId = null;
+    <div class="card" style="margin-bottom:20px">
+        <h2><span class="icon">&#128203;</span> Active Leads Pipeline</h2>
+        <p class="card-sub">Click a row to populate the pitch generator. Status syncs with outreach_master.csv.</p>
+        <div style="overflow-x:auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Business</th>
+                        <th>Sector</th>
+                        <th>Email</th>
+                        <th>Score</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="leadsBody">
+                    <tr><td colspan="5" style="color:var(--muted)">Loading leads…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-        async function checkServerHealth() {
-            const badge = document.getElementById('systemStatus');
-            const logBox = document.getElementById('terminalLog');
-            try {
-                const response = await fetch('/health');
-                const data = await response.json();
-                if (response.ok && data.status === 'ok') {
-                    badge.className = 'system-status online';
-                    badge.innerText = 'Online - Port ' + data.port + (data.ai ? ' + ' + (data.provider || 'AI') : '');
-                    logBox.innerText = `Server connected on port ${data.port}${data.ai ? ' with ' + (data.model || 'AI') + ' ready.' : '. Run start_ollama.bat for free AI.'}\nSelect an agent from the left to begin.`;
-                    return true;
-                }
-            } catch (error) {
-                badge.className = 'system-status offline';
-                badge.innerText = 'Offline - Server not running';
-                logBox.innerText = 'Cannot reach server.\n\n1. Double-click run_ai_fleet.bat\n2. Wait for: Running on http://127.0.0.1:5050\n3. Refresh this page (F5)\n\nDo NOT open HTML files directly from the folder.';
-            }
-            return false;
+    <div class="card">
+        <h2><span class="icon">&#128736;</span> Local Automation Blueprints</h2>
+        <p class="card-sub">Copy tested commands for Cursor / Roo Code — zero token cost on your machine.</p>
+        <div class="blueprint-title">Stealth Python Lead Scraper</div>
+        <div class="blueprint" id="bpScraper"><button class="copy-btn" onclick="copyBlueprint('bpScraper')">Copy</button></div>
+        <div class="blueprint-title">Local Ollama Gemma Pitch Pipeline</div>
+        <div class="blueprint" id="bpOllama"><button class="copy-btn" onclick="copyBlueprint('bpOllama')">Copy</button></div>
+        <div class="blueprint-title">Gemini Cloud Pitch (dashboard)</div>
+        <div class="blueprint" id="bpGemini"><button class="copy-btn" onclick="copyBlueprint('bpGemini')">Copy</button></div>
+        <div class="blueprint-title">Automated SMTP Dispatcher</div>
+        <div class="blueprint" id="bpSmtp"><button class="copy-btn" onclick="copyBlueprint('bpSmtp')">Copy</button></div>
+    </div>
+
+    <p class="legacy-link">Fleet agents (Sarah / James / Adeel manual control): use Mission Command via <a href="#" onclick="toggleLegacy();return false">legacy panel</a></p>
+    <div id="legacyPanel" style="display:none" class="card" style="margin-top:16px">
+        <p class="card-sub">Original agent deploy API still available at <code>/deploy-agent</code></p>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let selectedLead = null;
+let lastPitch = { subject: '', body: '', lead_key: '' };
+
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function leadKey(row) {
+    return (row.website || row.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+async function refreshDashboard() {
+    try {
+        const r = await fetch('/api/dashboard');
+        const d = await r.json();
+        document.getElementById('kpiLeads').textContent = d.scraped_leads ?? 0;
+        document.getElementById('kpiSent').textContent = d.pitches_sent ?? 0;
+        document.getElementById('kpiOrders').textContent = '£' + (d.target_orders_gbp ?? 0).toLocaleString();
+        document.getElementById('kpiOrdersNote').textContent =
+            d.pitches_sent ? `Based on ${Math.max(1, Math.floor(d.pitches_sent / 3))} contract(s)` : 'Based on contracts';
+        const ollama = document.getElementById('badgeOllama');
+        if (d.ollama_online) {
+            ollama.textContent = 'Ollama Online';
+            ollama.className = 'badge badge-ollama-on';
+        } else {
+            ollama.textContent = 'Ollama Stopped';
+            ollama.className = 'badge badge-ollama-off';
         }
+        const model = document.getElementById('badgeModel');
+        model.textContent = (d.ai_model || 'Gemma 7B') + ' · ' + (d.ai_provider || 'local');
+    } catch (e) {
+        toast('Dashboard offline — run run_ai_fleet.bat');
+    }
+}
 
-
-        async function loadSystemStatus() {
-            try {
-                const r = await fetch('/system-status');
-                const d = await r.json();
-                const grid = document.getElementById('statsGrid');
-                if (!grid) return;
-                grid.innerHTML = '<div class="stat-box"><b>' + (d.qualified_leads || 0) + '</b>Qualified leads</div>'
-                    + '<div class="stat-box"><b>' + (d.leads_with_valid_email || 0) + '</b>Valid emails</div>'
-                    + '<div class="stat-box"><b>' + (d.smtp ? 'OK' : 'OFF') + '</b>SMTP</div>'
-                    + '<div class="stat-box"><b>' + (d.ai_provider || (d.openai ? 'OK' : 'OFF')) + '</b>AI</div>';
-            } catch (e) {}
+async function loadLeads() {
+    const body = document.getElementById('leadsBody');
+    try {
+        const r = await fetch('/api/leads');
+        const d = await r.json();
+        const leads = d.leads || [];
+        if (!leads.length) {
+            body.innerHTML = '<tr><td colspan="5" style="color:var(--muted)">No leads yet. Run Sarah Scrape or Import CSV.</td></tr>';
+            return;
         }
-        function applyPreset() {
-            const v = document.getElementById('missionPreset').value;
-            if (v) document.getElementById('missionInput').value = v;
-        }
-        async function runSalesCycle(scrape) {
-            const mission = document.getElementById('missionInput').value.trim() || 'care homes hotels Manchester UK';
-            logToTerminal('[ENGINE]: Starting dry-run sales cycle...');
-            try {
-                const r = await fetch('/run-sales-cycle', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mission, limit: 5, scrape, send: false })
-                });
-                const d = await r.json();
-                logToTerminal('[ENGINE]: ' + (d.message || d.status));
-                if (d.stats) logToTerminal('[STATS]: ' + JSON.stringify(d.stats));
-                loadSystemStatus();
-            } catch (e) {
-                logToTerminal('[ERROR]: Sales cycle failed');
-            }
-        }
+        body.innerHTML = leads.map((row, i) => {
+            const st = (row.email_status || 'pending').toLowerCase();
+            const cls = st === 'sent' ? 'status-sent' : 'status-pending';
+            return `<tr class="lead-row" data-idx="${i}" onclick="selectLead(${i})">
+                <td><strong>${esc(row.name || row.company)}</strong></td>
+                <td>${esc(row.facility_type || '—')}</td>
+                <td>${esc(row.email || '—')}</td>
+                <td>${esc(row.score || '—')}</td>
+                <td class="${cls}">${esc(st)}</td>
+            </tr>`;
+        }).join('');
+        window._leads = leads;
+    } catch (e) {
+        body.innerHTML = '<tr><td colspan="5">Failed to load leads</td></tr>';
+    }
+}
 
-        checkServerHealth();
-        loadSystemStatus();
+function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
 
-        function selectAgent(id, name) {
-            activeAgentId = id;
-            document.querySelectorAll('.agent-card').forEach(card => card.classList.remove('selected'));
-            document.getElementById(`card-${id}`).classList.add('selected');
-            document.getElementById('commandTitle').innerText = `Controlling: ${name}`;
-            document.getElementById('commandDesc').innerText = 'Direct routing connection prepared via internal script loops.';
-            document.getElementById('interactionBox').style.display = 'flex';
-            logToTerminal(`Target focus shifted to agent: [${id}]`);
+function selectLead(idx) {
+    const row = window._leads[idx];
+    if (!row) return;
+    selectedLead = row;
+    document.querySelectorAll('.lead-row').forEach((tr, i) => {
+        tr.classList.toggle('selected', i === idx);
+    });
+    document.getElementById('activeLeadPill').style.display = 'inline-flex';
+    document.getElementById('activeLeadName').textContent = row.name || row.company;
+    document.getElementById('pitchCompany').value = row.name || row.company || '';
+    document.getElementById('pitchWebsite').value = row.website || '';
+    document.getElementById('pitchEmail').value = row.email || '';
+    const sector = row.facility_type || 'Commercial Buyer';
+    const sel = document.getElementById('pitchSector');
+    for (const opt of sel.options) {
+        if (sector.toLowerCase().includes(opt.text.split(' ')[0].toLowerCase())) {
+            sel.value = opt.text;
+            break;
         }
+    }
+    toast('Lead selected: ' + (row.name || row.company));
+}
 
-        async function deploySelectedAgent() {
-            const missionText = document.getElementById('missionInput').value.trim();
-            if (!activeAgentId) {
-                alert('Please select an agent first!');
-                return;
-            }
-            if (!missionText) {
-                alert('Please enter mission targets first!');
-                return;
-            }
+async function generatePitch() {
+    const company = document.getElementById('pitchCompany').value.trim();
+    if (!company) { toast('Enter a company name'); return; }
+    const out = document.getElementById('pitchOutput');
+    out.style.display = 'block';
+    out.innerHTML = '<em>Generating pitch…</em>';
+    try {
+        const r = await fetch('/api/pitch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                company,
+                sector: document.getElementById('pitchSector').value,
+                website: document.getElementById('pitchWebsite').value,
+                products: document.getElementById('pitchProducts').value,
+                provider: document.getElementById('pitchProvider').value,
+                city: selectedLead?.city || 'UK',
+            }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.message || 'Pitch failed');
+        lastPitch = {
+            subject: d.subject,
+            body: d.body,
+            lead_key: selectedLead ? leadKey(selectedLead) : '',
+        };
+        let html = `<h4>SUBJECT: ${esc(d.subject)}</h4>${esc(d.body)}`;
+        if (d.why_fit) html += `\n\n<h4>WHY THIS FIT</h4>${esc(d.why_fit)}`;
+        if (d.value_props) html += `\n\n<h4>VALUE PROPS</h4>${esc(d.value_props)}`;
+        html += `\n\n<em style="color:var(--muted)">via ${esc(d.provider)} / ${esc(d.model)}</em>`;
+        out.innerHTML = html;
+        document.getElementById('pitchActions').style.display = 'flex';
+        toast('Pitch ready');
+    } catch (e) {
+        out.textContent = 'Error: ' + e.message;
+    }
+}
 
-            logToTerminal('[SYSTEM]: Sending directives over local channel...');
-            if (activeAgentId === 'lead_scraper') {
-                logToTerminal('[SARAH]: Multi-source scrape (Google, LinkedIn, web, Reddit) - can take 2-4 minutes...');
-            } else if (activeAgentId === 'email_writer') {
-                logToTerminal('[JAMES]: Drafting B2B cold pitch via local AI - please wait...');
-            } else if (activeAgentId === 'data_cleaner') {
-                logToTerminal('[ADEEL]: Cleaning data + building CSV rows - please wait...');
-            }
-            try {
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 120000);
-                const response = await fetch('/deploy-agent', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ agent_id: activeAgentId, mission: missionText }),
-                    signal: controller.signal
-                });
-                clearTimeout(timeout);
-                const data = await response.json();
-                if (!response.ok) {
-                    logToTerminal(`[ERROR]: ${data.message || 'Request failed.'}`);
-                    return;
-                }
-                logToTerminal(`[SERVER]: ${data.message}`);
-                if (activeAgentId === 'lead_scraper') {
-                    logToTerminal('[SARAH]: Live scrape complete. Review leads above.');
-                } else if (activeAgentId === 'email_writer') {
-                    logToTerminal('[JAMES]: Cold pitch draft ready. Copy from the log above.');
-                } else if (activeAgentId === 'data_cleaner') {
-                    logToTerminal('[ADEEL]: Spreadsheet rows ready. Copy the CSV block into Excel.');
-                } else {
-                    logToTerminal('[READY]: Structuring background logic frame.');
-                }
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    logToTerminal('[ERROR]: Request timed out after 2 minutes. Try a shorter mission.');
-                } else {
-                    logToTerminal('[ERROR]: Cannot reach server. Double-click run_ai_fleet.bat, wait for "Running on http://127.0.0.1:5050", then refresh this page.');
-                }
-            }
+function copyPitch() {
+    const text = `Subject: ${lastPitch.subject}\n\n${lastPitch.body}`;
+    navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard'));
+}
+
+async function sendPitch() {
+    const email = document.getElementById('pitchEmail').value.trim();
+    if (!email) { toast('Add recipient email'); return; }
+    if (!lastPitch.subject) { toast('Generate a pitch first'); return; }
+    if (!confirm('Send this email to ' + email + '?')) return;
+    try {
+        const r = await fetch('/api/pitch/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email,
+                subject: lastPitch.subject,
+                body: lastPitch.body,
+                lead_key: lastPitch.lead_key,
+            }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.message);
+        toast(d.message);
+        refreshAll();
+    } catch (e) {
+        toast('Send failed: ' + e.message);
+    }
+}
+
+async function runScrape() {
+    toast('Sarah scraping… (2–4 min)');
+    const mission = document.getElementById('scrapeMission').value;
+    try {
+        const r = await fetch('/api/scrape', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mission, limit: 8 }),
+        });
+        const d = await r.json();
+        toast(d.message || d.status);
+        if (r.ok) runQualify();
+    } catch (e) { toast('Scrape failed'); }
+}
+
+async function runQualify() {
+    toast('Adeel qualifying…');
+    try {
+        const r = await fetch('/api/qualify', { method: 'POST' });
+        const d = await r.json();
+        toast('Qualified: ' + (d.qualified ?? 0) + ' leads');
+        refreshAll();
+    } catch (e) { toast('Qualify failed'); }
+}
+
+async function importCsv() {
+    const csv = document.getElementById('importCsv').value;
+    try {
+        const r = await fetch('/api/leads/import', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ csv }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.message);
+        toast(`Imported ${d.imported} row(s), ${d.total} total`);
+        document.getElementById('importCsv').value = '';
+        refreshAll();
+    } catch (e) { toast(e.message); }
+}
+
+async function loadBlueprints() {
+    try {
+        const r = await fetch('/api/blueprints');
+        const d = await r.json();
+        function setBp(id, text) {
+            const el = document.getElementById(id);
+            const btn = el.querySelector('.copy-btn');
+            el.textContent = '';
+            if (btn) el.appendChild(btn);
+            el.appendChild(document.createTextNode(text || ''));
         }
+        setBp('bpScraper', d.scraper);
+        setBp('bpOllama', d.ollama_pitch);
+        setBp('bpGemini', d.gemini_pitch);
+        setBp('bpSmtp', d.smtp_send);
+    } catch (e) {}
+}
 
-        function logToTerminal(message) {
-            const logBox = document.getElementById('terminalLog');
-            logBox.innerText += '\n> ' + message.split('\n').join('\n> ');
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-    </script>
+function copyBlueprint(id) {
+    const el = document.getElementById(id);
+    const text = el.innerText.replace('Copy', '').trim();
+    navigator.clipboard.writeText(text).then(() => toast('Blueprint copied'));
+}
+
+function refreshAll() {
+    refreshDashboard();
+    loadLeads();
+}
+
+function toggleLegacy() {
+    const p = document.getElementById('legacyPanel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+refreshAll();
+loadBlueprints();
+setInterval(refreshDashboard, 30000);
+</script>
 </body>
 </html>
-

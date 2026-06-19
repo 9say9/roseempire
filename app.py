@@ -19,10 +19,26 @@ from fleet_ai import (
     analyze_leads_with_ai,
     clean_leads_with_ai,
     draft_email_pitch_with_ai,
+    draft_wholesale_pitch_with_ai,
+    ollama_online,
+    parse_email_pitch,
 )
 from fleet_scraper import scrape_fresh_leads
 from manchester_sales_pipeline import run_pipeline
 from sales_engine import run_sales_cycle
+from dashboard_api import (
+    BLUEPRINTS,
+    dashboard_stats,
+    export_leads_csv_text,
+    import_leads_csv_text,
+    load_pipeline_leads,
+    mark_lead_sent,
+)
+from email_agent import send_email
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+CATALOG_PDF = ROOT / "assets" / "Rose-Empire-Wholesale-Catalog.pdf"
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
@@ -73,7 +89,145 @@ def health():
         "ai": ai_available(),
         "provider": ai_provider(),
         "model": active_model(),
+        "ollama": ollama_online(),
+        "gemini": bool(os.getenv("GEMINI_API_KEY")),
     })
+
+
+@app.route("/api/dashboard")
+def api_dashboard():
+    stats = dashboard_stats()
+    return jsonify({
+        **stats,
+        "ollama_online": ollama_online(),
+        "ai_provider": ai_provider(),
+        "ai_model": active_model(),
+        "gemini_configured": bool(os.getenv("GEMINI_API_KEY")),
+        "scraping_ready": True,
+    })
+
+
+@app.route("/api/leads")
+def api_leads():
+    return jsonify({"leads": load_pipeline_leads()})
+
+
+@app.route("/api/leads/import", methods=["POST"])
+def api_leads_import():
+    data = request.get_json(silent=True) or {}
+    text = (data.get("csv") or "").strip()
+    try:
+        result = import_leads_csv_text(text)
+        return jsonify({"status": "success", **result})
+    except ValueError as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+
+
+@app.route("/api/leads/export")
+def api_leads_export():
+    from flask import Response
+    return Response(
+        export_leads_csv_text(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=outreach_master.csv"},
+    )
+
+
+@app.route("/api/pitch", methods=["POST"])
+def api_pitch():
+    data = request.get_json(silent=True) or {}
+    company = (data.get("company") or data.get("name") or "").strip()
+    if not company:
+        return jsonify({"status": "error", "message": "Company name required."}), 400
+    sector = (data.get("sector") or data.get("facility_type") or "Commercial Buyer").strip()
+    website = (data.get("website") or "").strip()
+    products = (data.get("products") or "Protectors, Pillows").strip()
+    city = (data.get("city") or "UK").strip()
+    prefer = (data.get("provider") or "gemini").strip().lower()
+    if prefer == "auto":
+        prefer = None
+    try:
+        raw = draft_wholesale_pitch_with_ai(
+            company=company,
+            sector=sector,
+            website=website,
+            products=products,
+            city=city,
+            prefer=prefer if prefer in ("gemini", "ollama", "openai") else "gemini",
+        )
+        subject, body = parse_email_pitch(raw)
+        why_fit = ""
+        value_props = ""
+        if "WHY_FIT:" in raw:
+            why_fit = raw.split("WHY_FIT:", 1)[-1].split("VALUE_PROPS:", 1)[0].strip()
+        if "VALUE_PROPS:" in raw:
+            value_props = raw.split("VALUE_PROPS:", 1)[-1].strip()
+        return jsonify({
+            "status": "success",
+            "raw": raw,
+            "subject": subject,
+            "body": body,
+            "why_fit": why_fit,
+            "value_props": value_props,
+            "provider": ai_provider(prefer),
+            "model": active_model(prefer),
+        })
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 503
+
+
+@app.route("/api/pitch/send", methods=["POST"])
+def api_pitch_send():
+    data = request.get_json(silent=True) or {}
+    to_email = (data.get("email") or "").strip()
+    subject = (data.get("subject") or "").strip()
+    body = (data.get("body") or "").strip()
+    lead_key = (data.get("lead_key") or "").strip()
+    if not to_email or not subject or not body:
+        return jsonify({"status": "error", "message": "email, subject, and body required."}), 400
+    try:
+        attachments = [CATALOG_PDF] if CATALOG_PDF.is_file() else []
+        send_email(to_email, subject, body, attachments=attachments or None)
+        if lead_key:
+            mark_lead_sent(lead_key)
+        return jsonify({"status": "success", "message": f"Sent to {to_email}"})
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 500
+
+
+@app.route("/api/scrape", methods=["POST"])
+def api_scrape():
+    data = request.get_json(silent=True) or {}
+    mission = (data.get("mission") or "care homes boutique hotels Manchester UK").strip()
+    limit = int(data.get("limit") or 8)
+    try:
+        leads = scrape_fresh_leads(mission, limit=limit)
+        return jsonify({
+            "status": "success",
+            "message": f"Sarah scraped {len(leads)} lead(s). Run qualify to sync pipeline.",
+            "count": len(leads),
+        })
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 500
+
+
+@app.route("/api/qualify", methods=["POST"])
+def api_qualify():
+    try:
+        from lead_pipeline import merge_and_qualify, save_leads
+        from outreach_leads import export_outreach_csv
+        leads = merge_and_qualify(manchester_only=True, min_score=35)
+        out = ROOT / "linkedin-outreach" / "qualified_manchester_leads.csv"
+        save_leads(leads, out)
+        stats = export_outreach_csv(out)
+        return jsonify({"status": "success", "qualified": len(leads), "stats": stats})
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 500
+
+
+@app.route("/api/blueprints")
+def api_blueprints():
+    return jsonify(BLUEPRINTS)
 
 
 @app.route("/")

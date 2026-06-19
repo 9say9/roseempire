@@ -25,7 +25,14 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 OPENAI_API_BASE = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1").rstrip("/")
 
-# ollama (free) | openai (paid) | auto (ollama first)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+GEMINI_URL = (
+    f"https://generativelanguage.googleapis.com/v1beta/models/"
+    f"{GEMINI_MODEL}:generateContent"
+)
+
+# ollama (free) | openai (paid) | gemini (cloud) | auto (ollama first, then gemini, then openai)
 AI_PROVIDER = os.getenv("AI_PROVIDER", "auto").lower()
 
 ROSE_EMPIRE_FACTS = """
@@ -55,26 +62,33 @@ def ollama_online() -> bool:
         return False
 
 
-def ai_provider() -> str:
-    if AI_PROVIDER == "openai":
+def ai_provider(prefer: str | None = None) -> str:
+    mode = (prefer or AI_PROVIDER).lower()
+    if mode == "gemini":
+        return "gemini" if GEMINI_API_KEY else "none"
+    if mode == "openai":
         return "openai" if OPENAI_API_KEY else "none"
-    if AI_PROVIDER == "ollama":
+    if mode == "ollama":
         return "ollama" if ollama_online() else "none"
     if ollama_online():
         return "ollama"
+    if GEMINI_API_KEY:
+        return "gemini"
     if OPENAI_API_KEY:
         return "openai"
     return "none"
 
 
-def ai_available() -> bool:
-    return ai_provider() != "none"
+def ai_available(prefer: str | None = None) -> bool:
+    return ai_provider(prefer) != "none"
 
 
-def active_model() -> str:
-    provider = ai_provider()
+def active_model(prefer: str | None = None) -> str:
+    provider = ai_provider(prefer)
     if provider == "ollama":
         return OLLAMA_MODEL
+    if provider == "gemini":
+        return GEMINI_MODEL
     if provider == "openai":
         return OPENAI_MODEL
     return "none"
@@ -149,14 +163,44 @@ def _call_openai(system: str, user: str, *, temperature: float = 0.55, max_token
     return text
 
 
-def _call_ai(system: str, user: str, *, temperature: float = 0.55, max_tokens: int = 1800) -> tuple[str, str]:
-    provider = ai_provider()
+def _call_gemini(system: str, user: str, *, temperature: float = 0.65, max_tokens: int = 1800) -> str:
+    if not GEMINI_API_KEY:
+        raise RuntimeError("Gemini not configured. Add GEMINI_API_KEY to .env.")
+    payload = {
+        "systemInstruction": {"parts": [{"text": system}]},
+        "contents": [{"role": "user", "parts": [{"text": user}]}],
+        "generationConfig": {"temperature": temperature, "maxOutputTokens": max_tokens},
+    }
+    response = requests.post(GEMINI_URL, params={"key": GEMINI_API_KEY}, json=payload, timeout=(5, 120))
+    response.raise_for_status()
+    body = response.json()
+    candidates = body.get("candidates") or []
+    if not candidates:
+        raise RuntimeError("Gemini returned no response.")
+    parts = candidates[0].get("content", {}).get("parts") or []
+    text = "".join(p.get("text", "") for p in parts).strip()
+    if not text:
+        raise RuntimeError("Gemini returned an empty response.")
+    return text
+
+
+def _call_ai(
+    system: str,
+    user: str,
+    *,
+    temperature: float = 0.55,
+    max_tokens: int = 1800,
+    prefer: str | None = None,
+) -> tuple[str, str]:
+    provider = ai_provider(prefer)
     if provider == "ollama":
         return _call_ollama(system, user, temperature=temperature, max_tokens=max_tokens), OLLAMA_MODEL
+    if provider == "gemini":
+        return _call_gemini(system, user, temperature=temperature, max_tokens=max_tokens), GEMINI_MODEL
     if provider == "openai":
         return _call_openai(system, user, temperature=temperature, max_tokens=max_tokens), OPENAI_MODEL
     raise RuntimeError(
-        "No AI provider available. Run start_ollama.bat (free) or set OPENAI_API_KEY in .env."
+        "No AI provider available. Run start_ollama.bat (free) or set GEMINI_API_KEY / OPENAI_API_KEY in .env."
     )
 
 
@@ -172,7 +216,56 @@ def analyze_leads_with_ai(mission: str, raw_leads_text: str) -> str:
     return f"[Sarah via {model}]\n\n{text}"
 
 
-def draft_email_pitch_with_ai(customer_data: str) -> str:
+SECTOR_PAIN_POINTS = {
+    "Boutique Hotel & Resort Spas": "guest comfort, premium linen standards, fast room turnaround",
+    "Care Home & Nursing": "heavy sanitizing, waterproof durability, infection control compliance",
+    "Student Accommodation": "high turnover, budget durability, bulk replacement cycles",
+    "Guest House & B&B": "cost-effective quality, easy laundering, low MOQ flexibility",
+    "Procurement / Facilities": "supplier consolidation, trade pricing, reliable UK delivery",
+}
+
+
+def draft_wholesale_pitch_with_ai(
+    *,
+    company: str,
+    sector: str = "Commercial Buyer",
+    website: str = "",
+    products: str = "Protectors, Pillows",
+    city: str = "UK",
+    prefer: str | None = None,
+) -> str:
+    pains = SECTOR_PAIN_POINTS.get(sector, "operational efficiency, guest comfort, and supplier reliability")
+    system = f"""{ROSE_EMPIRE_FACTS}
+
+{AGENTS['james']}
+
+You write B2B wholesale cold emails for Rose Empire mattress protectors and pillows.
+Emphasize sector pain points: {pains}.
+Products in scope: {products}."""
+    user = f"""Target: {company}
+Sector: {sector}
+Website: {website or 'unknown'}
+City/region: {city}
+
+Return exactly this structure:
+
+SUBJECT: <one compelling line>
+
+BODY:
+<120-180 words, plain text, human tone, one clear CTA to catalog quote page>
+
+WHY_FIT:
+<2-3 sentences on why this prospect is a strong wholesale buyer>
+
+VALUE_PROPS:
+1. <retail/operational value prop>
+2. <product quality value prop>
+3. <commercial/trade value prop>"""
+    text, model = _call_ai(system, user, temperature=0.65, prefer=prefer or "gemini")
+    return f"[James via {model}]\n\n{text}"
+
+
+def draft_email_pitch_with_ai(customer_data: str, prefer: str | None = None) -> str:
     system = f"{ROSE_EMPIRE_FACTS}\n\n{AGENTS['james']}"
     user = (
         f"Lead data: {customer_data}\n\n"
@@ -180,7 +273,7 @@ def draft_email_pitch_with_ai(customer_data: str) -> str:
         "SUBJECT: <one line>\n"
         "BODY:\n<plain text, 120-180 words, sign off as Rose Empire Wholesale>"
     )
-    text, model = _call_ai(system, user, temperature=0.65)
+    text, model = _call_ai(system, user, temperature=0.65, prefer=prefer)
     return f"[James via {model}]\n\n{text}"
 
 
