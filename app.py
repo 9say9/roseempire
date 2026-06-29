@@ -4,6 +4,7 @@ For the website chat widget, run server.py instead (port 5000, Gemini 1.5 Flash)
 """
 from __future__ import annotations
 
+import json
 import os
 
 from dotenv import load_dotenv
@@ -39,6 +40,23 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 CATALOG_PDF = ROOT / "assets" / "Rose-Empire-Wholesale-Catalog.pdf"
+FLEET_BUILD = "crm-v1.2"  # B2B Outreach Dashboard — Sarah / James / Adeel
+
+
+def _git_short_hash() -> str:
+    try:
+        import subprocess
+
+        out = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=ROOT,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=3,
+        )
+        return out.strip()
+    except Exception:
+        return "unknown"
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
@@ -86,11 +104,34 @@ def health():
     return jsonify({
         "status": "ok",
         "port": PORT,
+        "build": FLEET_BUILD,
+        "git": _git_short_hash(),
+        "crm": Path(ROOT / "dashboard_api.py").is_file(),
         "ai": ai_available(),
         "provider": ai_provider(),
         "model": active_model(),
         "ollama": ollama_online(),
         "gemini": bool(os.getenv("GEMINI_API_KEY")),
+    })
+
+
+@app.route("/api/version")
+def api_version():
+    """Use this to confirm friend PC has the new CRM (not old Alex-era dashboard)."""
+    has_crm = (ROOT / "dashboard_api.py").is_file()
+    html = ROOT / "templates" / "index.html"
+    hub_v12 = False
+    if html.is_file():
+        hub_v12 = "Automation Hub v1.2" in html.read_text(encoding="utf-8", errors="ignore")
+    agents = [a["name"] for a in INITIAL_AGENTS]
+    return jsonify({
+        "build": FLEET_BUILD,
+        "git": _git_short_hash(),
+        "crm_dashboard": has_crm and hub_v12,
+        "agents": agents,
+        "expected_agents": ["Sarah (Lead Scraper)", "James (Copywriter)", "Adeel (Data Analyst)"],
+        "update_if_old": not (has_crm and hub_v12),
+        "pull_command": "git pull origin main",
     })
 
 
@@ -225,6 +266,83 @@ def api_qualify():
         return jsonify({"status": "error", "message": str(exc)}), 500
 
 
+@app.route("/api/checkout/config")
+def api_checkout_config():
+    publishable_key = (os.getenv("STRIPE_PUBLISHABLE_KEY") or "").strip()
+    return jsonify({
+        "status": "success",
+        "enabled": bool(publishable_key),
+        "currency": "GBP",
+        "mode": "test" if publishable_key.startswith("pk_test_") else ("live" if publishable_key.startswith("pk_live_") else "unset"),
+        "message": "Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY to enable secure checkout.",
+    })
+
+
+@app.route("/api/checkout/create", methods=["POST"])
+def api_checkout_create():
+    data = request.get_json(silent=True) or {}
+    items = data.get("items") or []
+    if not items:
+        return jsonify({"status": "error", "message": "Cart is empty."}), 400
+
+    try:
+        import stripe
+    except Exception as exc:
+        return jsonify({"status": "error", "message": f"Stripe support is not available: {exc}"}), 500
+
+    secret_key = (os.getenv("STRIPE_SECRET_KEY") or "").strip()
+    if not secret_key:
+        return jsonify({
+            "status": "error",
+            "message": "Stripe checkout is not configured on this server. Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY to enable it.",
+        }), 400
+
+    stripe.api_key = secret_key
+    domain = (data.get("domain") or os.getenv("SITE_URL") or request.host_url).rstrip("/")
+    line_items = []
+
+    for item in items:
+        qty = max(1, int(item.get("quantity") or 1))
+        unit_price = float(item.get("unitPrice") or 0)
+        if unit_price <= 0:
+            continue
+        line_items.append({
+            "price_data": {
+                "currency": "gbp",
+                "product_data": {
+                    "name": f"{item.get('title', 'Rose Empire product')} ({item.get('sizeName', 'Trade size')})",
+                    "metadata": {
+                        "product_id": item.get("productId", ""),
+                        "size": item.get("sizeName", ""),
+                    },
+                },
+                "unit_amount": int(round(unit_price * 100)),
+            },
+            "quantity": qty,
+        })
+
+    if not line_items:
+        return jsonify({"status": "error", "message": "No valid line items."}), 400
+
+    try:
+        session = stripe.checkout.Session.create(
+            mode="payment",
+            line_items=line_items,
+            success_url=f"{domain}/?checkout=success",
+            cancel_url=f"{domain}/?checkout=cancel",
+            customer_email=(data.get("customerEmail") or "").strip() or None,
+            metadata={
+                "source": "rose-empire-site",
+                "items": json.dumps(items),
+            },
+            allow_promotion_codes=True,
+        )
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 500
+
+    return jsonify({"status": "success", "url": session.url})
+
+
 @app.route("/api/blueprints")
 def api_blueprints():
     return jsonify(BLUEPRINTS)
@@ -232,6 +350,30 @@ def api_blueprints():
 
 @app.route("/")
 def home():
+    html_path = ROOT / "templates" / "index.html"
+    try:
+        raw = html_path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        raw = ""
+    if "B2B Command Center v1.2" not in raw:
+        return (
+            f"""<!DOCTYPE html><html><head><meta charset="utf-8"><title>Update required</title>
+            <style>body{{font-family:Segoe UI,sans-serif;max-width:640px;margin:48px auto;padding:24px}}
+            code{{background:#f4f4f4;padding:2px 6px;border-radius:4px}}</style></head><body>
+            <h1>Old dashboard detected on this PC</h1>
+            <p>You are running <strong>AI Fleet Command</strong> (dark Mission Command UI).
+            The new <strong>B2B CRM</strong> (B2B Command Center v1.2) is not loaded yet.</p>
+            <p><strong>Repo folder:</strong> <code>{ROOT}</code></p>
+            <ol>
+            <li>Close all Fleet SERVER windows</li>
+            <li>In this folder run: <code>force_crm_update.bat</code></li>
+            <li>Reopen: <a href="http://127.0.0.1:5050">http://127.0.0.1:5050</a></li>
+            </ol>
+            <p>Check: <a href="/api/version">/api/version</a> should show <code>"crm_dashboard": true</code></p>
+            </body></html>""",
+            200,
+            {"Content-Type": "text/html; charset=utf-8"},
+        )
     return render_template("index.html", agents=INITIAL_AGENTS)
 
 
@@ -398,8 +540,15 @@ def run_full_sales_cycle():
 
 if __name__ == "__main__":
     url = f"http://{HOST}:{PORT}"
+    html_path = ROOT / "templates" / "index.html"
+    crm_ok = False
+    if html_path.is_file():
+        crm_ok = "B2B Command Center v1.2" in html_path.read_text(encoding="utf-8", errors="ignore")
     print("\n" + "=" * 50)
     print(f"  Rose Empire AI Fleet — {url}")
+    print(f"  Build: {FLEET_BUILD} | git: {_git_short_hash()}")
+    print(f"  CRM dashboard: {'YES (B2B Command Center v1.2)' if crm_ok else 'NO — run force_crm_update.bat'}")
+    print(f"  Folder: {ROOT}")
     provider = ai_provider()
     print(f"  AI: {provider} ({active_model()})" if ai_available() else "  AI: offline — run start_ollama.bat (free)")
     print("  Keep this window open while using the dashboard.")

@@ -6,7 +6,7 @@ set "OLLAMA=%LOCALAPPDATA%\Programs\Ollama\ollama.exe"
 echo.
 echo  ============================================
 echo   FIX ROO CODE + ZOO CODE - Ollama
-echo   Model: qwen2.5-coder:7b
+echo   Model: qwen2.5-coder:1.5b (fast local coding — fits this PC)
 echo  ============================================
 echo.
 echo  PROBLEM FOUND:

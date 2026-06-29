@@ -25,16 +25,20 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [2/4] Stopping old server on port %FLEET_PORT%...
+echo [2/5] Starting AI Router (key rotation + Ollama fallback)...
+start "Rose Empire AI Router" cmd /k "cd /d %~dp0 && py -3 -m pip install -q -r ai_router\requirements.txt && py -3 ai_router\main.py"
+timeout /t 2 /nobreak >nul
+
+echo [3/5] Stopping old server on port %FLEET_PORT%...
 for /f "tokens=5" %%p in ('netstat -ano 2^>nul ^| findstr ":%FLEET_PORT%" ^| findstr "LISTENING"') do (
     taskkill /F /PID %%p >nul 2>&1
 )
 timeout /t 1 /nobreak >nul
 
-echo [3/4] Starting fleet server - keep SERVER window open...
+echo [4/5] Starting fleet server - keep SERVER window open...
 start "Rose Empire Fleet SERVER" cmd /k "cd /d %~dp0 && title Rose Empire Fleet SERVER && py -3 app.py || pause"
 
-echo [4/4] Waiting for dashboard...
+echo [5/5] Waiting for dashboard...
 set /a WAIT=0
 :waitloop
 set /a WAIT+=1

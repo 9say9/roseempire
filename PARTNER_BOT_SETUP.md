@@ -152,6 +152,43 @@ Orchestrator: `py -3 fleet_orchestrator.py status`
 | Email send fails | Check `.env` — ask Adeel for a fresh M365 app password |
 | `playwright` error | `py -3 -m playwright install chromium` |
 | No leads CSV | Run Sarah first; folder `linkedin-outreach/` is created automatically |
+| **Roo not loading / service worker error** | Run `fix_cursor_webview.bat`, set Cursor layout to **Editor**, open Roo from **left sidebar** |
+| **Roo ignores GitHub URL** | **Normal.** Roo does not clone repos. Use Git, then **File → Open Folder** on `roseempire` |
+| **Playwright not working in Roo** | **Normal.** Playwright runs outside Roo: double-click `run_sarah_playwright.bat` |
+| **Roo API stuck / wrong model** | Close Cursor → `setup_roo_on_this_pc.bat` → `start_ai_router.bat` → reopen |
+
+---
+
+## Roo Code + GitHub (important)
+
+Roo Code **does not** open GitHub URLs or run Playwright inside the chat panel.
+
+**Correct workflow on a new PC (e.g. via TeamViewer):**
+
+```bat
+git clone https://github.com/9say9/roseempire.git
+cd roseempire
+setup_friend_pc.bat
+```
+
+Then in **Cursor**: **File → Open Folder** → select the `roseempire` folder (not a URL).
+
+1. Adeel sends `.env` → save as `roseempire\.env`
+2. `start_ai_router.bat` (cloud keys + free Ollama fallback)
+3. Close Cursor → `setup_roo_on_this_pc.bat` → reopen Cursor
+4. **Sarah scrape:** `run_sarah_playwright.bat` (browser opens separately)
+5. **Dashboard:** `run_ai_fleet.bat` → http://127.0.0.1:5050
+
+**Roo AI settings (after `setup_roo_on_this_pc.bat`):**
+
+| Setting | Value |
+|---------|--------|
+| Provider | OpenAI |
+| Base URL | `http://127.0.0.1:8000/v1` |
+| API Key | `local` |
+| Model | `gpt-3.5-turbo` |
+
+Fallback (no router): Ollama → `http://127.0.0.1:11434` → `qwen2.5-coder:1.5b`
 
 ---
 

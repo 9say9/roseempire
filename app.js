@@ -63,6 +63,7 @@ const summaryUniqueCount= document.getElementById('summary-unique-count');
 const summaryTotalPacks = document.getElementById('summary-total-packs');
 const summaryTotalPrice = document.getElementById('summary-total-price');
 const proceedQuoteBtn   = document.getElementById('proceed-quote-btn');
+const stripeCheckoutBtn = document.getElementById('stripe-checkout-btn');
 const themeToggle       = document.getElementById('theme-toggle');
 const productDetailModal= document.getElementById('product-detail-modal');
 const modalDetailBody   = document.getElementById('modal-detail-body');
@@ -206,6 +207,7 @@ function renderCartItems() {
                 <p>Browse our catalog and add products to start compiling your wholesale quote.</p>
             </div>`;
         proceedQuoteBtn.disabled = true;
+        if (stripeCheckoutBtn) stripeCheckoutBtn.disabled = true;
         QuoteRequestPricingUI.resetSummary();
         return;
     }
@@ -262,6 +264,40 @@ function renderCartItems() {
     proceedQuoteBtn.textContent = hasMOQFail
         ? 'Resolve MOQ Warnings to Proceed'
         : 'Proceed to Request Quote';
+    if (stripeCheckoutBtn) stripeCheckoutBtn.disabled = false;
+}
+
+async function startStripeCheckout() {
+    if (!cart.length) {
+        alert('Add products to your quote list before starting checkout.');
+        return;
+    }
+
+    if (stripeCheckoutBtn) {
+        stripeCheckoutBtn.disabled = true;
+        stripeCheckoutBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing checkout…';
+    }
+
+    try {
+        const response = await fetch('/api/checkout/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: cart, domain: window.location.origin })
+        });
+        const data = await response.json();
+        if (!response.ok || data.status !== 'success') {
+            throw new Error(data.message || 'Stripe checkout is unavailable right now.');
+        }
+        window.location.href = data.url;
+    } catch (err) {
+        console.error(err);
+        alert(err.message || 'Stripe checkout could not be started. Please try again or contact info@roseempire.co.uk.');
+    } finally {
+        if (stripeCheckoutBtn) {
+            stripeCheckoutBtn.disabled = false;
+            stripeCheckoutBtn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Secure Stripe Checkout';
+        }
+    }
 }
 
 function addToCart(productId, sizeIndex, quantity) {
@@ -469,6 +505,10 @@ proceedQuoteBtn.addEventListener('click', () => {
     }, 200);
 });
 
+if (stripeCheckoutBtn) {
+    stripeCheckoutBtn.addEventListener('click', startStripeCheckout);
+}
+
 rfqBackBtn.addEventListener('click', () => {
     rfqFormModal.classList.remove('open');
     setTimeout(() => {
@@ -588,6 +628,13 @@ if (mobileNavToggle && navMenuEl) {
 // Initialise
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    const checkoutState = new URLSearchParams(window.location.search).get('checkout');
+    if (checkoutState === 'success') {
+        alert('Stripe checkout completed. Our team will confirm your wholesale order shortly.');
+    } else if (checkoutState === 'cancel') {
+        alert('Stripe checkout was cancelled. Your quote request list is still available if you want to continue by email.');
+    }
+
     initTheme();
     await loadCatalog();
     renderProducts();

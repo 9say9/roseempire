@@ -25,14 +25,14 @@ echo  Models installed:
 "%OLLAMA%" list
 
 echo.
-echo  Warming qwen2.5-coder:7b into GPU memory for Roo Code / Continue...
-echo  (First warm-up can take 1-3 minutes — please wait)
-py -3.12 -c "import urllib.request,json;p=json.dumps({'model':'qwen2.5-coder:7b','prompt':'OK','stream':False,'keep_alive':'1h','options':{'num_predict':3}}).encode();urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:11434/api/generate',data=p,headers={'Content-Type':'application/json'},method='POST'),timeout=300);print('  Model warm: qwen2.5-coder:7b ready')" 2>nul
-if errorlevel 1 echo  Warm-up skipped — run setup_rose_empire_ai.bat if model missing
+echo  Warming qwen2.5-coder:1.5b into memory for Roo Code / Zoo Code...
+echo  (First warm-up can take 30-60 seconds — please wait)
+py -3.12 -c "import urllib.request,json;p=json.dumps({'model':'qwen2.5-coder:1.5b','prompt':'OK','stream':False,'keep_alive':'1h','options':{'num_predict':3}}).encode();urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:11434/api/generate',data=p,headers={'Content-Type':'application/json'},method='POST'),timeout=300);print('  Model warm: qwen2.5-coder:1.5b ready')" 2>nul
+if errorlevel 1 echo  Warm-up skipped — run ollama pull qwen2.5-coder:1.5b if model missing
 
 echo.
 echo  Ready for Roo Code, Continue, and run_rose_empire_bot.bat
-echo  Roo Code settings: Provider=Ollama, URL=http://127.0.0.1:11434, Model=qwen2.5-coder:7b
+echo  Roo Code settings: Provider=Ollama, URL=http://127.0.0.1:11434, Model=qwen2.5-coder:1.5b
 echo.
 if /I "%~1"=="silent" exit /b 0
 pause

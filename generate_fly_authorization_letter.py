@@ -15,6 +15,7 @@ MUTED = (80, 80, 80)
 
 # Licensor — supplier / manufacturer
 LICENSOR_NAME = "FLY INTERNATIONAL TRADING LTD"
+LICENSOR_COMPANY_NO = "8786223"
 LICENSOR_ADDRESS = (
     "Unit 1 Lawrence House, Derby Street, Manchester, UK, M8 8AT"
 )
@@ -22,6 +23,11 @@ LICENSOR_CONTACT = "Will Yang"
 LICENSOR_TITLE = "Director"
 LICENSOR_EMAIL = "flyduvet@gmail.com"
 LICENSOR_PHONE = "07411112207"
+
+# Registered brand / trade mark (proprietor: Licensor)
+BRAND_NAME = "ROSE EMPIRE"
+TRADEMARK_NO = "UK00003264965"
+TRADEMARK_CLASSES = "Class 20 and Class 24"
 
 # Licensee — Amazon seller
 LICENSEE_NAME = "FAIZ MART UK"
@@ -33,9 +39,9 @@ TERM_START = date.today().strftime("%d %B %Y")
 TERM_END = "12 June 2028"
 
 PRODUCTS = (
-    "Mattress protectors; pillows; duvets and duvet sets; mattress toppers; "
-    "bed sheets, pillowcases, and fitted sheets; bedding sets; and related "
-    "home textile bedding products supplied or manufactured by Licensor."
+    f"{BRAND_NAME} branded mattress protectors; pillows; duvets and duvet sets; "
+    "mattress toppers; bed sheets, pillowcases, and fitted sheets; bedding sets; "
+    "and related home textile bedding products supplied or manufactured by Licensor."
 )
 
 AMAZON_MARKETPLACE = "Amazon.co.uk (United Kingdom)"
@@ -82,6 +88,8 @@ def generate() -> Path:
     doc.set_text_color(*MUTED)
     doc.multi_cell(w - 2 * margin, 4.2, LICENSOR_ADDRESS)
     doc.ln(2)
+    doc.cell(0, 4.5, f"Company No: {LICENSOR_COMPANY_NO}")
+    doc.ln(4.5)
     doc.cell(0, 4.5, f"Tel: {LICENSOR_PHONE}  |  Email: {LICENSOR_EMAIL}")
 
     doc.ln(4)
@@ -116,16 +124,26 @@ def generate() -> Path:
     _section(
         doc,
         "1) LICENSOR",
-        f"{LICENSOR_NAME} (\"Licensor\"), with its business address at {LICENSOR_ADDRESS}, "
-        f"is the manufacturer, "
+        f"{LICENSOR_NAME} (\"Licensor\"), company number {LICENSOR_COMPANY_NO}, "
+        f"with its business address at {LICENSOR_ADDRESS}, is the manufacturer, "
         f"wholesaler, and authorized supplier of the bedding and home textile products "
-        f"described below.",
+        f"described below, and is the registered proprietor of the {BRAND_NAME} "
+        f"trade mark (UK registration {TRADEMARK_NO}, {TRADEMARK_CLASSES}).",
         margin,
     )
 
     _section(
         doc,
-        "2) LICENSEE",
+        "2) REGISTERED TRADE MARK",
+        f"Licensor confirms that the {BRAND_NAME} brand is registered in the United Kingdom "
+        f"under trade mark number {TRADEMARK_NO} in {TRADEMARK_CLASSES}, and that "
+        f"{LICENSOR_NAME} is the registered proprietor of that mark.",
+        margin,
+    )
+
+    _section(
+        doc,
+        "3) LICENSEE",
         f"{LICENSEE_NAME} (\"Licensee\"), company number {LICENSEE_COMPANY_NO}, "
         f"with registered address at {LICENSEE_ADDRESS}, is hereby authorized by "
         f"Licensor as set out in this letter.",
@@ -134,14 +152,15 @@ def generate() -> Path:
 
     _section(
         doc,
-        "3) GRANT (Scope of Authorization)",
+        "4) GRANT (Scope of Authorization)",
         f"Licensor hereby grants Licensee a non-exclusive authorization to purchase, "
         f"import, store, list, offer for sale, sell, and fulfil customer orders for "
-        f"the following products on {AMAZON_MARKETPLACE}:\n\n"
+        f"the following products under the {BRAND_NAME} brand on {AMAZON_MARKETPLACE}:\n\n"
         f"{PRODUCTS}\n\n"
-        f"Scope of use on Amazon: product titles, bullet points, descriptions, "
-        f"product images, packaging images, A+ content (where applicable), and "
-        f"customer service relating to the authorized products supplied by Licensor.\n\n"
+        f"Scope of use on Amazon: the {BRAND_NAME} brand name, product titles, bullet "
+        f"points, descriptions, product images, packaging images, A+ content (where "
+        f"applicable), and customer service relating to the authorized products "
+        f"supplied by Licensor.\n\n"
         f"Sublicensing: Not permitted without prior written consent from Licensor.\n\n"
         f"Consideration: Good and valuable consideration acknowledged, including "
         f"ongoing wholesale supply arrangements between the parties.",
@@ -150,7 +169,7 @@ def generate() -> Path:
 
     _section(
         doc,
-        "4) GEOGRAPHIC SCOPE",
+        "5) GEOGRAPHIC SCOPE",
         f"Authorized territory: United Kingdom.\n"
         f"Authorized Amazon marketplace: {AMAZON_MARKETPLACE}.\n"
         f"Offline and other online channels: Only as separately agreed in writing.",
@@ -159,7 +178,7 @@ def generate() -> Path:
 
     _section(
         doc,
-        "5) TERM",
+        "6) TERM",
         f"Effective from {TERM_START} until {TERM_END}, unless extended or terminated "
         f"earlier by either party on thirty (30) days' written notice.",
         margin,

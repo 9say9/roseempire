@@ -13,12 +13,33 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
-DB = Path.home() / "AppData/Roaming/Cursor/User/globalStorage/state.vscdb"
-LOCAL_STATE = Path.home() / "AppData/Roaming/Cursor/Local State"
+DB_CANDIDATES = [
+    Path.home() / "AppData/Roaming/Code/User/globalStorage/state.vscdb",
+    Path.home() / "AppData/Roaming/Cursor/User/globalStorage/state.vscdb",
+    Path.home() / "AppData/Roaming/Code - Insiders/User/globalStorage/state.vscdb",
+    Path.home() / "AppData/Local/Programs/Microsoft VS Code/User/globalStorage/state.vscdb",
+]
+LOCAL_STATE_CANDIDATES = [
+    Path.home() / "AppData/Roaming/Code/Local State",
+    Path.home() / "AppData/Roaming/Cursor/Local State",
+    Path.home() / "AppData/Roaming/Code - Insiders/Local State",
+    Path.home() / "AppData/Local/Programs/Microsoft VS Code/User/Local State",
+]
 SETTINGS_FILE = Path(__file__).resolve().parent / "roo-ollama-settings.json"
 OLLAMA_URL = "http://127.0.0.1:11434"
-MODEL = "qwen2.5-coder:7b"
+MODEL = "qwen2.5-coder:1.5b"
 PROFILE_NAME = "default"
+
+
+def sanitize_ollama_url(url: str | None) -> str:
+    """Fix corrupted URLs like D:\\roseempire\\http:\\127.0.0.1:11434."""
+    if not url:
+        return OLLAMA_URL
+    if "127.0.0.1:11434" in url or "localhost:11434" in url:
+        return OLLAMA_URL
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+    return OLLAMA_URL
 
 ROO_STATE_KEY = "RooVeterinaryInc.roo-cline"
 ZOO_STATE_KEY = "ZooCodeOrganization.zoo-code"
@@ -58,18 +79,19 @@ def patch_global_state(state: dict) -> dict:
     cfg = build_default_profile()
     state["currentApiConfigName"] = PROFILE_NAME
     state["apiProvider"] = "ollama"
-    state["ollamaBaseUrl"] = OLLAMA_URL
+    state["ollamaBaseUrl"] = sanitize_ollama_url(state.get("ollamaBaseUrl"))
     state["ollamaModelId"] = MODEL
     state["listApiConfigMeta"] = build_list_api_config_meta()
 
     for key in list(state.keys()):
         if key.startswith("qwen") and key != "ollamaModelId":
             state.pop(key, None)
+        if key.startswith("openAi") or key in ("apiModelId", "openRouterModelId"):
+            state.pop(key, None)
         if key.endswith("BaseUrl") and key != "ollamaBaseUrl":
             state.pop(key, None)
-        if key.endswith("ModelId") and key not in ("ollamaModelId", "apiModelId"):
+        if key.endswith("ModelId") and key not in ("ollamaModelId",):
             state.pop(key, None)
-    state.pop("apiModelId", None)
     return state
 
 
@@ -78,17 +100,20 @@ def get_chrome_aes_key() -> bytes | None:
         import win32crypt  # type: ignore
     except ImportError:
         return None
-    if not LOCAL_STATE.exists():
-        return None
-    try:
-        local_state = json.loads(LOCAL_STATE.read_text(encoding="utf-8"))
-        encrypted_key_b64 = local_state["os_crypt"]["encrypted_key"]
-        encrypted_key = base64.b64decode(encrypted_key_b64)
-        if encrypted_key[:5] != b"DPAPI":
-            return None
-        return win32crypt.CryptUnprotectData(encrypted_key[5:], None, None, None, 0)[1]
-    except Exception:
-        return None
+
+    for local_state_path in LOCAL_STATE_CANDIDATES:
+        if not local_state_path.exists():
+            continue
+        try:
+            local_state = json.loads(local_state_path.read_text(encoding="utf-8"))
+            encrypted_key_b64 = local_state["os_crypt"]["encrypted_key"]
+            encrypted_key = base64.b64decode(encrypted_key_b64)
+            if encrypted_key[:5] != b"DPAPI":
+                continue
+            return win32crypt.CryptUnprotectData(encrypted_key[5:], None, None, None, 0)[1]
+        except Exception:
+            continue
+    return None
 
 
 def decrypt_cursor_secret(raw: str) -> dict | None:
@@ -155,8 +180,8 @@ def patch_secret_profiles(existing: dict | None) -> dict:
     return patched
 
 
-def restore_secret_from_backup(cur, secret_key: str) -> str | None:
-    backup_dir = DB.parent
+def restore_secret_from_backup(cur, secret_key: str, db_path: Path | None = None) -> str | None:
+    backup_dir = (db_path or DB_CANDIDATES[0]).parent
     backups = sorted(backup_dir.glob("state.vscdb.bak-*"), reverse=True)
     for backup in backups:
         try:
@@ -194,7 +219,7 @@ def restart_ollama_and_warm() -> bool:
     )
     time.sleep(4)
 
-    for model in ("qwen2.5-coder:1.5b", "minimax-m3:cloud"):
+    for model in ("qwen2.5-coder:1.5b-zoo", "gemma4:31b-cloud"):
         subprocess.run([str(ollama), "stop", model], capture_output=True)
 
     payload = json.dumps(
@@ -226,60 +251,62 @@ def restart_ollama_and_warm() -> bool:
 
 
 def main() -> int:
-    if not DB.exists():
-        print(f"ERROR: Cursor state DB not found: {DB}")
+    db_paths = [p for p in DB_CANDIDATES if p.exists()]
+    if not db_paths:
+        print("ERROR: No VS Code/Cursor state DB found")
         return 1
 
-    backup = DB.with_name(f"state.vscdb.bak-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
-    shutil.copy2(DB, backup)
-    print(f"Backup: {backup}")
-
-    conn = sqlite3.connect(DB)
-    cur = conn.cursor()
-
-    for state_key in (ROO_STATE_KEY, ZOO_STATE_KEY):
-        cur.execute("SELECT value FROM ItemTable WHERE key=?", (state_key,))
-        row = cur.fetchone()
-        if not row:
-            print(f"WARN: missing {state_key}")
-            continue
-        state = patch_global_state(json.loads(row[0]))
-        cur.execute(
-            "UPDATE ItemTable SET value=? WHERE key=?",
-            (json.dumps(state, separators=(",", ":")), state_key),
-        )
-        print(f"Patched global state: {state_key}")
-
     secret_fixed = 0
-    for secret_key in (ROO_SECRET_KEY, ZOO_SECRET_KEY):
-        cur.execute("SELECT value FROM ItemTable WHERE key=?", (secret_key,))
-        row = cur.fetchone()
-        existing_raw = row[0] if row else None
-        existing = decrypt_cursor_secret(existing_raw) if existing_raw else None
+    for DB in db_paths:
+        backup = DB.with_name(f"state.vscdb.bak-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+        shutil.copy2(DB, backup)
+        print(f"Backup: {backup}")
 
-        if existing is None:
-            restored = restore_secret_from_backup(cur, secret_key)
-            if restored:
-                print(f"Restored secret from {restored}: {secret_key}")
-                cur.execute("SELECT value FROM ItemTable WHERE key=?", (secret_key,))
-                row = cur.fetchone()
-                existing_raw = row[0] if row else None
-                existing = decrypt_cursor_secret(existing_raw) if existing_raw else None
+        conn = sqlite3.connect(DB)
+        cur = conn.cursor()
 
-        patched = patch_secret_profiles(existing)
-        encrypted = encrypt_cursor_secret(patched)
-        if encrypted:
+        for state_key in (ROO_STATE_KEY, ZOO_STATE_KEY):
+            cur.execute("SELECT value FROM ItemTable WHERE key=?", (state_key,))
+            row = cur.fetchone()
+            if not row:
+                print(f"WARN: missing {state_key} in {DB}")
+                continue
+            state = patch_global_state(json.loads(row[0]))
             cur.execute(
-                "INSERT OR REPLACE INTO ItemTable (key, value) VALUES (?, ?)",
-                (secret_key, encrypted),
+                "UPDATE ItemTable SET value=? WHERE key=?",
+                (json.dumps(state, separators=(",", ":")), state_key),
             )
-            secret_fixed += 1
-            print(f"Patched secret profiles: {secret_key}")
-        else:
-            print(f"WARN: could not write secret for {secret_key}")
+            print(f"Patched global state: {state_key} in {DB}")
 
-    conn.commit()
-    conn.close()
+        for secret_key in (ROO_SECRET_KEY, ZOO_SECRET_KEY):
+            cur.execute("SELECT value FROM ItemTable WHERE key=?", (secret_key,))
+            row = cur.fetchone()
+            existing_raw = row[0] if row else None
+            existing = decrypt_cursor_secret(existing_raw) if existing_raw else None
+
+            if existing is None:
+                restored = restore_secret_from_backup(cur, secret_key, DB)
+                if restored:
+                    print(f"Restored secret from {restored}: {secret_key}")
+                    cur.execute("SELECT value FROM ItemTable WHERE key=?", (secret_key,))
+                    row = cur.fetchone()
+                    existing_raw = row[0] if row else None
+                    existing = decrypt_cursor_secret(existing_raw) if existing_raw else None
+
+            patched = patch_secret_profiles(existing)
+            encrypted = encrypt_cursor_secret(patched)
+            if encrypted:
+                cur.execute(
+                    "INSERT OR REPLACE INTO ItemTable (key, value) VALUES (?, ?)",
+                    (secret_key, encrypted),
+                )
+                secret_fixed += 1
+                print(f"Patched secret profiles: {secret_key} in {DB}")
+            else:
+                print(f"WARN: could not write secret for {secret_key} in {DB}")
+
+        conn.commit()
+        conn.close()
 
     restart_ollama_and_warm()
 
@@ -292,7 +319,7 @@ def main() -> int:
     print(f"  Secrets written: {secret_fixed}/2")
     print()
     print("Now close Cursor completely, reopen it, and send a NEW message in Roo/Zoo.")
-    return 0 if secret_fixed == 2 else 1
+    return 0 if secret_fixed >= 2 else 1
 
 
 if __name__ == "__main__":

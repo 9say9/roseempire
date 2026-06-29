@@ -61,6 +61,25 @@ Test AI: `py -3 fleet_orchestrator.py test-all`
 
 ---
 
+## NotebookLM (business brain for Roo)
+
+NotebookLM is **not** a coding model — it holds your **Rose Empire docs** (catalog, MOQ, outreach playbook) with citations.
+
+```bat
+setup_notebooklm.bat
+```
+
+1. Builds `notebooklm/rose-empire-knowledge-pack.md`
+2. Configures MCP in `.cursor/mcp.json` (works in Cursor + Roo)
+3. Run Google auth once: `npx -y notebooklm-mcp@latest auth`
+4. Upload the knowledge pack to [NotebookLM](https://notebooklm.google.com) notebook **Rose Empire B2B**
+
+**Roo example:** *"Query NotebookLM Rose Empire B2B for care home pitch angles."*
+
+See `.roo/rules/notebooklm-workflow.md` for full workflow.
+
+---
+
 ## Lead data (local only)
 
 All scraped leads live in `linkedin-outreach/` — **gitignored** on purpose. Each machine builds its own CSVs.

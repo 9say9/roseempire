@@ -1,4 +1,5 @@
 # ─── Secrets & credentials ────────────────────────────
+config.yaml
 .env
 .env.*
 !.env.example

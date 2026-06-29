@@ -117,16 +117,32 @@ def _catalog_attachment_line() -> str:
     return "Browse our wholesale catalog and request a quote: " + LANDING_URL + "\n"
 
 
-def _default_pitch(name: str, query: str) -> tuple[str, str]:
-    subject = f"Wholesale mattress protectors for {name}"
+def _ensure_company_context(subject: str, body: str, company_name: str) -> tuple[str, str]:
+    company = (company_name or "your team").strip() or "your team"
+    subject = subject.strip()
+    body = body.strip()
+    if company.lower() not in subject.lower():
+        subject = f"{subject} for {company}" if subject else f"Wholesale bedding for {company}"
+    if company.lower() not in body.lower():
+        body = f"Hello {company},\n\n{body}"
+    if not body.lower().startswith("hello"):
+        body = f"Hello {company},\n\n{body}"
+    return subject, body
+
+
+def _default_pitch(name: str, query: str, company: str | None = None) -> tuple[str, str]:
+    company_name = (company or name or "your team").strip() or "your team"
+    subject = f"Wholesale bedding for {company_name}"
     pitch = (
-        f"Hello,\n\n"
-        f"Rose Empire supplies wholesale mattress protectors and bedding to UK {query} buyers.\n"
+        f"Rose Empire supplies wholesale mattress protectors and pillows to UK {query} buyers.\n"
+        f"We help hospitality and care businesses improve bedding quality while keeping procurement simple and cost-effective.\n"
         f"{_catalog_attachment_line()}"
-        f"Online quote: {LANDING_URL}\n\n"
-        f"Rose Empire Wholesale\ninfo@roseempire.co.uk | +44 7999 988450"
+        f"If useful, I can send a tailored quote for {company_name} and the relevant product range.\n\n"
+        f"Best regards,\n"
+        f"Rose Empire Wholesale\n"
+        f"info@roseempire.co.uk | +44 7999 988450"
     )
-    return subject, pitch
+    return _ensure_company_context(subject, pitch, company_name)
 
 
 def _save_outreach_rows(csv_path: Path, rows: list[dict], fieldnames: list[str]) -> None:
@@ -207,19 +223,23 @@ def process_leads_and_send_emails(
             continue
 
         facility = row.get("facility_type") or query
+        company_name = (row.get("company") or row.get("name") or "your team").strip() or "your team"
         if use_ai:
-            print(f"Drafting pitch for {name}...")
-            customer_data = f"Business: {name}, Website: {website}, Industry: {facility}"
+            print(f"Drafting pitch for {company_name}...")
+            customer_data = (
+                f"Company: {company_name}, Contact: {name}, Website: {website}, Industry: {facility}"
+            )
             try:
                 raw_pitch = draft_email_pitch_with_ai(customer_data)
                 subject, pitch = parse_email_pitch(raw_pitch)
+                subject, pitch = _ensure_company_context(subject, pitch, company_name)
                 if attachments and "attach" not in pitch.lower() and "catalog" not in pitch.lower():
                     pitch = pitch.rstrip() + "\n\n" + _catalog_attachment_line()
             except Exception as exc:
                 print(f"  James AI unavailable ({exc}) — using template.")
-                subject, pitch = _default_pitch(name, facility)
+                subject, pitch = _default_pitch(name, facility, company=company_name)
         else:
-            subject, pitch = _default_pitch(name, facility)
+            subject, pitch = _default_pitch(name, facility, company=company_name)
 
         if dry_run:
             att = f" + {CATALOG_PDF.name}" if attachments else ""

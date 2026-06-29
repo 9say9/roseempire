@@ -36,7 +36,9 @@ Orchestrator: `py -3 fleet_orchestrator.py sarah --mission "care homes Mancheste
 - Reddit: research signals from public posts, not direct business listings
 - Do not use `--no-browser` unless debugging — skips fresh Maps leads
 
-## AI (free)
-Ollama: `start_ollama.bat` | Roo: Provider=Ollama, Model=qwen2.5-coder:1.5b or 7b
+## Local AI (free)
+Ollama: `start_ollama.bat` | AI Router: `start_ai_router.bat` | Roo: OpenAI @ `http://127.0.0.1:8000/v1` model `gpt-3.5-turbo` or `gemini-free`
+
+NotebookLM: `setup_notebooklm.bat` — business knowledge in Roo via MCP (not for code).
 
 Dashboard: `run_ai_fleet.bat` -> http://127.0.0.1:5050

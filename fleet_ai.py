@@ -21,6 +21,9 @@ OLLAMA_FALLBACK_MODELS = [
     if m.strip()
 ]
 
+AI_ROUTER_URL = os.getenv("AI_ROUTER_URL", "http://127.0.0.1:8000/v1").rstrip("/")
+AI_ROUTER_MODEL = os.getenv("AI_ROUTER_MODEL", "gpt-3.5-turbo")
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 OPENAI_API_BASE = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1").rstrip("/")
@@ -32,8 +35,8 @@ GEMINI_URL = (
     f"{GEMINI_MODEL}:generateContent"
 )
 
-# ollama (free) | openai (paid) | gemini (cloud) | auto (ollama first, then gemini, then openai)
-AI_PROVIDER = os.getenv("AI_PROVIDER", "auto").lower()
+# router (local gateway) | ollama (free) | gemini (cloud) | openai (paid) | auto
+AI_PROVIDER = os.getenv("AI_PROVIDER", "router").lower()
 
 ROSE_EMPIRE_FACTS = """
 Rose Empire — Manchester wholesale B2B supplier.
@@ -48,9 +51,19 @@ Ideal buyers: care homes, hotels, guest houses, student accommodation, procureme
 
 AGENTS = {
     "sarah": "Sarah — Lead Scraper & Qualifier. Find high-intent UK B2B buyers. Rank by facility type fit, Manchester proximity, website quality, and likelihood to order bulk bedding.",
-    "james": "James — B2B Copywriter. Write short, professional cold emails that feel human, mention the buyer's facility type, one clear CTA to the catalog/quote page, no hype or spam triggers.",
+    "james": "James — B2B Copywriter. Write short, professional cold emails that feel human, mention the recipient company name by name, reference the buyer's facility type, use one clear CTA to the catalog/quote page, and never leave out the company name or call to action.",
     "adeel": "Adeel — Data Analyst. Clean lead tables, remove junk emails and ads, output valid CSV rows only.",
 }
+
+
+def router_online() -> bool:
+    try:
+        base = AI_ROUTER_URL.removesuffix("/v1")
+        req = urllib.request.Request(f"{base}/health", method="GET")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
 
 
 def ollama_online() -> bool:
@@ -105,12 +118,16 @@ def _primary_ollama_model() -> str:
 
 def ai_provider(prefer: str | None = None) -> str:
     mode = (prefer or AI_PROVIDER).lower()
+    if mode == "router":
+        return "router" if router_online() else "none"
     if mode == "gemini":
         return "gemini" if GEMINI_API_KEY else "none"
     if mode == "openai":
         return "openai" if OPENAI_API_KEY else "none"
     if mode == "ollama":
         return "ollama" if ollama_online() else "none"
+    if router_online():
+        return "router"
     if ollama_online():
         return "ollama"
     if GEMINI_API_KEY:
@@ -126,6 +143,8 @@ def ai_available(prefer: str | None = None) -> bool:
 
 def active_model(prefer: str | None = None) -> str:
     provider = ai_provider(prefer)
+    if provider == "router":
+        return AI_ROUTER_MODEL
     if provider == "ollama":
         return _primary_ollama_model()
     if provider == "gemini":
@@ -145,6 +164,35 @@ def _post_json(url: str, payload: dict, *, timeout: int = 180) -> dict:
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return json.loads(resp.read().decode("utf-8"))
+
+
+def _call_router(system: str, user: str, *, temperature: float = 0.55, max_tokens: int = 1800) -> tuple[str, str]:
+    if not router_online():
+        raise RuntimeError("AI Router offline. Run start_ai_router.bat first.")
+    payload = {
+        "model": AI_ROUTER_MODEL,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "stream": False,
+    }
+    headers = {"Authorization": "Bearer local", "Content-Type": "application/json"}
+    response = requests.post(
+        f"{AI_ROUTER_URL}/chat/completions",
+        json=payload,
+        headers=headers,
+        timeout=(5, 180),
+    )
+    response.raise_for_status()
+    body = response.json()
+    text = (body.get("choices") or [{}])[0].get("message", {}).get("content", "").strip()
+    if not text:
+        raise RuntimeError("Empty response from AI Router.")
+    used = body.get("model", AI_ROUTER_MODEL)
+    return text, used
 
 
 def _call_ollama(system: str, user: str, *, temperature: float = 0.55, max_tokens: int = 1800) -> tuple[str, str]:
@@ -228,6 +276,37 @@ def _call_gemini(system: str, user: str, *, temperature: float = 0.65, max_token
     return text
 
 
+def _provider_chain(prefer: str | None = None) -> list[str]:
+    if prefer and prefer != "auto":
+        return [prefer.lower()]
+    chain: list[str] = []
+    if AI_PROVIDER not in ("auto", ""):
+        chain.append(AI_PROVIDER)
+    for candidate in ("openai", "ollama", "router", "gemini"):
+        if candidate not in chain:
+            chain.append(candidate)
+    return chain
+
+
+def _invoke_provider(
+    provider: str,
+    system: str,
+    user: str,
+    *,
+    temperature: float,
+    max_tokens: int,
+) -> tuple[str, str]:
+    if provider == "router":
+        return _call_router(system, user, temperature=temperature, max_tokens=max_tokens)
+    if provider == "ollama":
+        return _call_ollama(system, user, temperature=temperature, max_tokens=max_tokens)
+    if provider == "gemini":
+        return _call_gemini(system, user, temperature=temperature, max_tokens=max_tokens), GEMINI_MODEL
+    if provider == "openai":
+        return _call_openai(system, user, temperature=temperature, max_tokens=max_tokens), OPENAI_MODEL
+    raise RuntimeError(f"Unknown AI provider: {provider}")
+
+
 def _call_ai(
     system: str,
     user: str,
@@ -236,16 +315,30 @@ def _call_ai(
     max_tokens: int = 1800,
     prefer: str | None = None,
 ) -> tuple[str, str]:
-    provider = ai_provider(prefer)
-    if provider == "ollama":
-        text, model = _call_ollama(system, user, temperature=temperature, max_tokens=max_tokens)
-        return text, model
-    if provider == "gemini":
-        return _call_gemini(system, user, temperature=temperature, max_tokens=max_tokens), GEMINI_MODEL
-    if provider == "openai":
-        return _call_openai(system, user, temperature=temperature, max_tokens=max_tokens), OPENAI_MODEL
+    errors: list[str] = []
+    for provider in _provider_chain(prefer):
+        if provider == "router" and not router_online():
+            continue
+        if provider == "ollama" and not ollama_online():
+            continue
+        if provider == "gemini" and not GEMINI_API_KEY:
+            continue
+        if provider == "openai" and not OPENAI_API_KEY:
+            continue
+        try:
+            return _invoke_provider(
+                provider,
+                system,
+                user,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        except Exception as exc:
+            errors.append(f"{provider}: {exc}")
+            continue
+    detail = "; ".join(errors[-4:]) if errors else "no providers configured"
     raise RuntimeError(
-        "No AI provider available. Run start_ollama.bat (free) or set GEMINI_API_KEY / OPENAI_API_KEY in .env."
+        "All AI providers failed. " + detail + ". Run start_ollama.bat or check API keys/rate limits."
     )
 
 
@@ -297,7 +390,7 @@ Return exactly this structure:
 SUBJECT: <one compelling line>
 
 BODY:
-<120-180 words, plain text, human tone, one clear CTA to catalog quote page>
+<120-180 words, plain text, human tone, explicitly mention the company name in the greeting and first paragraph, one clear CTA to catalog quote page>
 
 WHY_FIT:
 <2-3 sentences on why this prospect is a strong wholesale buyer>
@@ -306,7 +399,7 @@ VALUE_PROPS:
 1. <retail/operational value prop>
 2. <product quality value prop>
 3. <commercial/trade value prop>"""
-    text, model = _call_ai(system, user, temperature=0.65, prefer=prefer or "gemini")
+    text, model = _call_ai(system, user, temperature=0.65, prefer=prefer or "auto")
     return f"[James via {model}]\n\n{text}"
 
 
@@ -314,11 +407,11 @@ def draft_email_pitch_with_ai(customer_data: str, prefer: str | None = None) -> 
     system = f"{ROSE_EMPIRE_FACTS}\n\n{AGENTS['james']}"
     user = (
         f"Lead data: {customer_data}\n\n"
-        "Write a cold email. Format exactly:\n"
+        "Write a cold email for the specific company in the lead data. Mention the company name in the greeting and first paragraph. Never leave out the company name. Format exactly:\n"
         "SUBJECT: <one line>\n"
-        "BODY:\n<plain text, 120-180 words, sign off as Rose Empire Wholesale>"
+        "BODY:\n<plain text, 120-180 words, sign off as Rose Empire Wholesale, include one clear CTA to the catalog or quote page>"
     )
-    text, model = _call_ai(system, user, temperature=0.65, prefer=prefer)
+    text, model = _call_ai(system, user, temperature=0.65, prefer=prefer or "auto")
     return f"[James via {model}]\n\n{text}"
 
 
@@ -385,7 +478,7 @@ def _cli() -> int:
     args = parser.parse_args()
 
     if not ai_available():
-        print("ERROR: No AI provider. Run start_ollama.bat (free) or set OPENAI_API_KEY.", file=sys.stderr)
+        print("ERROR: No AI provider. Run start_ai_router.bat or start_ollama.bat.", file=sys.stderr)
         return 1
 
     print(f"AI provider: {ai_provider()} ({active_model()})")
