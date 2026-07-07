@@ -30,7 +30,7 @@
             greeting:
                 "Hi! I'm Adeel, your Rose Empire retail assistant. Ask me about mattress protectors, pillows, sizes, materials, or care instructions.",
             placeholder: 'Ask about products, sizes, or care…',
-            avatarIcon: 'fa-bag-shopping',
+            avatarIcon: 'bag',
         },
         sarah: {
             context: 'sarah',
@@ -40,7 +40,7 @@
             greeting:
                 "Hello! I'm Sarah, your Rose Empire wholesale representative. I can help with trade pricing, MOQs, and qualifying your bulk order — tell me about your facility and volume needs.",
             placeholder: 'Describe your business and order volume…',
-            avatarIcon: 'fa-building',
+            avatarIcon: 'building',
         },
     };
 
@@ -109,20 +109,20 @@
             root.id = 're-chat-widget';
             root.innerHTML = `
                 <button type="button" class="chat-widget-toggle" id="chat-toggle" aria-label="Open chat with ${this.agent.label}" aria-expanded="false">
-                    <i class="fa-solid fa-comments"></i>
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#comments"></use></svg>
                     <span class="chat-widget-toggle-label">${escapeHtml(this.agent.label)}</span>
                 </button>
                 <div class="chat-widget-panel" id="chat-panel" role="dialog" aria-label="${this.agent.label}" hidden>
                     <header class="chat-widget-header">
                         <div class="chat-widget-agent">
-                            <span class="chat-widget-avatar" aria-hidden="true"><i class="fa-solid ${this.agent.avatarIcon}"></i></span>
+                            <span class="chat-widget-avatar" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em"><use href="assets/icons.svg#${this.agent.avatarIcon}"></use></svg></span>
                             <div>
                                 <strong class="chat-widget-name">${escapeHtml(this.agent.label)}</strong>
                                 <span class="chat-widget-role">${escapeHtml(this.agent.role)}</span>
                             </div>
                         </div>
                         <button type="button" class="chat-widget-close" id="chat-close" aria-label="Close chat">
-                            <i class="fa-solid fa-xmark"></i>
+                            <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#xmark"></use></svg>
                         </button>
                     </header>
                     <div class="chat-widget-messages" id="chat-messages" aria-live="polite"></div>
@@ -136,7 +136,7 @@
                             maxlength="2000"
                         ></textarea>
                         <button type="submit" class="chat-widget-send" id="chat-send" aria-label="Send message">
-                            <i class="fa-solid fa-paper-plane"></i>
+                            <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#send"></use></svg>
                         </button>
                     </form>
                 </div>
@@ -154,7 +154,7 @@
             this.closeBtn = root.querySelector('#chat-close');
             this.nameEl = root.querySelector('.chat-widget-name');
             this.roleEl = root.querySelector('.chat-widget-role');
-            this.avatarEl = root.querySelector('.chat-widget-avatar i');
+            this.avatarEl = root.querySelector('.chat-widget-avatar svg');
         }
 
         bindEvents() {
@@ -189,7 +189,8 @@
             this.panel.setAttribute('aria-label', this.agent.label);
             this.nameEl.textContent = this.agent.label;
             this.roleEl.textContent = this.agent.role;
-            this.avatarEl.className = `fa-solid ${this.agent.avatarIcon}`;
+            const use = this.avatarEl.querySelector('use');
+            if (use) use.setAttribute('href', `assets/icons.svg#${this.agent.avatarIcon}`);
             this.input.placeholder = this.agent.placeholder;
 
             this.messagesEl.innerHTML = '';

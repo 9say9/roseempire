@@ -15,7 +15,7 @@ const CATALOG_URL = (location.hostname === "localhost" || location.hostname === 
 async function loadCatalog() {
     const grid = document.getElementById("products-grid");
     if (grid) {
-        grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-spinner fa-spin"></i><h3>Loading catalog…</h3></div>';
+        grid.innerHTML = '<div class="no-results">' + roseIcon('spinner', true) + '<h3>Loading catalog…</h3></div>';
     }
     try {
         const res = await fetch(CATALOG_URL + "?v=" + encodeURIComponent(new Date().toISOString().slice(0, 10)));
@@ -26,7 +26,7 @@ async function loadCatalog() {
     } catch (err) {
         console.error("Catalog load failed:", err);
         if (grid) {
-            grid.innerHTML = '<div class="no-results"><i class="fa-solid fa-circle-exclamation"></i><h3>Could not load product catalog</h3><p>Refresh the page or contact info@roseempire.co.uk</p></div>';
+            grid.innerHTML = '<div class="no-results"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#warn"></use></svg><h3>Could not load product catalog</h3><p>Refresh the page or contact info@roseempire.co.uk</p></div>';
         }
         products = [];
     }
@@ -74,24 +74,41 @@ const rfqForm           = document.getElementById('rfq-submission-form');
 const rfqBackBtn        = document.getElementById('rfq-back-btn');
 
 // ==========================================================================
+// Icons (local SVG sprite — no Font Awesome)
+// ==========================================================================
+function setSvgIcon(container, name, spin) {
+    if (!container) return;
+    const svg = container.querySelector('svg') || container;
+    if (!svg || svg.tagName !== 'svg') return;
+    let use = svg.querySelector('use');
+    if (!use) {
+        use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        svg.appendChild(use);
+    }
+    use.setAttribute('href', `assets/icons.svg#${name}`);
+    svg.classList.toggle('ico-spin', Boolean(spin));
+}
+
+function roseIcon(name, spin) {
+    const cls = spin ? 'ico ico-spin' : 'ico';
+    return `<svg class="${cls}" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#${name}"></use></svg>`;
+}
+
+// ==========================================================================
 // Theme Setup
 // ==========================================================================
 function initTheme() {
     const saved = localStorage.getItem('re-theme') || 'light';
     document.body.classList.remove('light-mode', 'dark-mode');
     document.body.classList.add(saved === 'dark' ? 'dark-mode' : 'light-mode');
-    themeToggle.querySelector('i').className = saved === 'dark'
-        ? 'fa-solid fa-sun'
-        : 'fa-solid fa-moon';
+    setSvgIcon(themeToggle, saved === 'dark' ? 'sun' : 'moon');
 }
 
 themeToggle.addEventListener('click', () => {
     const isDark = document.body.classList.contains('dark-mode');
     document.body.classList.toggle('dark-mode', !isDark);
     document.body.classList.toggle('light-mode', isDark);
-    themeToggle.querySelector('i').className = isDark
-        ? 'fa-solid fa-moon'
-        : 'fa-solid fa-sun';
+    setSvgIcon(themeToggle, isDark ? 'moon' : 'sun');
     localStorage.setItem('re-theme', isDark ? 'light' : 'dark');
 });
 
@@ -114,7 +131,7 @@ function renderProducts() {
     if (filtered.length === 0) {
         productsGrid.innerHTML = `
             <div class="no-results">
-                <i class="fa-solid fa-circle-info"></i>
+                <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#info"></use></svg>
                 <h3>No products found</h3>
                 <p>Try clearing your search or changing the category filter.</p>
             </div>`;
@@ -139,7 +156,7 @@ function renderProducts() {
                     ${product.highlights.slice(0, 3).map(h => `<span class="spec-badge">${h}</span>`).join('')}
                 </div>
                 <div class="product-pricing-moq">
-                    <div class="moq-box-badge"><i class="fa-solid fa-box-open"></i> ${product.boxLabel || product.moq + ' pieces min.'}</div>
+                    <div class="moq-box-badge"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg> ${product.boxLabel || product.moq + ' pieces min.'}</div>
                     <div class="product-pricing-row">
                     <div class="pricing-info">
                         <span class="moq-label">Min. Order (MOQ)</span>
@@ -153,7 +170,7 @@ function renderProducts() {
                 </div>
                 <div class="product-actions">
                     <button class="btn btn-navy-sm btn-block" onclick="openProductDetail('${product.id}')">
-                        <i class="fa-solid fa-magnifying-glass-plus"></i> View Details &amp; Quote
+                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#search"></use></svg> View Details &amp; Quote
                     </button>
                 </div>
             </div>`;
@@ -202,7 +219,7 @@ function renderCartItems() {
     if (cart.length === 0) {
         cartDrawerItems.innerHTML = `
             <div class="empty-cart-message">
-                <i class="fa-solid fa-folder-open"></i>
+                <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#folder"></use></svg>
                 <p>Your Quote Request List is empty.</p>
                 <p>Browse our catalog and add products to start compiling your wholesale quote.</p>
             </div>`;
@@ -223,7 +240,7 @@ function renderCartItems() {
         div.className = 'cart-item';
         div.innerHTML = `
             <button class="cart-item-remove" onclick="removeFromCart(${idx})" aria-label="Remove">
-                <i class="fa-solid fa-trash-can"></i>
+                <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#trash"></use></svg>
             </button>
             <div class="cart-item-image">
                 <img src="${item.image}" alt="${item.title}"
@@ -247,7 +264,7 @@ function renderCartItems() {
                 </div>
                 ${belowMOQ ? `
                 <div class="moq-warning" style="grid-column:1/-1">
-                    <i class="fa-solid fa-circle-exclamation"></i> Below MOQ of ${item.moq} pieces
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#warn"></use></svg> Below MOQ of ${item.moq} pieces
                 </div>` : ''}
             </div>`;
         cartDrawerItems.appendChild(div);
@@ -281,7 +298,7 @@ async function startStripeCheckout() {
 
     if (stripeCheckoutBtn) {
         stripeCheckoutBtn.disabled = true;
-        stripeCheckoutBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing checkout…';
+        stripeCheckoutBtn.innerHTML = '<svg class="ico ico-spin" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#spinner"></use></svg> Preparing checkout…';
     }
 
     try {
@@ -306,7 +323,7 @@ async function startStripeCheckout() {
     } finally {
         if (stripeCheckoutBtn) {
             stripeCheckoutBtn.disabled = false;
-            stripeCheckoutBtn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Secure Stripe Checkout';
+            stripeCheckoutBtn.innerHTML = '<svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg> Secure Stripe Checkout';
         }
     }
 }
@@ -367,7 +384,7 @@ function openProductDetail(productId) {
     if (!p) return;
 
     const specsHTML = p.specs.map(s =>
-        `<li><i class="fa-solid fa-circle-check"></i> ${s}</li>`
+        `<li><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#check"></use></svg> ${s}</li>`
     ).join('');
 
     const sizePickerHTML = p.sizes.map((s, i) => `
@@ -416,10 +433,10 @@ function openProductDetail(productId) {
         <div class="layers-container">
             <h4>Goose Feather &amp; Duck Down Fill</h4>
             <div class="layer-list">
-                <div class="layer-item"><i class="fa-solid fa-feather gold-text"></i> <strong>Goose:</strong> 85% white goose feather, 15% soft goose down.</div>
-                <div class="layer-item"><i class="fa-solid fa-feather gold-text"></i> <strong>Duck:</strong> 80% duck feather, 20% soft duck down.</div>
-                <div class="layer-item"><i class="fa-solid fa-ruler gold-text"></i> Standard size only (50×75cm) — pair of 2 pillows per piece.</div>
-                <div class="layer-item"><i class="fa-solid fa-box-open gold-text"></i> Specify goose or duck fill when requesting your quote.</div>
+                <div class="layer-item"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#award"></use></svg> <strong>Goose:</strong> 85% white goose feather, 15% soft goose down.</div>
+                <div class="layer-item"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#award"></use></svg> <strong>Duck:</strong> 80% duck feather, 20% soft duck down.</div>
+                <div class="layer-item"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#calc"></use></svg> Standard size only (50×75cm) — pair of 2 pillows per piece.</div>
+                <div class="layer-item"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg> Specify goose or duck fill when requesting your quote.</div>
             </div>
         </div>`;
     }
@@ -462,7 +479,7 @@ function openProductDetail(productId) {
 
             <div style="margin-top:20px">
                 <button class="btn btn-gold btn-block" onclick="triggerAddToCart('${p.id}')">
-                    <i class="fa-solid fa-cart-plus"></i> Add to Quote Request
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> Add to Quote Request
                 </button>
             </div>
         </div>`;
@@ -618,16 +635,14 @@ function closeMobileNav() {
     if (!navMenuEl || !mobileNavToggle) return;
     navMenuEl.classList.remove('nav-menu--open');
     mobileNavToggle.setAttribute('aria-expanded', 'false');
-    mobileNavToggle.querySelector('i').className = 'fa-solid fa-bars';
+    setSvgIcon(mobileNavToggle, 'bars');
 }
 
 if (mobileNavToggle && navMenuEl) {
     mobileNavToggle.addEventListener('click', () => {
         const open = navMenuEl.classList.toggle('nav-menu--open');
         mobileNavToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        mobileNavToggle.querySelector('i').className = open
-            ? 'fa-solid fa-xmark'
-            : 'fa-solid fa-bars';
+        setSvgIcon(mobileNavToggle, open ? 'xmark' : 'bars');
     });
 
     navMenuEl.querySelectorAll('.nav-link').forEach(link => {
