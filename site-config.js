@@ -10,12 +10,21 @@
 
     // After `deploy_chat_worker.bat`, set your workers.dev URL here (or leave empty).
     const cloudflareChatApi = 'https://rose-empire-chat.adeelcolchester.workers.dev/api/chat';
+    // After `deploy_checkout_worker.bat`, set your checkout worker URL here.
+    const cloudflareCheckoutApi = 'https://rose-empire-checkout.adeelcolchester.workers.dev';
 
     function chatApiUrl() {
         if (isLocal) return 'http://127.0.0.1:5000/api/chat';
         if (cloudflareChatApi) return cloudflareChatApi;
         if (isGitHubPreview || isProductionDomain) return 'https://rose-empire-chat.adeelcolchester.workers.dev/api/chat';
         return '/api/chat';
+    }
+
+    function checkoutApiUrl() {
+        if (isLocal) return 'http://127.0.0.1:5000';
+        if (cloudflareCheckoutApi) return cloudflareCheckoutApi;
+        if (isGitHubPreview || isProductionDomain) return 'https://rose-empire-checkout.adeelcolchester.workers.dev';
+        return '';
     }
 
     window.RoseEmpireConfig = {
@@ -25,6 +34,7 @@
         email: 'info@roseempire.co.uk',
         phone: '+447999988450',
         phoneDisplay: '+44 7999 988450',
-        chatApiUrl: chatApiUrl()
+        chatApiUrl: chatApiUrl(),
+        checkoutApiUrl: checkoutApiUrl()
     };
 })();

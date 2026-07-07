@@ -273,16 +273,27 @@ async function startStripeCheckout() {
         return;
     }
 
+    const checkoutBase = (window.RoseEmpireConfig && window.RoseEmpireConfig.checkoutApiUrl) || '';
+    const checkoutUrl = checkoutBase ? `${checkoutBase.replace(/\/$/, '')}/api/checkout/create` : '/api/checkout/create';
+    const shippingSelect = document.getElementById('rfq-shipping-region');
+    const shippingRegion = shippingSelect ? shippingSelect.value : 'mainland';
+    const emailField = document.getElementById('rfq-email');
+
     if (stripeCheckoutBtn) {
         stripeCheckoutBtn.disabled = true;
         stripeCheckoutBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing checkout…';
     }
 
     try {
-        const response = await fetch('/api/checkout/create', {
+        const response = await fetch(checkoutUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: cart, domain: window.location.origin })
+            body: JSON.stringify({
+                items: cart,
+                domain: window.location.origin,
+                shippingRegion,
+                customerEmail: emailField ? emailField.value.trim() : ''
+            })
         });
         const data = await response.json();
         if (!response.ok || data.status !== 'success') {
