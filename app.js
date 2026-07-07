@@ -553,10 +553,10 @@ rfqForm.addEventListener('submit', e => {
     btnLoader.classList.remove('hidden');
     submitBtn.disabled = true;
 
-    setTimeout(() => {
+    setTimeout(async () => {
         try {
             const cartSnapshot = cart.map(item => ({ ...item }));
-            const result = RoseEmpireQuotePDF.generate(details, cartSnapshot);
+            const result = await RoseEmpireQuotePDF.generate(details, cartSnapshot);
             prepareQuoteEmail(details, cartSnapshot, result.pricing);
 
             cart = [];

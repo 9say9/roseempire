@@ -4,8 +4,8 @@
 
 /* ---- Variables ---- */
 :root {
-    --font-heading: 'DM Sans', 'Inter', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-heading: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
     --font-display: 'Cormorant Garamond', Georgia, serif;
 
     --navy:          #102241;
@@ -2654,3 +2654,15 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 .breadcrumb a { color: inherit; }
 .sector-footer { margin-top: 0; padding: 24px 0; }
 .sector-footer a { color: rgba(255,255,255,0.9); }
+
+/* Below-fold sections — faster initial render (PageSpeed) */
+.manufacturer-trust,
+.process-section,
+.feature-strip-section,
+.catalog-section,
+.compliance-section,
+.sector-hub-section,
+.faq-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 500px;
+}

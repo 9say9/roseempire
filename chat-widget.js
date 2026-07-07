@@ -304,9 +304,18 @@
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => new RoseEmpireChat());
+        document.addEventListener('DOMContentLoaded', scheduleChat);
     } else {
-        new RoseEmpireChat();
+        scheduleChat();
+    }
+
+    function scheduleChat() {
+        const start = () => new RoseEmpireChat();
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(start, { timeout: 3500 });
+        } else {
+            setTimeout(start, 1500);
+        }
     }
 })();
 

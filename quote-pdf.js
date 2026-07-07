@@ -4,6 +4,7 @@
 
 const RoseEmpireQuotePDF = {
     FILE_NAME: 'Rose Empire Wholesale Quote.pdf',
+    _jspdfLoading: null,
     BRAND: {
         navy: [13, 31, 60],
         gold: [201, 164, 68],
@@ -18,9 +19,26 @@ const RoseEmpireQuotePDF = {
         return 'Wholesale Textiles';
     },
 
-    generate(client, cartItems) {
+    async ensureJsPdf() {
+        if (window.jspdf && window.jspdf.jsPDF) return;
+        if (!this._jspdfLoading) {
+            this._jspdfLoading = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
+                script.crossOrigin = 'anonymous';
+                script.referrerPolicy = 'no-referrer';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('jsPDF library failed to load.'));
+                document.head.appendChild(script);
+            });
+        }
+        return this._jspdfLoading;
+    },
+
+    async generate(client, cartItems) {
+        await this.ensureJsPdf();
         if (!window.jspdf || !window.jspdf.jsPDF) {
-            throw new Error('jsPDF library is not loaded. Check the CDN script in index.html.');
+            throw new Error('jsPDF library is not loaded.');
         }
         if (!cartItems || cartItems.length === 0) {
             throw new Error('Quote cart is empty.');

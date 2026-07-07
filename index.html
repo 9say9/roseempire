@@ -293,17 +293,17 @@
     }
     </script>
 
-    <!-- Google Fonts -->
+    <link rel="preload" href="styles.css?v=20260708" as="style">
+    <link rel="preload" as="image" type="image/webp" href="assets/mattress_protector-640.webp" media="(max-width: 768px)" fetchpriority="high">
+    <link rel="preload" as="image" type="image/webp" href="assets/mattress_protector.webp" media="(min-width: 769px)" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=20260707">
-    <!-- jsPDF — client-side wholesale quote PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" integrity="sha512-+tSoVh0NEAHbHeI49S4ic+GhW+VwW0GJRUuFuDjtP6nMrG7zskvtDJ8tC0OUvWu9jhJrqR+K4aqfbv7AEpFOvA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="styles.css?v=20260708">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap"></noscript>
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 </head>
 <body data-page="wholesale">
 
@@ -393,7 +393,10 @@
                     </div>
                 </div>
                 <div class="hero-image-side hero-image-side--compact">
-                    <img src="assets/mattress_protector.png" alt="Rose Empire wholesale mattress protector" class="hero-product-img" width="520" height="390" fetchpriority="high">
+                    <picture>
+                        <source type="image/webp" srcset="assets/mattress_protector-640.webp 640w, assets/mattress_protector.webp 1024w" sizes="(max-width: 768px) 100vw, 520px">
+                        <img src="assets/mattress_protector.png" alt="Rose Empire wholesale mattress protector" class="hero-product-img" width="520" height="520" fetchpriority="high" decoding="async">
+                    </picture>
                 </div>
             </div>
         </section>
@@ -951,13 +954,12 @@
         </div>
     </footer>
 
-    <script src="site-config.js?v=20260707"></script>
-    <script src="quote-shipping.js"></script>
-    <script src="quote-pricing.js"></script>
-    <script src="quote-pdf.js"></script>
-    <script src="app.js?v=20260707"></script>
-    <!-- Floating chat: Sarah on wholesale (default); Adeel when URL hash is #catalog-section -->
-    <script src="chat-widget.js?v=20250612"></script>
+    <script src="site-config.js?v=20260708" defer></script>
+    <script src="quote-shipping.js" defer></script>
+    <script src="quote-pricing.js" defer></script>
+    <script src="quote-pdf.js" defer></script>
+    <script src="app.js?v=20260708" defer></script>
+    <script src="chat-widget.js?v=20260708" defer></script>
 </body>
 </html>
 
