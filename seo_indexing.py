@@ -18,7 +18,10 @@ PING_URLS = [
 
 MANUAL_LINKS = [
     ("Google Search Console — request indexing", "https://search.google.com/search-console?resource_id=https%3A%2F%2Fwww.roseempire.co.uk%2F"),
-    ("Google URL Inspection", "https://search.google.com/search-console/inspect?resource_id=https%3A%2F%2Fwww.roseempire.co.uk%2F"),
+    ("Google URL Inspection (homepage)", "https://search.google.com/search-console/inspect?resource_id=https%3A%2F%2Fwww.roseempire.co.uk%2F"),
+    ("Index care homes page", "https://search.google.com/search-console/inspect?resource_id=https%3A%2F%2Fwww.roseempire.co.uk%2F&url=https%3A%2F%2Fwww.roseempire.co.uk%2Fcare-homes.html"),
+    ("Index hotels page", "https://search.google.com/search-console/inspect?resource_id=https%3A%2F%2Fwww.roseempire.co.uk%2F&url=https%3A%2F%2Fwww.roseempire.co.uk%2Fhotels.html"),
+    ("Index mattress protectors page", "https://search.google.com/search-console/inspect?resource_id=https%3A%2F%2Fwww.roseempire.co.uk%2F&url=https%3A%2F%2Fwww.roseempire.co.uk%2Fwholesale-mattress-protectors.html"),
     ("Bing Webmaster Tools — add site", "https://www.bing.com/webmasters/about"),
     ("LinkedIn Post Inspector", "https://www.linkedin.com/post-inspector/inspect/" + urllib.parse.quote(SITE, safe="")),
 ]
