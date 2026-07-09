@@ -653,7 +653,7 @@ if (mobileNavToggle && navMenuEl) {
 // ==========================================================================
 // Initialise
 // ==========================================================================
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const checkoutState = new URLSearchParams(window.location.search).get('checkout');
     if (checkoutState === 'success') {
         alert('Stripe checkout completed. Our team will confirm your wholesale order shortly.');
@@ -662,10 +662,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     initTheme();
-    await loadCatalog();
-    renderProducts();
     updateCartBadge();
     QuoteRequestPricingUI.resetSummary();
     CheckoutTotalsUI.bindShippingSelect(() => CheckoutTotalsUI.refresh(cart));
     renderCartItems();
+
+    const startCatalog = () => {
+        loadCatalog().finally(() => {
+            renderProducts();
+        });
+    };
+
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(startCatalog, { timeout: 1500 });
+    } else {
+        setTimeout(startCatalog, 250);
+    }
 });

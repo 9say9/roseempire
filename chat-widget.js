@@ -204,13 +204,18 @@
         open() {
             this.isOpen = true;
             this.panel.hidden = false;
+            this.panel.classList.add('is-open');
             this.toggleBtn.setAttribute('aria-expanded', 'true');
-            this.input.focus();
+            requestAnimationFrame(() => {
+                this.input.focus({ preventScroll: true });
+                this.scrollToBottom();
+            });
         }
 
         close() {
             this.isOpen = false;
             this.panel.hidden = true;
+            this.panel.classList.remove('is-open');
             this.toggleBtn.setAttribute('aria-expanded', 'false');
         }
 
