@@ -293,10 +293,10 @@
         });
       });
 
-      Object.entries(sc.sections || {}).forEach(([key, meta]) => {
-        document.querySelectorAll(`[data-sarah-section="${key}"]`).forEach((el) => {
-          el.style.display = meta?.hidden ? "none" : "";
-        });
+      document.querySelectorAll("[data-sarah-section]").forEach((el) => {
+        const key = el.getAttribute("data-sarah-section");
+        const meta = sc.sections?.[key];
+        el.style.display = meta?.hidden ? "none" : "";
       });
 
       (sc.textPatches || []).forEach((patch) => {
@@ -348,7 +348,7 @@
         };
         replies.push(`${m[1]} price set to ${m[2].trim()}.`);
       }
-      if ((m = t.match(/hide (?:the )?(?:section )?#?([\w-]+)/i))) {
+      if ((m = t.match(/hide (?:the )?(?:section )?#?([\w-]+)/i)) && !/(?:opening|closing)\s*hours?/i.test(t)) {
         mutations.sections = {
           ...(state.siteConfig?.sections || {}),
           [m[1]]: { hidden: true },
@@ -356,21 +356,21 @@
         replies.push(`Section "${m[1]}" hidden on your site.`);
       }
       if (
-        /(?:remove|hide|delete|take\s+off).*(?:opening|closing|business)?\s*(?:hours?|timing|time)/i.test(t) ||
-        /(?:opening|closing).*(?:hours?|timing|time).*(?:remove|hide|delete)/i.test(t)
+        /(?:remove|hide|delete|take\s+off).*(?:opening|closing|business)\s*(?:hours?|timing|time)/i.test(t) ||
+        /(?:opening|closing).*(?:hours?|timing|time).*(?:remove|hide|delete|take\s+off)/i.test(t)
       ) {
         mutations.sections = {
           ...(state.siteConfig?.sections || {}),
           "opening-hours": { hidden: true },
         };
-        replies.push(`Opening hours hidden on your site.`);
+        replies.push(`Opening hours hidden — contact details in the top bar stay visible.`);
       }
-      if (/(?:remove|hide|delete)\s+(?:the\s+)?top\s*bar/i.test(t)) {
+      if (/(?:remove|hide|delete)\s+(?:the\s+)?(?:entire\s+)?top\s*bar/i.test(t)) {
         mutations.sections = {
           ...(state.siteConfig?.sections || {}),
           "top-bar": { hidden: true },
         };
-        replies.push(`Top bar hidden on your site.`);
+        replies.push(`Entire top bar hidden on your site.`);
       }
       if ((m = t.match(/show (?:the )?(?:section )?#?([\w-]+)/i))) {
         mutations.sections = {
@@ -378,6 +378,27 @@
           [m[1]]: { hidden: false },
         };
         replies.push(`Section "${m[1]}" is visible again.`);
+      }
+      if (
+        /(?:show|restore|bring\s+back|unhide).*(?:opening|closing)\s*(?:hours?|timing|time)/i.test(t) ||
+        /(?:opening|closing)\s*(?:hours?|timing).*(?:show|restore|back)/i.test(t)
+      ) {
+        mutations.sections = {
+          ...(state.siteConfig?.sections || {}),
+          "opening-hours": { hidden: false },
+        };
+        replies.push(`Opening hours are visible again.`);
+      }
+      if (/(?:show|restore|bring\s+back).*(?:top\s*bar|top\s+panel)/i.test(t)) {
+        mutations.sections = {
+          ...(state.siteConfig?.sections || {}),
+          "top-bar": { hidden: false },
+        };
+        replies.push(`Top bar is visible again.`);
+      }
+      if (/(?:restore|undo|revert|reset)\s+(?:all\s+)?(?:site\s+)?(?:changes?|sections?|everything|website)/i.test(t)) {
+        mutations.sections = {};
+        replies.push(`All hidden sections restored to visible.`);
       }
       if ((m = t.match(/set subtitle to (.+)/i))) {
         mutations.bot = { ...(state.siteConfig?.bot || {}), subtitle: m[1].trim() };
@@ -418,7 +439,7 @@
         return {
           ok: false,
           reply:
-            'Owner mode commands:\n• rename bot to Alex\n• set color to #ff5500\n• set starter price to $249\n• hide section contact\n• show leads / export leads\n• learn: paste FAQ or product data',
+            'Owner mode commands:\n• hide opening hours\n• restore all changes\n• show top bar\n• set color to #ff5500\n• set starter price to $249\n• show leads / export leads\n• learn: paste FAQ or product data',
         };
       }
       return { ok: true, mutations, reply: replies.join(" ") };
@@ -1309,12 +1330,12 @@
       }
     } else {
       const wantsSiteEdit =
-        /(?:remove|hide|delete|change|update|edit|set|rename)\b.+(?:website|site|page|header|top|hours?|timing|price|color|section)/i.test(q) ||
-        (/(?:opening|closing).*(?:hours?|timing|time)/i.test(q) && /(?:remove|hide|delete|take\s+off)/i.test(q)) ||
-        /(?:remove|hide|delete|take\s+off).*(?:opening|closing|business)?\s*(?:hours?|timing|time)/i.test(q);
+        /(?:remove|hide|delete|change|update|edit|set|rename|restore|undo|revert|show|bring\s+back)\b.+(?:website|site|page|header|top|hours?|timing|price|color|section|changes?|panel)/i.test(q) ||
+        (/(?:opening|closing).*(?:hours?|timing|time)/i.test(q) && /(?:remove|hide|delete|take\s+off|restore|show|bring\s+back)/i.test(q)) ||
+        /(?:remove|hide|delete|take\s+off|restore|undo).*(?:opening|closing|business)?\s*(?:hours?|timing|time)/i.test(q);
       if (wantsSiteEdit) {
         reply =
-          `I can update your website in owner mode only. Open your admin link or add ?sarah_admin=YOUR-TOKEN to the URL, then try:\n• hide opening hours\n• hide section top-bar\n• set color to #b89549\n• learn: paste your FAQ data`;
+          `I can update your website in owner mode only. Open your admin link or add ?sarah_admin=YOUR-TOKEN to the URL, then try:\n• hide opening hours\n• restore all changes\n• show top bar`;
       } else {
         const email = Leads.emailIn(q);
         if (email) {
@@ -1409,7 +1430,7 @@
       state.messages.push({
         role: "assistant",
         content:
-          "Owner mode active. Try:\n• rename bot to Alex\n• set color to #22c55e\n• set starter price to $249\n• hide section contact\n• show leads\n• Paste FAQ or pricing (no prefix needed)",
+          "Owner mode active. Try:\n• hide opening hours\n• restore all changes\n• rename bot to Alex\n• set color to #22c55e\n• show leads\n• Paste FAQ or pricing (no prefix needed)",
       });
       saveSession();
     }
