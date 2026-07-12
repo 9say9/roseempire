@@ -355,6 +355,23 @@
         };
         replies.push(`Section "${m[1]}" hidden on your site.`);
       }
+      if (
+        /(?:remove|hide|delete|take\s+off).*(?:opening|closing|business)?\s*(?:hours?|timing|time)/i.test(t) ||
+        /(?:opening|closing).*(?:hours?|timing|time).*(?:remove|hide|delete)/i.test(t)
+      ) {
+        mutations.sections = {
+          ...(state.siteConfig?.sections || {}),
+          "opening-hours": { hidden: true },
+        };
+        replies.push(`Opening hours hidden on your site.`);
+      }
+      if (/(?:remove|hide|delete)\s+(?:the\s+)?top\s*bar/i.test(t)) {
+        mutations.sections = {
+          ...(state.siteConfig?.sections || {}),
+          "top-bar": { hidden: true },
+        };
+        replies.push(`Top bar hidden on your site.`);
+      }
       if ((m = t.match(/show (?:the )?(?:section )?#?([\w-]+)/i))) {
         mutations.sections = {
           ...(state.siteConfig?.sections || {}),
@@ -1291,15 +1308,24 @@
         }
       }
     } else {
-      const email = Leads.emailIn(q);
-      if (email) {
-        const saved = await Leads.capture(email, q);
-        reply = saved
-          ? `Thanks! I've passed your details (${email}) to the ${config.siteName} team — they'll follow up soon. Anything else I can help with meanwhile?`
-          : `Thanks! I noted your email (${email}). If you don't hear back, please use the contact page too.`;
+      const wantsSiteEdit =
+        /(?:remove|hide|delete|change|update|edit|set|rename)\b.+(?:website|site|page|header|top|hours?|timing|price|color|section)/i.test(q) ||
+        (/(?:opening|closing).*(?:hours?|timing|time)/i.test(q) && /(?:remove|hide|delete|take\s+off)/i.test(q)) ||
+        /(?:remove|hide|delete|take\s+off).*(?:opening|closing|business)?\s*(?:hours?|timing|time)/i.test(q);
+      if (wantsSiteEdit) {
+        reply =
+          `I can update your website in owner mode only. Open your admin link or add ?sarah_admin=YOUR-TOKEN to the URL, then try:\n• hide opening hours\n• hide section top-bar\n• set color to #b89549\n• learn: paste your FAQ data`;
       } else {
-        reply = Brain.answer(q);
-        learnFromExchange(q, reply);
+        const email = Leads.emailIn(q);
+        if (email) {
+          const saved = await Leads.capture(email, q);
+          reply = saved
+            ? `Thanks! I've passed your details (${email}) to the ${config.siteName} team — they'll follow up soon. Anything else I can help with meanwhile?`
+            : `Thanks! I noted your email (${email}). If you don't hear back, please use the contact page too.`;
+        } else {
+          reply = Brain.answer(q);
+          learnFromExchange(q, reply);
+        }
       }
     }
 
