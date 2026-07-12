@@ -1,0 +1,91 @@
+ROSE EMPIRE — NEW SARAH BOT (YOUR EXACT DEPLOY PATH)
+==================================================
+
+Your site uses GITHUB PAGES (not Netlify for live).
+Repo: https://github.com/9say9/roseempire
+Live: https://www.roseempire.co.uk
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — Deploy Sarah API (one time, ~3 min)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Double-click:  deploy_sarah_worker.bat
+
+If it says KV error, run in terminal first:
+
+  cd "d:\my plugin\sarah-widget-agent"
+  npx wrangler kv namespace create SITE_CONFIG
+
+Copy the id into wrangler.toml (uncomment [[kv_namespaces]]), then run deploy_sarah_worker.bat again.
+
+Worker URL: https://rose-empire-sarah.adeelcolchester.workers.dev
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — Push website files to GitHub Pages
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Double-click:  deploy_sarah_github.bat
+
+OR manually:
+
+  cd d:\roseempire
+  git add index.html 404.html sarah-widget.js
+  git commit -m "Add new Sarah AI widget"
+  git push origin main
+
+Wait 1–2 minutes. GitHub Actions builds automatically.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — Test on live site
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Visitor chat:
+  https://www.roseempire.co.uk/
+  → circular bot bottom-right
+  → ask: "What is MOQ?" or "OEKO-TEX certification"
+
+Owner mode:
+  https://www.roseempire.co.uk/?sarah_admin=rose-empire-owner-2026
+  → try: learn: MOQ 20 per size. Volume 10% at 50+ pieces.
+  → try: show leads
+
+Preview (before DNS):
+  https://9say9.github.io/roseempire/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT CHANGED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+REMOVED: chat-widget.js (called broken rose-empire-chat API)
+ADDED:   sarah-widget.js (new circular tech bot)
+BACKUP:  chat-widget.legacy.js
+
+Old worker (rose-empire-chat) is NOT used anymore.
+New worker: rose-empire-sarah
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LOCAL TEST (optional)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Terminal 1:  cd "d:\my plugin\sarah-widget-agent"  &&  npm run dev
+Terminal 2:  cd d:\roseempire  &&  npx serve -p 5500
+
+In index.html temporarily set:
+  data-api-base="http://127.0.0.1:8787"
+
+Open: http://localhost:5500
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Bot not showing?
+  → Hard refresh Ctrl+Shift+R
+  → Check browser console for sarah-widget.js 404
+
+Chat works but owner can't save?
+  → Run deploy_sarah_worker.bat (Step 1)
+
+Still see old chat?
+  → Clear cache / wait 2 min for GitHub Pages rebuild
+
