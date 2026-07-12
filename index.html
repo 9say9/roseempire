@@ -300,6 +300,34 @@
     </style>
     <link rel="preload" href="styles.min.css?v=20260709" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="styles.min.css?v=20260709"></noscript>
+    <style>
+        .chat-widget {
+            bottom: max(16px, env(safe-area-inset-bottom));
+            right: max(16px, env(safe-area-inset-right));
+        }
+        .chat-widget-toggle {
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+        .chat-widget-panel {
+            width: min(390px, calc(100vw - 24px));
+            height: min(560px, calc(100dvh - 24px));
+            max-height: calc(100dvh - 24px);
+        }
+        .chat-widget-input {
+            font-size: 16px;
+        }
+        @media (max-width: 480px) {
+            .chat-widget {
+                bottom: max(12px, env(safe-area-inset-bottom));
+                right: max(12px, env(safe-area-inset-right));
+            }
+            .chat-widget-panel {
+                width: min(100vw - 16px, 390px);
+                height: min(100dvh - 16px, 560px);
+            }
+        }
+    </style>
 </head>
 <body data-page="wholesale">
 
