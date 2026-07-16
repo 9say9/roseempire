@@ -1683,12 +1683,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 }
 .drawer-overlay.open { opacity: 1; pointer-events: auto; }
 
-/* Sarah launcher sits at max z-index â€” hide it while cart is open so checkout is clickable */
-body.cart-drawer-open #sarah-widget {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
+
 
 .cart-drawer-header {
     padding: 22px 24px;
@@ -2771,4 +2766,21 @@ body.cart-drawer-open #sarah-widget {
 .faq-section {
     content-visibility: auto;
     contain-intrinsic-size: auto 500px;
+}
+
+/* REMOVE floating Sarah / quiltbot orb — blocks cart checkout clicks */
+#sarah-widget,
+#sarah-launcher,
+#sarah-panel,
+#sarah-nudge,
+[id^="sarah-"],
+.chat-widget {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  z-index: -1 !important;
 }
