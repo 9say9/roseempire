@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Rose Empire Design System — Luxury Rose, Gold & Midnight
+   Rose Empire Design System ? Luxury Rose, Gold & Midnight
    ========================================================================== */
 
 .ico { display: inline-block; width: 1em; height: 1em; vertical-align: -0.15em; fill: currentColor; flex-shrink: 0; }
@@ -880,7 +880,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     color: var(--text-muted);
 }
 
-/* Value strip — key trade proof points */
+/* Value strip ? key trade proof points */
 .value-strip {
     background: var(--bg-surface);
     border-bottom: 1px solid var(--border-color);
@@ -1048,7 +1048,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 }
 .accent-line::before,
 .accent-line::after {
-    content: '◆';
+    content: '?';
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -2756,7 +2756,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     color: #1d4e89;
 }
 
-/* Below-fold sections — faster initial render (PageSpeed) */
+/* Below-fold sections ? faster initial render (PageSpeed) */
 .manufacturer-trust,
 .process-section,
 .feature-strip-section,
@@ -2768,13 +2768,13 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     contain-intrinsic-size: auto 500px;
 }
 
-/* REMOVE floating Sarah / quiltbot orb � blocks cart checkout clicks */
-#sarah-widget,
+/* Hide ONLY the floating yellow Sarah orb + nudge (blocks cart clicks).
+   Keep #sarah-widget / #sarah-panel so Ask Sarah can open the chat. */
 #sarah-launcher,
-#sarah-panel,
 #sarah-nudge,
-[id^="sarah-"],
-.chat-widget {
+.sarah-launcher-orb,
+.sarah-launcher-pulse,
+.sarah-launcher-orbit {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -2782,5 +2782,36 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
   width: 0 !important;
   height: 0 !important;
   overflow: hidden !important;
-  z-index: -1 !important;
+}
+
+/* While quote cart is open, keep any Sarah chrome out of the way */
+body.cart-drawer-open #sarah-launcher,
+body.cart-drawer-open #sarah-nudge {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.btn-sarah {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(184, 149, 73, 0.55);
+  background: rgba(184, 149, 73, 0.12);
+  color: var(--navy, #102241);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+.btn-sarah:hover {
+  background: rgba(184, 149, 73, 0.22);
+}
+.dark-mode .btn-sarah {
+  color: #f5f0e6;
+  border-color: rgba(184, 149, 73, 0.7);
 }

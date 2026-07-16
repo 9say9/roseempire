@@ -726,6 +726,21 @@ document.addEventListener('DOMContentLoaded', () => {
     CheckoutTotalsUI.bindShippingSelect(() => CheckoutTotalsUI.refresh(cart));
     renderCartItems();
 
+    const sarahOpenBtn = document.getElementById('sarah-open-btn');
+    if (sarahOpenBtn) {
+        sarahOpenBtn.addEventListener('click', () => {
+            const launcher = document.getElementById('sarah-launcher');
+            const panel = document.getElementById('sarah-panel');
+            if (launcher) {
+                launcher.click();
+                return;
+            }
+            if (panel) {
+                panel.classList.toggle('open');
+            }
+        });
+    }
+
     const startCatalog = () => {
         loadCatalog().finally(() => {
             renderProducts();
