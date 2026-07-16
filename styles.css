@@ -1665,7 +1665,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     height: 100dvh;
     background-color: var(--bg-surface);
     box-shadow: -12px 0 40px rgba(13,31,60,0.15);
-    z-index: 2147483000;
+    z-index: 2147483646;
     display: flex;
     flex-direction: column;
     transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
@@ -1676,7 +1676,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     position: fixed;
     inset: 0;
     background-color: rgba(13,31,60,0.45);
-    z-index: 2147482999;
+    z-index: 2147483645;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.35s;
@@ -2768,8 +2768,23 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     contain-intrinsic-size: auto 500px;
 }
 
-/* Keep Sarah's floating orb (#sarah-launcher). Hide QuillBot grammar
-   extension yellow dot / widgets that inject into the page and steal clicks. */
+/* Keep Sarah's floating orb visible on the page.
+   While the quote cart is open, fully disable Sarah so email/Stripe match localhost. */
+body.cart-drawer-open #sarah-widget,
+body.cart-drawer-open #sarah-launcher,
+body.cart-drawer-open #sarah-nudge,
+body.cart-drawer-open #sarah-panel {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  z-index: -1 !important;
+}
+
+/* Hide QuillBot grammar extension yellow dot / widgets */
 [class*="quillbot" i],
 [id*="quillbot" i],
 [class*="QuillBot"],
@@ -2788,12 +2803,6 @@ iframe[src*="quillbot.com"] {
   height: 0 !important;
   overflow: hidden !important;
   z-index: -1 !important;
-}
-
-/* While quote cart is open, ensure checkout stays above extension overlays */
-body.cart-drawer-open #sarah-nudge {
-  display: none !important;
-  pointer-events: none !important;
 }
 
 .btn-sarah {

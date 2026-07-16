@@ -205,6 +205,20 @@ function setCartDrawerOpen(isOpen) {
     cartDrawer.classList.toggle('open', isOpen);
     drawerOverlay.classList.toggle('open', isOpen);
     document.body.classList.toggle('cart-drawer-open', isOpen);
+
+    // Live Sarah widget uses max z-index and can sit over the cart footer.
+    // Hide it while checkout is open so email/Stripe match localhost clickability.
+    document.querySelectorAll('#sarah-widget, #sarah-launcher, #sarah-nudge, #sarah-panel').forEach((el) => {
+        if (isOpen) {
+            el.style.setProperty('display', 'none', 'important');
+            el.style.setProperty('pointer-events', 'none', 'important');
+            el.style.setProperty('visibility', 'hidden', 'important');
+        } else {
+            el.style.removeProperty('display');
+            el.style.removeProperty('pointer-events');
+            el.style.removeProperty('visibility');
+        }
+    });
 }
 
 function toggleCartDrawer() {
