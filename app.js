@@ -201,14 +201,19 @@ filterTabs.addEventListener('click', e => {
 // ==========================================================================
 // Quote Cart
 // ==========================================================================
+function setCartDrawerOpen(isOpen) {
+    cartDrawer.classList.toggle('open', isOpen);
+    drawerOverlay.classList.toggle('open', isOpen);
+    document.body.classList.toggle('cart-drawer-open', isOpen);
+}
+
 function toggleCartDrawer() {
-    cartDrawer.classList.toggle('open');
-    drawerOverlay.classList.toggle('open');
+    setCartDrawerOpen(!cartDrawer.classList.contains('open'));
 }
 
 cartToggleBtn.addEventListener('click', toggleCartDrawer);
 cartCloseBtn.addEventListener('click', toggleCartDrawer);
-drawerOverlay.addEventListener('click', toggleCartDrawer);
+drawerOverlay.addEventListener('click', () => setCartDrawerOpen(false));
 
 function updateCartBadge() {
     const total = cart.reduce((a, i) => a + i.quantity, 0);
@@ -400,10 +405,7 @@ function addToCart(productId, sizeIndex, quantity) {
     updateCartBadge();
     renderCartItems();
     closeModal();
-    setTimeout(() => {
-        cartDrawer.classList.add('open');
-        drawerOverlay.classList.add('open');
-    }, 150);
+    setTimeout(() => setCartDrawerOpen(true), 150);
 }
 
 function removeFromCart(idx) {
@@ -573,8 +575,7 @@ window.addEventListener('click', e => {
 
 // Cart → RFQ flow
 proceedQuoteBtn.addEventListener('click', () => {
-    cartDrawer.classList.remove('open');
-    drawerOverlay.classList.remove('open');
+    setCartDrawerOpen(false);
     setTimeout(() => {
         rfqFormModal.classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -587,10 +588,8 @@ if (stripeCheckoutBtn) {
 
 rfqBackBtn.addEventListener('click', () => {
     rfqFormModal.classList.remove('open');
-    setTimeout(() => {
-        cartDrawer.classList.add('open');
-        drawerOverlay.classList.add('open');
-    }, 200);
+    document.body.style.overflow = '';
+    setTimeout(() => setCartDrawerOpen(true), 200);
 });
 
 // ==========================================================================
