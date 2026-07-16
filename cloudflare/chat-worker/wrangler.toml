@@ -1,9 +1,0 @@
-name = "rose-empire-chat"
-main = "src/index.js"
-compatibility_date = "2024-01-01"
-
-[observability]
-enabled = true
-
-[vars]
-CATALOG_URL = "https://www.roseempire.co.uk/catalog-data.json"

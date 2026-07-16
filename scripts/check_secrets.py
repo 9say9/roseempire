@@ -27,12 +27,16 @@ PATTERNS = [
     (re.compile(r"GEMINI_API_KEY\s*=\s*['\"]?[A-Za-z0-9._\-]{20,}"), "GEMINI_API_KEY assignment"),
     (re.compile(r"EMAIL_PASSWORD\s*=\s*['\"]?[^\s'\"#]{8,}"), "EMAIL_PASSWORD assignment"),
     (re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"), "OpenAI-style API key"),
+    (re.compile(r"\bsk_(live|test)_[A-Za-z0-9]{20,}\b"), "Stripe secret key"),
+    (re.compile(r"\bpk_(live|test)_[A-Za-z0-9]{20,}\b"), "Stripe publishable key"),
     (re.compile(r"\bAIza[A-Za-z0-9\-_]{30,}\b"), "Google API key"),
     (re.compile(r"\brnd_[A-Za-z0-9]{20,}\b"), "Render API key"),
     (re.compile(r"AQ\.[A-Za-z0-9\-_]{20,}"), "Google OAuth/API token"),
+    (re.compile(r"sarah_admin=[A-Za-z0-9_\-]{12,}"), "Sarah admin token in URL"),
+    (re.compile(r"rose-empire-owner-\d{4}"), "Hardcoded Sarah owner token"),
 ]
 
-ALLOW_PLACEHOLDER = re.compile(r"your_.*_here|placeholder|example|xxx|<", re.I)
+ALLOW_PLACEHOLDER = re.compile(r"your_.*_here|placeholder|example|xxx|<|sk_test_your_|pk_test_your_", re.I)
 
 
 def _tracked_files() -> list[Path]:

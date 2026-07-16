@@ -1,36 +1,25 @@
-# ─── Secrets & credentials ────────────────────────────
-config.yaml
+# Secrets
 .env
 .env.*
 !.env.example
-generator.py
 *.pem
 *.key
 
-# ─── AI / local-only data ─────────────────────────────
-ai_context.txt
-rose_empire_leads.csv
-
-# ─── LinkedIn automation (kept local — ToS risk) ───────
-linkedin-outreach/*
-!linkedin-outreach/README.txt
-
-# ─── Browser sessions (auth tokens) ───────────────────
-gsc_browser_profile/
-# ─── Build artifacts & deploy zips ────────────────────
+# Build / deploy
 *.zip
 node_modules/
 dist/
 build/
+site/
 
-# ─── Python ───────────────────────────────────────────
+# Python
 __pycache__/
 *.pyc
 *.pyo
 .venv/
 venv/
 
-# ─── IDE / editor local state ─────────────────────────
+# IDE
 .claude/
 .cursor/*
 !.cursor/rules/
@@ -38,29 +27,15 @@ venv/
 .vscode/
 .idea/
 *.code-workspace
-antigravity.code-workspace
 
-# ─── OS junk ──────────────────────────────────────────
+# OS
 .DS_Store
 Thumbs.db
 desktop.ini
-ehthumbs.db
-$RECYCLE.BIN/
 
-# ─── Logs ─────────────────────────────────────────────
+# Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Local Netlify folder
-.netlify
-
-# Playwright browser profiles (local login state)
-github_browser_profile/
-gsc_browser_profile/
-m365_browser_profile/
-
-# Cloudflare Worker local secrets
+# Cloudflare Worker local
 .dev.vars
 .wrangler/

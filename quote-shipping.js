@@ -72,12 +72,16 @@ const CheckoutTotalsUI = (function () {
     let defaultRegion = 'mainland';
 
     function getSelectedRegion() {
+        const cartSelect = document.getElementById('cart-shipping-region');
+        if (cartSelect && cartSelect.value) return cartSelect.value;
         const select = document.getElementById('rfq-shipping-region');
         return select ? select.value : defaultRegion;
     }
 
     function setSelectedRegion(regionId) {
         defaultRegion = regionId;
+        const cartSelect = document.getElementById('cart-shipping-region');
+        if (cartSelect) cartSelect.value = regionId;
         const select = document.getElementById('rfq-shipping-region');
         if (select) select.value = regionId;
     }
@@ -152,10 +156,15 @@ const CheckoutTotalsUI = (function () {
     }
 
     function bindShippingSelect(onRefresh) {
-        const select = document.getElementById('rfq-shipping-region');
-        if (!select || select.dataset.bound === '1') return;
-        select.dataset.bound = '1';
-        select.addEventListener('change', () => onRefresh());
+        ['cart-shipping-region', 'rfq-shipping-region'].forEach((id) => {
+            const select = document.getElementById(id);
+            if (!select || select.dataset.bound === '1') return;
+            select.dataset.bound = '1';
+            select.addEventListener('change', () => {
+                setSelectedRegion(select.value);
+                onRefresh();
+            });
+        });
     }
 
     return { refresh, bindShippingSelect, getSelectedRegion, setSelectedRegion };

@@ -284,17 +284,62 @@ function renderCartItems() {
     if (stripeCheckoutBtn) stripeCheckoutBtn.disabled = false;
 }
 
+function showCheckoutBanner(type, message) {
+    let banner = document.getElementById('checkout-status-banner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'checkout-status-banner';
+        banner.setAttribute('role', 'status');
+        banner.className = 'checkout-status-banner';
+        document.body.prepend(banner);
+    }
+    banner.className = `checkout-status-banner checkout-status-banner--${type}`;
+    banner.textContent = message;
+    banner.hidden = false;
+    window.setTimeout(() => {
+        banner.hidden = true;
+    }, 10000);
+}
+
+function getCheckoutEmail() {
+    const cartEmail = document.getElementById('cart-checkout-email');
+    const rfqEmail = document.getElementById('rfq-email');
+    const fromCart = cartEmail ? cartEmail.value.trim() : '';
+    const fromRfq = rfqEmail ? rfqEmail.value.trim() : '';
+    return fromCart || fromRfq;
+}
+
+function getCheckoutShippingRegion() {
+    const cartShip = document.getElementById('cart-shipping-region');
+    const rfqShip = document.getElementById('rfq-shipping-region');
+    if (cartShip && cartShip.value) return cartShip.value;
+    if (rfqShip && rfqShip.value) return rfqShip.value;
+    return 'mainland';
+}
+
 async function startStripeCheckout() {
     if (!cart.length) {
-        alert('Add products to your quote list before starting checkout.');
+        showCheckoutBanner('error', 'Add products to your quote list before starting checkout.');
         return;
     }
 
     const checkoutBase = (window.RoseEmpireConfig && window.RoseEmpireConfig.checkoutApiUrl) || '';
     const checkoutUrl = checkoutBase ? `${checkoutBase.replace(/\/$/, '')}/api/checkout/create` : '/api/checkout/create';
-    const shippingSelect = document.getElementById('rfq-shipping-region');
-    const shippingRegion = shippingSelect ? shippingSelect.value : 'mainland';
-    const emailField = document.getElementById('rfq-email');
+    const shippingRegion = getCheckoutShippingRegion();
+    const customerEmail = getCheckoutEmail();
+    const cartEmailField = document.getElementById('cart-checkout-email');
+
+    if (!customerEmail || !customerEmail.includes('@')) {
+        showCheckoutBanner('error', 'Enter your email above the Stripe button, then try again.');
+        cartEmailField?.focus();
+        return;
+    }
+
+    // Keep RFQ email in sync for quote PDF / mailto flow
+    const rfqEmail = document.getElementById('rfq-email');
+    if (rfqEmail && !rfqEmail.value.trim()) rfqEmail.value = customerEmail;
+    const rfqShip = document.getElementById('rfq-shipping-region');
+    if (rfqShip) rfqShip.value = shippingRegion;
 
     if (stripeCheckoutBtn) {
         stripeCheckoutBtn.disabled = true;
@@ -309,17 +354,20 @@ async function startStripeCheckout() {
                 items: cart,
                 domain: window.location.origin,
                 shippingRegion,
-                customerEmail: emailField ? emailField.value.trim() : ''
+                customerEmail
             })
         });
-        const data = await response.json();
-        if (!response.ok || data.status !== 'success') {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.status !== 'success' || !data.url) {
             throw new Error(data.message || 'Stripe checkout is unavailable right now.');
         }
         window.location.href = data.url;
     } catch (err) {
         console.error(err);
-        alert(err.message || 'Stripe checkout could not be started. Please try again or contact info@roseempire.co.uk.');
+        showCheckoutBanner(
+            'error',
+            err.message || 'Stripe checkout could not be started. Contact info@roseempire.co.uk.'
+        );
     } finally {
         if (stripeCheckoutBtn) {
             stripeCheckoutBtn.disabled = false;
@@ -656,9 +704,21 @@ if (mobileNavToggle && navMenuEl) {
 document.addEventListener('DOMContentLoaded', () => {
     const checkoutState = new URLSearchParams(window.location.search).get('checkout');
     if (checkoutState === 'success') {
-        alert('Stripe checkout completed. Our team will confirm your wholesale order shortly.');
+        showCheckoutBanner(
+            'success',
+            'Stripe checkout completed. Our team will confirm your wholesale order shortly.'
+        );
+        const clean = new URL(window.location.href);
+        clean.searchParams.delete('checkout');
+        window.history.replaceState({}, '', clean.pathname + clean.search + clean.hash);
     } else if (checkoutState === 'cancel') {
-        alert('Stripe checkout was cancelled. Your quote request list is still available if you want to continue by email.');
+        showCheckoutBanner(
+            'info',
+            'Stripe checkout was cancelled. Your quote list is still available — continue by email or try again.'
+        );
+        const clean = new URL(window.location.href);
+        clean.searchParams.delete('checkout');
+        window.history.replaceState({}, '', clean.pathname + clean.search + clean.hash);
     }
 
     initTheme();

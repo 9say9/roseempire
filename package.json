@@ -1,10 +1,9 @@
 {
   "name": "rose-empire-website",
   "private": true,
-  "description": "Rose Empire wholesale site — GitHub Pages + Cloudflare chat worker",
+  "description": "Rose Empire wholesale site — GitHub Pages + Sarah + Stripe checkout",
   "scripts": {
     "serve": "py -3 server.py",
-    "deploy": "git push origin main",
-    "verify-live": "py -3 verify_live_chat.py"
+    "deploy": "git push origin main"
   }
 }

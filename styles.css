@@ -2658,6 +2658,50 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 .sector-footer { margin-top: 0; padding: 24px 0; }
 .sector-footer a { color: rgba(255,255,255,0.9); }
 
+.cart-checkout-fields {
+    display: grid;
+    gap: 8px;
+    margin: 12px 0 16px;
+}
+.cart-checkout-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted, #5a6478);
+}
+.cart-checkout-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(13, 31, 60, 0.15);
+    border-radius: 8px;
+    font: inherit;
+    background: #fff;
+}
+
+/* Checkout status banner (Stripe success / cancel / errors) */
+.checkout-status-banner {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+.checkout-status-banner[hidden] { display: none !important; }
+.checkout-status-banner--success {
+    background: #e8f6ee;
+    color: #146c43;
+}
+.checkout-status-banner--error {
+    background: #fdecec;
+    color: #b42318;
+}
+.checkout-status-banner--info {
+    background: #eef3fb;
+    color: #1d4e89;
+}
+
 /* Below-fold sections — faster initial render (PageSpeed) */
 .manufacturer-trust,
 .process-section,

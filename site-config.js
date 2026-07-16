@@ -1,31 +1,10 @@
 /**
- * Rose Empire — site-wide URLs (update LinkedIn URL after creating your company page)
+ * Rose Empire — site-wide URLs
  */
 (function () {
-    const host = window.location.hostname;
-    const isLocal = host === 'localhost' || host === '127.0.0.1';
-    const isGitHubPreview = host.endsWith('.github.io');
-    const isProductionDomain =
-        host === 'www.roseempire.co.uk' || host === 'roseempire.co.uk';
-
-    // After `deploy_chat_worker.bat`, set your workers.dev URL here (or leave empty).
-    const cloudflareChatApi = 'https://rose-empire-chat.adeelcolchester.workers.dev/api/chat';
-    // After `deploy_checkout_worker.bat`, set your checkout worker URL here.
+    // Live Cloudflare Stripe worker (same endpoint for local preview + production).
+    // Local Flask does not need Stripe keys when this worker is used.
     const cloudflareCheckoutApi = 'https://rose-empire-checkout.adeelcolchester.workers.dev';
-
-    function chatApiUrl() {
-        if (isLocal) return 'http://127.0.0.1:5000/api/chat';
-        if (cloudflareChatApi) return cloudflareChatApi;
-        if (isGitHubPreview || isProductionDomain) return 'https://rose-empire-chat.adeelcolchester.workers.dev/api/chat';
-        return '/api/chat';
-    }
-
-    function checkoutApiUrl() {
-        if (isLocal) return 'http://127.0.0.1:5000';
-        if (cloudflareCheckoutApi) return cloudflareCheckoutApi;
-        if (isGitHubPreview || isProductionDomain) return 'https://rose-empire-checkout.adeelcolchester.workers.dev';
-        return '';
-    }
 
     window.RoseEmpireConfig = {
         siteUrl: 'https://www.roseempire.co.uk',
@@ -34,7 +13,7 @@
         email: 'info@roseempire.co.uk',
         phone: '+447999988450',
         phoneDisplay: '+44 7999 988450',
-        chatApiUrl: chatApiUrl(),
-        checkoutApiUrl: checkoutApiUrl()
+        checkoutApiUrl: cloudflareCheckoutApi,
+        sarahApiBase: 'https://rose-empire-sarah.adeelcolchester.workers.dev'
     };
 })();
