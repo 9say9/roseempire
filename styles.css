@@ -2768,13 +2768,18 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     contain-intrinsic-size: auto 500px;
 }
 
-/* Hide ONLY the floating yellow Sarah orb + nudge (blocks cart clicks).
-   Keep #sarah-widget / #sarah-panel so Ask Sarah can open the chat. */
-#sarah-launcher,
-#sarah-nudge,
-.sarah-launcher-orb,
-.sarah-launcher-pulse,
-.sarah-launcher-orbit {
+/* Keep Sarah's floating orb (#sarah-launcher). Hide QuillBot grammar
+   extension yellow dot / widgets that inject into the page and steal clicks. */
+[class*="quillbot" i],
+[id*="quillbot" i],
+[class*="QuillBot"],
+[id*="QuillBot"],
+quillbot-extension,
+quillbot-extension-root,
+#quillBotExtensionTooltip,
+.qb-grammar-check,
+[data-quillbot],
+iframe[src*="quillbot.com"] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -2782,10 +2787,10 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
   width: 0 !important;
   height: 0 !important;
   overflow: hidden !important;
+  z-index: -1 !important;
 }
 
-/* While quote cart is open, keep any Sarah chrome out of the way */
-body.cart-drawer-open #sarah-launcher,
+/* While quote cart is open, ensure checkout stays above extension overlays */
 body.cart-drawer-open #sarah-nudge {
   display: none !important;
   pointer-events: none !important;
