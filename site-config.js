@@ -2,7 +2,7 @@
  * Rose Empire — site-wide URLs
  */
 (function () {
-    // Live Cloudflare Stripe worker (same endpoint for local preview + production).
+    // LIVE checkout — do not switch this to localhost; that broke payments before.
     // Local Flask does not need Stripe keys when this worker is used.
     const cloudflareCheckoutApi = 'https://rose-empire-checkout.adeelcolchester.workers.dev';
 

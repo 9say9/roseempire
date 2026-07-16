@@ -1,0 +1,31 @@
+---
+description: Do not break Rose Empire live checkout, Sarah, or Pages deploy
+globs:
+  - site-config.js
+  - app.js
+  - styles.css
+  - styles.min.css
+  - index.html
+  - server.py
+  - .github/workflows/pages.yml
+  - cloudflare/**/*
+---
+
+# Rose Empire — stability rules
+
+## Live payments
+- `site-config.js` must keep `checkoutApiUrl` on `https://rose-empire-checkout.adeelcolchester.workers.dev` for both local preview and production.
+- Never point the public site at local Flask Stripe unless the user explicitly wants test-only local keys.
+- Never commit Stripe secret keys, `.env`, or Cloudflare `.dev.vars`.
+
+## Cart + Sarah
+- While the quote cart is open, Sarah must stay hidden (`body.cart-drawer-open` + hide `#sarah-widget` / launcher / nudge / panel). Removing this breaks live checkout clicks (Sarah uses max z-index).
+- Keep the black/gold Sarah orb from the Cloudflare widget; do not confuse browser extensions (e.g. QuillBot yellow dots) with site UI.
+
+## Deploy
+- GitHub Pages must deploy only the allowlisted public `site/` files — never the whole repo (no `server.py`, secrets, or tooling).
+- After frontend changes that affect checkout/cart, bump the `?v=` cache query on CSS/JS in `index.html` (and sector pages if they load the same assets).
+- Run `python scripts/check_secrets.py`, `python scripts/check_site_config.py`, and optionally `python scripts/smoke_live.py` before calling the site “done”.
+
+## Scope
+- Keep this repo as the wholesale website + Sarah + Stripe path. Do not reintroduce scrapers, fleet bots, LinkedIn tooling, or unrelated automation.

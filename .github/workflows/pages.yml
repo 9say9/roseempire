@@ -27,6 +27,9 @@ jobs:
       - name: Scan for secrets
         run: python scripts/check_secrets.py
 
+      - name: Guard live checkout / Sarah URLs
+        run: python scripts/check_site_config.py
+
       - name: Validate catalog JSON
         run: python -c "import json; json.load(open('catalog-data.json', encoding='utf-8'))"
 
