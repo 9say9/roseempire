@@ -743,6 +743,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sarahOpenBtn = document.getElementById('sarah-open-btn');
     if (sarahOpenBtn) {
         sarahOpenBtn.addEventListener('click', () => {
+            if (window.RoseEmpireSarah?.open) {
+                window.RoseEmpireSarah.open();
+                return;
+            }
             const launcher = document.getElementById('sarah-launcher');
             const panel = document.getElementById('sarah-panel');
             if (launcher) {

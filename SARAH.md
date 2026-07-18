@@ -1,15 +1,17 @@
 # Sarah AI (website chat)
 
-Sarah is loaded from the Cloudflare worker and shows as the **black/gold circular orb** (bottom-right).
+Sarah is the **Rose Empire wholesale representative** on the site — black/gold circular orb (bottom-right) plus the **Ask Sarah** header button.
 
-```
-https://rose-empire-sarah.adeelcolchester.workers.dev
-```
+## How she works for customers
 
-Homepage also has an **Ask Sarah** header button as a second way to open chat.
+1. **Engage** — greets trade buyers and asks what they need  
+2. **Answer** — products, MOQ (20/size), volume discounts, certs, UK delivery, from live `catalog-data.json`  
+3. **Qualify** — collects facility type, email, volume, products, business name naturally  
+4. **Close** — steers buyers to **Get A Quote** / checkout and logs emails via the Cloudflare lead API  
+
+Widget file: `sarah-widget.js` (deployed with GitHub Pages).  
+Lead / owner API: `https://rose-empire-sarah.adeelcolchester.workers.dev`
 
 ## Tiny yellow grammar dot (not Sarah)
 
-A small solid yellow dot (often bottom-right) is usually the **QuillBot** browser extension, not Rose Empire.
-
-Disable it in Edge: puzzle-piece icon → QuillBot → turn off for roseempire.co.uk (or remove the extension).
+A small solid yellow dot is usually **QuillBot**, not Rose Empire. Disable it for this site if it confuses you.

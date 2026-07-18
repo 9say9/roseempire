@@ -7,16 +7,16 @@ import sys
 import urllib.request
 
 CHECKS = [
-    ("homepage", "https://www.roseempire.co.uk/", ("stripe-checkout-btn", "20260716", "rose-empire-sarah")),
+    ("homepage", "https://www.roseempire.co.uk/", ("stripe-checkout-btn", "sarah-widget.js", "rose-empire-sarah")),
     (
         "checkout worker",
         "https://rose-empire-checkout.adeelcolchester.workers.dev/api/checkout/config",
         None,
     ),
     (
-        "sarah widget",
-        "https://rose-empire-sarah.adeelcolchester.workers.dev/widget.js",
-        ("sarah",),
+        "sarah api",
+        "https://rose-empire-sarah.adeelcolchester.workers.dev/health",
+        ("ok", "sarah"),
     ),
 ]
 

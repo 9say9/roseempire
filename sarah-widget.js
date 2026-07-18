@@ -52,39 +52,32 @@
 
   const PAGE_PROFILES = [
     {
-      id: "about",
-      test: (p) => /\/about(\/|$)/i.test(p),
-      nudge: "Want to know our story, mission, and brand values?",
-      chips: ["Our mission", "Who we are", "Why choose us"],
-      topic: "brand",
-    },
-    {
-      id: "products",
-      test: (p) => /\/products?(\/|$)/i.test(p),
-      nudge: "Ask about products, wholesale, or bulk pricing.",
-      chips: ["Wholesale pricing", "Product range", "Bulk orders"],
+      id: "hotels",
+      test: (p) => /hotels/i.test(p),
+      nudge: "Equipping a hotel? I can help with trade pricing, MOQs, and a quick quote.",
+      chips: ["Hotel-grade protectors", "MOQ & pricing", "Get a quote"],
       topic: "sales",
     },
     {
-      id: "pricing",
-      test: (p) => /\/pricing(\/|$)/i.test(p),
-      nudge: "Need help picking a plan or package?",
-      chips: ["Compare plans", "Enterprise", "Free trial"],
-      topic: "pricing",
+      id: "care-homes",
+      test: (p) => /care-homes/i.test(p),
+      nudge: "Supplying a care home? Ask me about waterproof protectors, volumes, and trade terms.",
+      chips: ["Care-home bestsellers", "MOQ & pricing", "Get a quote"],
+      topic: "sales",
     },
     {
-      id: "contact",
-      test: (p) => /\/contact(\/|$)/i.test(p),
-      nudge: "Questions before you reach out? I can help.",
-      chips: ["Support hours", "Sales contact", "Book a demo"],
-      topic: "contact",
+      id: "wholesale",
+      test: (p) => /wholesale|protector/i.test(p),
+      nudge: "Looking at wholesale protectors? I can walk you through products, MOQ, and next steps.",
+      chips: ["Product range", "Volume discounts", "Start a quote"],
+      topic: "sales",
     },
     {
       id: "default",
       test: () => true,
-      nudge: `Hi! I'm ${config.title}. Ask me anything about ${config.siteName}.`,
-      chips: ["What do you offer?", "Pricing", "Get started"],
-      topic: "general",
+      nudge: `Hi — I'm ${config.title} from Rose Empire wholesale. Tell me what you need and I'll help you get a trade quote.`,
+      chips: ["What do you sell?", "MOQ & pricing", "I want a quote"],
+      topic: "sales",
     },
   ];
 
@@ -605,6 +598,373 @@
     return n;
   }
 
+  /* ─── Wholesale sales brain: engage → qualify → answer → close ─── */
+  const SalesLead = {
+    key: `sarah:lead:${config.clientId}`,
+    data: {
+      name: "",
+      business: "",
+      facilityType: "",
+      email: "",
+      phone: "",
+      volume: "",
+      products: [],
+      region: "",
+      asked: {},
+    },
+    load() {
+      try {
+        const raw = localStorage.getItem(this.key);
+        if (raw) this.data = { ...this.data, ...JSON.parse(raw) };
+      } catch {
+        /* ignore */
+      }
+      return this.data;
+    },
+    save() {
+      try {
+        localStorage.setItem(this.key, JSON.stringify(this.data));
+      } catch {
+        /* ignore */
+      }
+    },
+  };
+  SalesLead.load();
+
+  const CatalogFacts = {
+    ready: false,
+    contact: {
+      email: "info@roseempire.co.uk",
+      phone: "+447999988450",
+      phoneDisplay: "+44 7999 988450",
+    },
+    wholesale: {
+      moqPerSize: 20,
+      boxLabel: "1 trade box = 20 pieces",
+      volumeDiscounts: [
+        { minPieces: 50, percent: 10 },
+        { minPieces: 200, percent: 20 },
+      ],
+    },
+    products: [],
+    async load() {
+      try {
+        const res = await fetch("catalog-data.json", { credentials: "same-origin" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.contact) this.contact = { ...this.contact, ...data.contact };
+        if (data.wholesale) this.wholesale = { ...this.wholesale, ...data.wholesale };
+        if (Array.isArray(data.products)) this.products = data.products;
+        this.ready = true;
+      } catch {
+        /* offline — use baked-in defaults */
+      }
+    },
+    listSummary() {
+      if (!this.products.length) {
+        return (
+          "We supply wholesale mattress protectors and feather & down pillows for UK hotels, care homes, guest houses and retailers:\n" +
+          "• WQMP — Waterproof Quilted Mattress Protector (silent TPU, OEKO-TEX)\n" +
+          "• QMP — Quilted Mattress Protector (breathable, non-waterproof)\n" +
+          "• Terry Waterproof Mattress Protector (hotel-grade cotton terry)\n" +
+          "• Goose Feather & Duck Down Pillows (2-piece sets, standard 50×75cm)"
+        );
+      }
+      return (
+        "Here's our wholesale range:\n" +
+        this.products
+          .map((p) => {
+            const from = p.basePrice != null ? ` — from £${Number(p.basePrice).toFixed(2)}/piece` : "";
+            return `• ${p.title}${from}`;
+          })
+          .join("\n")
+      );
+    },
+    findProduct(q) {
+      const s = q.toLowerCase();
+      return this.products.find((p) => {
+        const title = (p.title || "").toLowerCase();
+        const id = (p.id || "").toLowerCase();
+        if (/wqmp|waterproof quilted/.test(s) && /wqmp|waterproof quilted/.test(title + id)) return true;
+        if (/\bqmp\b|quilted(?!.*water)/.test(s) && /\bqmp\b|quilted/.test(title + id) && !/waterproof/.test(title)) return true;
+        if (/terry/.test(s) && /terry/.test(title + id)) return true;
+        if (/pillow|goose|duck|down|feather/.test(s) && /pillow|down|feather/.test(title + id)) return true;
+        return title.split(/\s+/).filter((w) => w.length > 3).some((w) => s.includes(w));
+      });
+    },
+  };
+
+  const SalesAgent = {
+    facilityPatterns: [
+      [/care\s*home|nursing\s*home|residential\s*care/i, "care home"],
+      [/hotel|hospitality|b&b|bed\s*and\s*breakfast/i, "hotel"],
+      [/guest\s*house|guesthouse|airbnb|short.?let/i, "guest house"],
+      [/retail|shop|store|wholesaler/i, "retailer"],
+      [/distributor|trade\s*buyer|reseller/i, "distributor"],
+    ],
+
+    extract(text) {
+      const lead = SalesLead.data;
+      const email = Leads.emailIn(text);
+      if (email) lead.email = email;
+
+      const phone = text.match(/(?:\+44|0)\s*\d[\d\s-]{8,}/);
+      if (phone) lead.phone = phone[0].replace(/\s+/g, " ").trim();
+
+      for (const [re, label] of this.facilityPatterns) {
+        if (re.test(text)) lead.facilityType = label;
+      }
+
+      const vol = text.match(
+        /(\d[\d,]*)\s*(?:\+)?\s*(pieces?|pcs|boxes?|rooms?|beds?|units?)/i
+      );
+      if (vol) lead.volume = `${vol[1].replace(/,/g, "")} ${vol[2].toLowerCase()}`;
+      else if (/\b(50\+|200\+|bulk|large\s*order|volume)\b/i.test(text) && !lead.volume) {
+        lead.volume = text.match(/50\+|200\+|bulk|large\s*order|volume/i)?.[0] || lead.volume;
+      }
+
+      if (/mainland|highlands|northern\s*ireland|scotland|wales|england/i.test(text)) {
+        const m = text.match(/UK\s*mainland|mainland|highlands|northern\s*ireland|scotland|wales|england/i);
+        if (m) lead.region = m[0];
+      }
+
+      const biz = text.match(
+        /(?:(?:we(?:'re| are)|i(?:'m| am)|from|for|at|represent)\s+)([A-Z][\w&'’.-]+(?:\s+[A-Z][\w&'’.-]+){0,4})/
+      );
+      if (biz && biz[1].length > 2 && !/Hotel|Care|Hello|Thanks/i.test(biz[1])) {
+        lead.business = biz[1].trim();
+      }
+
+      const name = text.match(/(?:my name is|i(?:'m| am)|this is)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
+      if (name) lead.name = name[1].trim();
+
+      const product = CatalogFacts.findProduct(text);
+      if (product && !lead.products.includes(product.title)) {
+        lead.products.push(product.title);
+      } else {
+        if (/wqmp|waterproof quilted/i.test(text) && !lead.products.some((p) => /WQMP/i.test(p))) {
+          lead.products.push("WQMP Waterproof Quilted Mattress Protector");
+        }
+        if (/\bterry\b/i.test(text) && !lead.products.some((p) => /Terry/i.test(p))) {
+          lead.products.push("Terry Waterproof Mattress Protector");
+        }
+        if (/\bqmp\b|quilted protector/i.test(text) && !lead.products.some((p) => /\bQMP\b/i.test(p))) {
+          lead.products.push("QMP Quilted Mattress Protector");
+        }
+        if (/pillow|goose|duck|down/i.test(text) && !lead.products.some((p) => /Pillow/i.test(p))) {
+          lead.products.push("Goose Feather & Duck Down Pillows");
+        }
+      }
+
+      SalesLead.save();
+      return lead;
+    },
+
+    missingField(lead) {
+      if (!lead.facilityType) return "facilityType";
+      if (!lead.email) return "email";
+      if (!lead.volume) return "volume";
+      if (!lead.products.length) return "products";
+      if (!lead.business) return "business";
+      return null;
+    },
+
+    askFor(field, lead) {
+      if (lead.asked[field]) return "";
+      lead.asked[field] = true;
+      SalesLead.save();
+      const asks = {
+        facilityType:
+          "Quick one so I quote the right range — are you buying for a hotel, care home, guest house, retailer, or distributor?",
+        email:
+          "What's the best business email to send your trade quote to?",
+        volume:
+          "Roughly how many pieces are you looking at (per size)? Our MOQ is 20 per size — 50+ unlocks 10% off, 200+ unlocks 20%.",
+        products:
+          "Which lines are you interested in — waterproof quilted (WQMP), quilted (QMP), terry waterproof, or feather & down pillows?",
+        business: "And what's the business / facility name for the quote?",
+      };
+      return asks[field] || "";
+    },
+
+    answerFAQ(q) {
+      const lead = SalesLead.data;
+      const lower = q.toLowerCase();
+
+      if (/^(hi|hello|hey|good\s*(morning|afternoon|evening)|howdy)\b/.test(lower)) {
+        const who = lead.name ? ` ${lead.name}` : "";
+        return (
+          `Hello${who}! I'm Sarah, Rose Empire's wholesale representative. ` +
+          `We supply trade mattress protectors and pillows to UK hospitality and care buyers. ` +
+          `What are you looking to order?`
+        );
+      }
+
+      if (/moq|minimum\s*order|min(?:imum)?\s*qty|how many (?:do i|must i) (?:need|order)/i.test(q)) {
+        const moq = CatalogFacts.wholesale.moqPerSize || 20;
+        return (
+          `Our MOQ is ${moq} pieces per product size (${CatalogFacts.wholesale.boxLabel || "1 trade box"}). ` +
+          `Volume discounts: 10% off at 50+ pieces, 20% off at 200+ pieces. ` +
+          `Want me to help you build a quote on the site?`
+        );
+      }
+
+      if (/discount|volume|bulk\s*pric|tier/i.test(q)) {
+        return (
+          `Trade volume discounts on the wholesale cart:\n` +
+          `• 10% off at 50+ pieces\n` +
+          `• 20% off at 200+ pieces\n` +
+          `MOQ stays at 20 per size. Tell me your rough volume and I'll point you to the best next step.`
+        );
+      }
+
+      if (/deliver|shipping|freight|post(?:age)?|uk\s*wide/i.test(q)) {
+        return (
+          `We deliver UK-wide. Freight is quoted by destination and volume — mainland, Scottish Highlands, and Northern Ireland each have different rates in the quote cart. ` +
+          `Add your lines to "Get A Quote" and you'll see logistics + VAT on the estimate.`
+        );
+      }
+
+      if (/oeko|certif|test\s*report|uk\s*test|bs\s*en/i.test(q)) {
+        return (
+          `WQMP protectors are OEKO-TEX Standard 100 certified, and we have independent UK test reports available for trade buyers. ` +
+          `Pillow and product PDFs are linked on the site. Happy to note certification needs on your quote — which facility are you supplying?`
+        );
+      }
+
+      if (/how (?:do i |to )?(?:order|buy|purchase|checkout|pay)|quote|rfq|get started|close|deal/i.test(q)) {
+        return (
+          `Easiest path on the website:\n` +
+          `1) Pick products & sizes on the page\n` +
+          `2) Add them to Get A Quote\n` +
+          `3) Enter your details and request the quote (or pay via checkout when ready)\n\n` +
+          `Formal quotes are confirmed within 24 hours. I can also take your details here and the team will follow up — ` +
+          `or open Get A Quote now and I'll stay out of the way while you finish.`
+        );
+      }
+
+      if (/contact|phone|email|call|speak|human|manager/i.test(q) && !/@/.test(q)) {
+        return (
+          `You can reach Rose Empire on ${CatalogFacts.contact.email} or ${CatalogFacts.contact.phoneDisplay || CatalogFacts.contact.phone}. ` +
+          `Or leave your email here and I'll pass it straight to the wholesale team.`
+        );
+      }
+
+      if (/what do you (sell|offer)|product(?:s)?|range|catalog|catalogue|what have you got/i.test(q)) {
+        return CatalogFacts.listSummary() + "\n\nWhich of those fits your facility best?";
+      }
+
+      if (/price|pricing|cost|how much|£|gbp/i.test(q)) {
+        const product = CatalogFacts.findProduct(q);
+        if (product?.sizes?.length) {
+          const lines = product.sizes
+            .slice(0, 6)
+            .map((s) => `• ${s.name}: £${Number(s.price).toFixed(2)}`)
+            .join("\n");
+          return (
+            `Trade pricing for ${product.title} (ex-VAT, before volume discount):\n${lines}\n` +
+            `MOQ ${product.moq || 20} per size. Add to Get A Quote for freight + VAT, or tell me your volume and I'll help you close it.`
+          );
+        }
+        if (CatalogFacts.products.length) {
+          const lines = CatalogFacts.products
+            .map((p) => `• ${p.title}: from £${Number(p.basePrice).toFixed(2)}`)
+            .join("\n");
+          return (
+            `Guide trade prices (ex-VAT):\n${lines}\n` +
+            `Discounts apply at 50+ / 200+ pieces. Which product and size do you need?`
+          );
+        }
+        return (
+          `Trade pricing starts from around £4.40–£8.97 per piece depending on product and size, with volume discounts at 50+ and 200+. ` +
+          `Tell me the product and size and I'll give the trade figure, or open Get A Quote on the page for a full estimate.`
+        );
+      }
+
+      const product = CatalogFacts.findProduct(q);
+      if (product && /tell me about|what is|details|spec|waterproof|pillow|protector|terry|wqmp|qmp/i.test(q)) {
+        const specs = (product.specs || []).slice(0, 4).map((s) => `• ${s}`).join("\n");
+        return (
+          `${product.title}: ${product.desc || ""}\n${specs ? specs + "\n" : ""}` +
+          `From £${Number(product.basePrice).toFixed(2)}/piece · MOQ ${product.moq || 20}. ` +
+          `Shall I help you add this to a quote?`
+        );
+      }
+
+      if (product) {
+        return (
+          `Great choice — ${product.title} is a strong trade seller` +
+          (product.tag ? ` (${product.tag})` : "") +
+          `. From £${Number(product.basePrice).toFixed(2)}/piece, MOQ ${product.moq || 20} per size. ` +
+          `What sizes and roughly how many pieces do you need?`
+        );
+      }
+
+      return null;
+    },
+
+    qualifyReady(lead) {
+      return Boolean(lead.facilityType && lead.email && (lead.volume || lead.products.length));
+    },
+
+    closingLine(lead) {
+      const bits = [];
+      if (lead.facilityType) bits.push(lead.facilityType);
+      if (lead.business) bits.push(lead.business);
+      if (lead.volume) bits.push(lead.volume);
+      if (lead.products.length) bits.push(lead.products.slice(0, 2).join(" & "));
+      const summary = bits.length ? ` I've got you down for ${bits.join(" · ")}.` : "";
+      return (
+        `You're in good shape for a trade quote.${summary} ` +
+        `Next step: tap Get A Quote on the site, add your sizes, and submit — or reply with any last sizes and I'll make sure the team prioritises ${lead.email}. ` +
+        `We confirm formal quotes within 24 hours.`
+      );
+    },
+
+    async handle(query) {
+      const lead = this.extract(query);
+      const faq = this.answerFAQ(query);
+      const parts = [];
+
+      if (faq) {
+        parts.push(faq);
+      } else {
+        const siteAnswer = Brain.answer(query);
+        const generic =
+          /couldn't find an exact match|Based on .* page:|Here's what I found/i.test(siteAnswer) &&
+          siteAnswer.length < 120;
+        if (siteAnswer && !generic) {
+          parts.push(siteAnswer);
+        } else {
+          parts.push(
+            `I can help with wholesale products, MOQ (20/size), volume discounts, certifications, UK delivery, and getting your quote started. ` +
+              `What would you like to know — or shall we build your order?`
+          );
+        }
+      }
+
+      if (lead.email && !lead.asked._emailThanks) {
+        lead.asked._emailThanks = true;
+        SalesLead.save();
+        await Leads.capture(lead.email, query);
+        parts.push(`Thanks — I've logged ${lead.email} for the wholesale team.`);
+      }
+
+      if (this.qualifyReady(lead)) {
+        parts.push(this.closingLine(lead));
+      } else {
+        const field = this.missingField(lead);
+        const ask = field ? this.askFor(field, lead) : "";
+        if (ask) parts.push(ask);
+        else if (/quote|order|buy|need|interested|looking for/i.test(query)) {
+          parts.push("If you share your facility type and a rough volume, I can steer you straight into Get A Quote.");
+        }
+      }
+
+      return parts.filter(Boolean).join("\n\n").slice(0, 1200);
+    },
+  };
+
   /* ─── Instant responder (no network, no model weights) ─── */
   const Brain = {
   answer(query) {
@@ -616,8 +976,8 @@
       for (const chunk of state.siteIndex.chunks) {
         let score = overlap(qTokens, chunk.keywords) * 2;
         if (chunk.path === state.pathname) score += 3;
-        if (/wholesale|bulk|sales/.test(q) && chunk.path === "/products") score += 5;
-        if (/price|pricing|plan/.test(q) && chunk.path === "/pricing") score += 5;
+        if (/wholesale|bulk|sales|moq|quote|protector|pillow/.test(q)) score += 4;
+        if (/price|pricing|plan|cost/.test(q)) score += 3;
         if (/about|mission|brand/.test(q) && chunk.path === "/about") score += 5;
         if (profile.topic !== "general" && chunk.text.toLowerCase().includes(profile.topic)) score += 2;
         score += chunk.weight || 0;
@@ -670,18 +1030,18 @@
   function openingForQuery(query, profile) {
     const q = query.toLowerCase();
     if (/^(hi|hello|hey|hii)\b/.test(q)) {
-      return `Hello! Great to meet you — I'm here to help with ${config.siteName}.`;
+      return `Hello! I'm Sarah — Rose Empire wholesale.`;
     }
     if (/price|pricing|cost|plan/.test(q)) {
-      return `Here's what I found about pricing on the site:`;
+      return `On trade pricing:`;
     }
-    if (/wholesale|bulk|sales/.test(q)) {
-      return `Regarding sales and wholesale:`;
+    if (/wholesale|bulk|sales|moq|quote/.test(q)) {
+      return `For wholesale buyers:`;
     }
     if (/who|about|mission|brand/.test(q)) {
-      return `About the brand:`;
+      return `About Rose Empire:`;
     }
-    return `Based on ${config.siteName}'s ${profile.id} page:`;
+    return `From the ${config.siteName} site:`;
   }
 
   function learnFromExchange(userText, replyText) {
@@ -1337,16 +1697,8 @@
         reply =
           `I can update your website in owner mode only. Open your admin link or add ?sarah_admin=YOUR-TOKEN to the URL, then try:\n• hide opening hours\n• restore all changes\n• show top bar`;
       } else {
-        const email = Leads.emailIn(q);
-        if (email) {
-          const saved = await Leads.capture(email, q);
-          reply = saved
-            ? `Thanks! I've passed your details (${email}) to the ${config.siteName} team — they'll follow up soon. Anything else I can help with meanwhile?`
-            : `Thanks! I noted your email (${email}). If you don't hear back, please use the contact page too.`;
-        } else {
-          reply = Brain.answer(q);
-          learnFromExchange(q, reply);
-        }
+        reply = await SalesAgent.handle(q);
+        learnFromExchange(q, reply);
       }
     }
 
@@ -1434,17 +1786,36 @@
       });
       saveSession();
     }
+  } else if (!state.messages.length) {
+    state.messages.push({
+      role: "assistant",
+      content:
+        "Hi — I'm Sarah, your Rose Empire wholesale representative. I can answer product questions, explain MOQs and volume discounts, take your details, and help you start a quote on this site. What are you looking for today?",
+    });
+    saveSession();
+    renderMessages();
   }
+
+  if (!state.ownerMode) {
+    input.placeholder = "Ask about products, MOQ, pricing, or get a quote…";
+  }
+
+  window.RoseEmpireSarah = {
+    open: () => setOpen(true),
+    close: () => setOpen(false),
+    toggle: () => setOpen(!state.open),
+  };
 
   SiteControl.load().then(() => {
     if (!state.ownerMode) {
-      setStatus(`Ready · ${state.siteIndex.chunks.length} sections indexed`);
+      setStatus(`Wholesale ready · ${state.siteIndex.chunks.length} sections`);
     }
   });
 
   MetaStorage.write(MetaStorage.siteKey, state.siteIndex);
 
   queueMicrotask(() => {
+    CatalogFacts.load().catch(() => {});
     SiteBrain.crawlBackground().catch(() => {});
     initAmbientFx().catch(() => {});
   });
