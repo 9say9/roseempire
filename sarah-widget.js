@@ -1398,8 +1398,8 @@
   }
 
   function updateNudge() {
-    root.querySelector("#sarah-nudge-text").textContent = state.pageProfile.nudge;
-    nudgeEl.classList.toggle("visible", !state.open && state.nudgeDismissedPath !== state.pathname);
+    // Pre-chat popup disabled — Sarah opens only via the orb or Ask Sarah button.
+    nudgeEl.classList.remove("visible");
   }
 
   function renderChips() {
