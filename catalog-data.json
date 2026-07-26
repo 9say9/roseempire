@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-19",
+  "updatedAt": "2026-07-26",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -48,31 +48,31 @@
       ],
       "moq": 20,
       "boxLabel": "1 trade box = 20 pieces",
-      "basePrice": 6.01,
+      "basePrice": 6.99,
       "sizes": [
         {
           "name": "Pillow Pair",
-          "price": 5.44
+          "price": 5.99
         },
         {
           "name": "Single (90×190cm)",
-          "price": 6.01
+          "price": 6.99
         },
         {
           "name": "4ft / Small Double (120×190cm)",
-          "price": 6.91
+          "price": 8.99
         },
         {
           "name": "Double (135×190cm)",
-          "price": 7.25
+          "price": 9.49
         },
         {
           "name": "King (150×200cm)",
-          "price": 7.88
+          "price": 10.99
         },
         {
           "name": "Super King (180×200cm)",
-          "price": 8.97
+          "price": 12.99
         }
       ],
       "highlights": [
@@ -221,11 +221,11 @@
       ],
       "moq": 20,
       "boxLabel": "1 trade box = 20 pieces",
-      "basePrice": 8.5,
+      "basePrice": 12.49,
       "sizes": [
         {
           "name": "Standard (50×75cm) – 2 Piece",
-          "price": 8.5
+          "price": 12.49
         }
       ],
       "highlights": [
