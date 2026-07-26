@@ -1,0 +1,23 @@
+{
+  "name": "Rose Empire Wholesale",
+  "short_name": "Rose Empire",
+  "description": "Wholesale mattress protectors and pillows — Manchester manufacturer-direct UK B2B supplier.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f4f0",
+  "theme_color": "#102241",
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "/assets/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/logo-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
