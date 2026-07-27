@@ -1,14 +1,21 @@
 /**
  * Rose Empire — Stripe Checkout Cloudflare Worker
- * Secrets: STRIPE_SECRET_KEY
- * Optional env: SITE_URL
+ * Secrets:
+ *   STRIPE_SECRET_KEY          (required)
+ *   STRIPE_WEBHOOK_SECRET      (required for order alerts)
+ *   ZAPIER_WEBHOOK_URL         (Catch Hook → Email + WhatsApp)
+ * Optional:
+ *   SITE_URL
+ *   OWNER_NOTIFY_EMAIL         (default info@roseempire.co.uk)
+ *   RESEND_API_KEY             (optional direct owner email)
+ *   RESEND_FROM_EMAIL          (default Rose Empire <orders@roseempire.co.uk>)
  *
  * Shipping per trade box: Mainland £10 · Scotland & Northern Ireland £15.
- * Delivery address required from the site and confirmed on Stripe Checkout.
  */
 
 const PIECES_PER_BOX = 20;
 const FEE_PER_BOX_DEFAULT = 10;
+const DEFAULT_OWNER_EMAIL = "info@roseempire.co.uk";
 
 const SHIPPING_REGIONS = {
   mainland: { id: "mainland", label: "UK Mainland", feePerBox: 10 },
@@ -150,6 +157,287 @@ function buildTotals(items, shippingRegion) {
 
 function isPlaceholderKey(key) {
   return !key || !key.startsWith("sk_") || /your_|placeholder|example|xxx/i.test(key);
+}
+
+function timingSafeEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
+  let out = 0;
+  for (let i = 0; i < a.length; i += 1) out |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return out === 0;
+}
+
+function bytesToHex(buf) {
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function verifyStripeSignature(rawBody, signatureHeader, webhookSecret) {
+  if (!signatureHeader || !webhookSecret) return false;
+  const parts = {};
+  for (const piece of signatureHeader.split(",")) {
+    const [k, ...rest] = piece.trim().split("=");
+    if (!k || !rest.length) continue;
+    const v = rest.join("=");
+    if (!parts[k]) parts[k] = [];
+    parts[k].push(v);
+  }
+  const timestamp = parts.t && parts.t[0];
+  const candidates = parts.v1 || [];
+  if (!timestamp || !candidates.length) return false;
+
+  const age = Math.abs(Math.floor(Date.now() / 1000) - Number(timestamp));
+  if (!Number.isFinite(age) || age > 300) return false;
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(webhookSecret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signed = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(`${timestamp}.${rawBody}`)
+  );
+  const expected = bytesToHex(signed);
+  return candidates.some((sig) => timingSafeEqual(sig, expected));
+}
+
+function moneyFromStripe(amount, currency) {
+  const major = (Number(amount) || 0) / 100;
+  const code = String(currency || "gbp").toUpperCase();
+  if (code === "GBP") return `£${major.toFixed(2)}`;
+  return `${major.toFixed(2)} ${code}`;
+}
+
+function buildOrderAlert(session) {
+  const meta = session.metadata || {};
+  const email = session.customer_details?.email || session.customer_email || "";
+  const name =
+    session.customer_details?.name ||
+    meta.ship_name ||
+    session.shipping_details?.name ||
+    "";
+  const phone =
+    meta.ship_phone ||
+    session.customer_details?.phone ||
+    session.shipping_details?.phone ||
+    "";
+  const ship = {
+    name: meta.ship_name || name,
+    company: meta.ship_company || "",
+    phone,
+    line1: meta.ship_line1 || session.shipping_details?.address?.line1 || "",
+    line2: meta.ship_line2 || session.shipping_details?.address?.line2 || "",
+    city: meta.ship_city || session.shipping_details?.address?.city || "",
+    postcode: meta.ship_postcode || session.shipping_details?.address?.postal_code || "",
+    full: meta.ship_address_full || "",
+  };
+  const lineItems = (session.line_items?.data || []).map((li) => ({
+    name: li.description || li.price?.product?.name || "Item",
+    quantity: li.quantity || 0,
+    amount: moneyFromStripe(li.amount_total, session.currency),
+  }));
+  const total = moneyFromStripe(session.amount_total, session.currency);
+  const linesText = lineItems.length
+    ? lineItems.map((li) => `• ${li.quantity}× ${li.name} — ${li.amount}`).join("\n")
+    : "(See Stripe Dashboard for line items)";
+  const addressText =
+    ship.full ||
+    [ship.name, ship.company, ship.line1, ship.line2, ship.city, ship.postcode, ship.phone]
+      .filter(Boolean)
+      .join(", ");
+
+  const whatsapp_message = [
+    "🛒 *Rose Empire — NEW ORDER*",
+    `Total: ${total}`,
+    `Email: ${email}`,
+    `Name: ${name || ship.name || "—"}`,
+    `Phone: ${phone || "—"}`,
+    `Region: ${meta.shipping_region || "—"}`,
+    `Boxes: ${meta.box_count || "—"} · Pieces: ${meta.total_packs || "—"}`,
+    "",
+    "Items:",
+    linesText,
+    "",
+    `Deliver to: ${addressText || "—"}`,
+    `Stripe: ${session.id}`,
+  ].join("\n");
+
+  const email_subject = `New Rose Empire order — ${total}`;
+  const email_body = [
+    "A wholesale order was paid on roseempire.co.uk.",
+    "",
+    `Total (inc VAT): ${total}`,
+    `Customer email: ${email}`,
+    `Customer name: ${name || ship.name || "—"}`,
+    `Phone: ${phone || "—"}`,
+    `Shipping region: ${meta.shipping_region || "—"}`,
+    `Trade boxes: ${meta.box_count || "—"}`,
+    `Pieces: ${meta.total_packs || "—"}`,
+    "",
+    "Items:",
+    linesText,
+    "",
+    "Delivery address:",
+    addressText || "—",
+    "",
+    `Checkout session: ${session.id}`,
+    `Payment intent: ${session.payment_intent || "—"}`,
+    "Open Stripe Dashboard → Payments for full details.",
+  ].join("\n");
+
+  return {
+    event: "rose_empire.order_paid",
+    source: "rose-empire-checkout-webhook",
+    session_id: session.id,
+    payment_intent: session.payment_intent || "",
+    payment_status: session.payment_status || "",
+    amount_total: (Number(session.amount_total) || 0) / 100,
+    currency: session.currency || "gbp",
+    amount_formatted: total,
+    customer_email: email,
+    customer_name: name || ship.name,
+    shipping: ship,
+    metadata: meta,
+    line_items: lineItems,
+    whatsapp_message,
+    email_subject,
+    email_body,
+  };
+}
+
+async function expandCheckoutSession(secret, sessionId) {
+  const url =
+    `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}` +
+    "?expand[]=line_items";
+  const resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${secret}` },
+  });
+  const data = await resp.json();
+  if (!resp.ok) {
+    throw new Error((data.error && data.error.message) || "Could not load Checkout Session");
+  }
+  return data;
+}
+
+async function notifyZapier(env, payload) {
+  const hook = String(env.ZAPIER_WEBHOOK_URL || "").trim();
+  if (!hook || !/^https:\/\//i.test(hook)) {
+    return { skipped: true, reason: "ZAPIER_WEBHOOK_URL not set" };
+  }
+  const resp = await fetch(hook, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const text = await resp.text();
+  if (!resp.ok) {
+    return { ok: false, status: resp.status, body: text.slice(0, 300) };
+  }
+  return { ok: true, status: resp.status };
+}
+
+async function notifyOwnerEmail(env, payload) {
+  const apiKey = String(env.RESEND_API_KEY || "").trim();
+  if (!apiKey) {
+    return { skipped: true, reason: "RESEND_API_KEY not set (Zapier email can cover this)" };
+  }
+  const to = String(env.OWNER_NOTIFY_EMAIL || DEFAULT_OWNER_EMAIL).trim();
+  const from = String(env.RESEND_FROM_EMAIL || "Rose Empire <orders@roseempire.co.uk>").trim();
+  const resp = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: [to],
+      subject: payload.email_subject,
+      text: payload.email_body,
+    }),
+  });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    return { ok: false, status: resp.status, error: data };
+  }
+  return { ok: true, id: data.id };
+}
+
+async function handleStripeWebhook(request, env) {
+  const secret = (env.STRIPE_SECRET_KEY || "").trim();
+  const webhookSecret = String(env.STRIPE_WEBHOOK_SECRET || "").trim();
+  if (isPlaceholderKey(secret)) {
+    return json({ status: "error", message: "Stripe secret not configured." }, 503);
+  }
+  if (!webhookSecret || !webhookSecret.startsWith("whsec_")) {
+    return json(
+      {
+        status: "error",
+        message: "Set STRIPE_WEBHOOK_SECRET (whsec_…) on the checkout worker.",
+      },
+      503
+    );
+  }
+
+  const rawBody = await request.text();
+  const signature = request.headers.get("Stripe-Signature") || "";
+  const valid = await verifyStripeSignature(rawBody, signature, webhookSecret);
+  if (!valid) {
+    return json({ status: "error", message: "Invalid Stripe signature." }, 400);
+  }
+
+  let event;
+  try {
+    event = JSON.parse(rawBody);
+  } catch {
+    return json({ status: "error", message: "Invalid JSON." }, 400);
+  }
+
+  if (event.type !== "checkout.session.completed") {
+    return json({ status: "ignored", type: event.type }, 200);
+  }
+
+  const sessionStub = event.data && event.data.object;
+  if (!sessionStub || !sessionStub.id) {
+    return json({ status: "error", message: "Missing session." }, 400);
+  }
+  if (sessionStub.payment_status && sessionStub.payment_status !== "paid") {
+    return json(
+      { status: "ignored", reason: "payment_status not paid", payment_status: sessionStub.payment_status },
+      200
+    );
+  }
+
+  let session = sessionStub;
+  try {
+    session = await expandCheckoutSession(secret, sessionStub.id);
+  } catch (err) {
+    console.error("expand session failed", err);
+  }
+
+  const payload = buildOrderAlert(session);
+  const [zapier, email] = await Promise.all([
+    notifyZapier(env, payload),
+    notifyOwnerEmail(env, payload),
+  ]);
+
+  console.log("order alert", {
+    session_id: payload.session_id,
+    zapier,
+    email,
+  });
+
+  return json(
+    {
+      status: "ok",
+      notified: { zapier, email },
+      session_id: payload.session_id,
+    },
+    200
+  );
 }
 
 async function createStripeSession(env, body) {
@@ -309,8 +597,16 @@ export default {
 
     if (url.pathname === "/health" && request.method === "GET") {
       const configured = !isPlaceholderKey((env.STRIPE_SECRET_KEY || "").trim());
+      const zapier = Boolean(String(env.ZAPIER_WEBHOOK_URL || "").trim());
+      const webhook = Boolean(String(env.STRIPE_WEBHOOK_SECRET || "").trim());
       return json(
-        { status: "ok", stripe_configured: configured, shipping: "Mainland £10 / Scotland & NI £15 per box" },
+        {
+          status: "ok",
+          stripe_configured: configured,
+          webhook_secret_set: webhook,
+          zapier_webhook_set: zapier,
+          shipping: "Mainland £10 / Scotland & NI £15 per box",
+        },
         200,
         origin
       );
@@ -344,6 +640,10 @@ export default {
       }
       const result = await createStripeSession(env, body);
       return json(result.data, result.status, origin);
+    }
+
+    if (url.pathname === "/api/stripe/webhook" && request.method === "POST") {
+      return handleStripeWebhook(request, env);
     }
 
     return json({ status: "error", message: "Not found" }, 404, origin);

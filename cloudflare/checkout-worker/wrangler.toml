@@ -4,4 +4,10 @@ compatibility_date = "2024-11-01"
 
 # Set secrets (do not commit real keys):
 #   npx wrangler secret put STRIPE_SECRET_KEY
+#   npx wrangler secret put STRIPE_WEBHOOK_SECRET
+#   npx wrangler secret put ZAPIER_WEBHOOK_URL
+# Optional:
+#   npx wrangler secret put RESEND_API_KEY
+#   npx wrangler secret put OWNER_NOTIFY_EMAIL
 # Optional: SITE_URL=https://www.roseempire.co.uk
+# See ORDER_ALERTS.md in the repo root.
