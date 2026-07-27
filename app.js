@@ -33,21 +33,46 @@ async function loadCatalog() {
 }
 
 function buildDetailGallery(product) {
-    const imgs = (product.gallery && product.gallery.length) ? product.gallery : [product.image];
+    // Keep size page simple: one main product photo only.
+    const src = product.image || (product.gallery && product.gallery[0]) || '';
     const fallback = `https://placehold.co/400x300/0d1f3c/ffffff?text=${encodeURIComponent(product.title)}`;
-    return imgs.map((src, i) =>
-        `<img src="${src}" alt="${product.title}" class="${i === 0 ? 'detail-gallery-main' : 'detail-gallery-extra'}"
-              onerror="this.src='${fallback}'">`
-    ).join('');
+    return `<img src="${src}" alt="${product.title}" class="detail-gallery-main"
+              onerror="this.src='${fallback}'">`;
 }
 
 
 // ==========================================================================
 // Application State
 // ==========================================================================
+const CART_STORAGE_KEY = 're-quote-cart-v1';
 let cart = [];
 let currentFilter = 'all';
 let currentSearch = '';
+
+function loadCart() {
+    try {
+        const raw = localStorage.getItem(CART_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        cart = Array.isArray(parsed) ? parsed.filter((item) => item && item.productId && item.sizeName) : [];
+    } catch {
+        cart = [];
+    }
+}
+
+function saveCart() {
+    try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch {
+        /* ignore quota / private mode */
+    }
+}
+
+function clearCart() {
+    cart = [];
+    saveCart();
+    updateCartBadge();
+    renderCartItems();
+}
 
 // DOM Elements
 const productsGrid      = document.getElementById('products-grid');
@@ -170,7 +195,7 @@ function renderProducts() {
                 </div>
                 <div class="product-actions">
                     <button class="btn btn-navy-sm btn-block" onclick="openProductDetail('${product.id}')">
-                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#search"></use></svg> View Details &amp; Quote
+                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> Choose Sizes &amp; Add
                     </button>
                 </div>
             </div>`;
@@ -221,14 +246,12 @@ function setCartDrawerOpen(isOpen) {
     });
 
     if (isOpen) {
-        // Jump to totals + delivery form so PC users don't miss address fields.
+        // Show basket items first — not the delivery form.
         requestAnimationFrame(() => {
             const scroll = document.getElementById('cart-drawer-scroll');
-            const heading = document.querySelector('.cart-checkout-heading');
-            if (scroll && heading) {
-                scroll.scrollTop = Math.max(0, heading.offsetTop - 12);
-            }
-            document.getElementById('cart-checkout-email')?.focus({ preventScroll: true });
+            if (scroll) scroll.scrollTop = 0;
+            const body = document.getElementById('cart-drawer-items');
+            if (body) body.scrollTop = 0;
         });
     }
 }
@@ -463,13 +486,17 @@ async function startStripeCheckout() {
     }
 }
 
-function addToCart(productId, sizeIndex, quantity) {
+function addToCart(productId, sizeIndex, quantity, { keepModalOpen = true } = {}) {
     const product = products.find(p => p.id === productId);
-    const size    = product.sizes[sizeIndex];
-    const existing= cart.findIndex(i => i.productId === productId && i.sizeName === size.name);
+    if (!product) return;
+    const size = product.sizes[sizeIndex];
+    if (!size) return;
+    const sizeName = size.name;
+    const qty = Math.max(1, parseInt(quantity, 10) || product.moq || 20);
+    const existing = cart.findIndex(i => i.productId === productId && i.sizeName === sizeName);
 
     if (existing > -1) {
-        cart[existing].quantity += parseInt(quantity, 10);
+        cart[existing].quantity += qty;
         cart[existing].unitPrice = size.price;
     } else {
         cart.push({
@@ -477,33 +504,72 @@ function addToCart(productId, sizeIndex, quantity) {
             title:     product.title,
             image:     product.image,
             category:  product.category,
-            sizeName:  size.name,
+            sizeName,
             unitPrice: size.price,
-            quantity:  parseInt(quantity, 10),
+            quantity:  qty,
             moq:       product.moq
         });
     }
 
+    saveCart();
     updateCartBadge();
     renderCartItems();
+
+    if (keepModalOpen && productDetailModal.classList.contains('open')) {
+        showAddToast(sizeName, qty);
+        const viewBtn = modalDetailBody.querySelector('[data-view-basket]');
+        if (viewBtn) {
+            viewBtn.textContent = `View Basket (${cart.length} size${cart.length === 1 ? '' : 's'})`;
+        }
+        return;
+    }
+
     closeModal();
-    setTimeout(() => setCartDrawerOpen(true), 150);
+    setTimeout(() => setCartDrawerOpen(true), 120);
+}
+
+function showAddToast(sizeName, qty) {
+    let toast = document.getElementById('cart-add-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'cart-add-toast';
+        toast.className = 'cart-add-toast';
+        toast.setAttribute('role', 'status');
+        document.body.appendChild(toast);
+    }
+    toast.innerHTML = `
+        <strong>✓ ${sizeName}</strong> added (${qty} pcs).
+        <span>Add another size below, or <button type="button" class="cart-add-toast-link" id="cart-add-toast-view">View Basket</button></span>`;
+    toast.classList.add('visible');
+    const viewBtn = document.getElementById('cart-add-toast-view');
+    if (viewBtn) {
+        viewBtn.onclick = () => {
+            toast.classList.remove('visible');
+            closeModal();
+            setCartDrawerOpen(true);
+        };
+    }
+    clearTimeout(showAddToast._timer);
+    showAddToast._timer = setTimeout(() => toast.classList.remove('visible'), 4500);
 }
 
 function removeFromCart(idx) {
     cart.splice(idx, 1);
+    saveCart();
     updateCartBadge();
     renderCartItems();
 }
 
 function adjustCartQty(idx, amt) {
     cart[idx].quantity = Math.max(1, cart[idx].quantity + amt);
+    saveCart();
     renderCartItems();
     updateCartBadge();
 }
 
 function setCartQty(idx, val) {
     cart[idx].quantity = Math.max(1, parseInt(val) || 1);
+    saveCart();
     renderCartItems();
     updateCartBadge();
 }
@@ -515,10 +581,6 @@ function openProductDetail(productId) {
     const p = products.find(x => x.id === productId);
     if (!p) return;
 
-    const specsHTML = p.specs.map(s =>
-        `<li><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#check"></use></svg> ${s}</li>`
-    ).join('');
-
     const sizePickerHTML = p.sizes.map((s, i) => `
         <button type="button" class="detail-size-option${i === 0 ? ' active' : ''}"
                 data-size-index="${i}" onclick="selectDetailSize(${i})">
@@ -526,80 +588,32 @@ function openProductDetail(productId) {
             <span class="detail-size-price">£${s.price.toFixed(2)}/pc</span>
         </button>`).join('');
 
-    // Extra feature section per product type
-    let extraHTML = '';
-    if (p.id === 'protector-wqmp') {
-        extraHTML = `
-        <div class="layers-container">
-            <h4>WQMP — 3-Layer Construction</h4>
-            <div class="layer-list">
-                <div class="layer-item"><span class="layer-num">1</span><strong>Quilted Top:</strong> Ultra-soft brushed microfiber surface.</div>
-                <div class="layer-item"><span class="layer-num">2</span><strong>Fill:</strong> 150 GSM microfiber padding for comfort.</div>
-                <div class="layer-item"><span class="layer-num">3</span><strong>Barrier:</strong> 100% silent waterproof TPU backing.</div>
-                <div class="layer-item"><span class="layer-num">4</span><strong>Fit:</strong> Deep elasticated fitted skirt — up to 40cm mattress depth.</div>
-            </div>
-        </div>`;
-    } else if (p.id === 'protector-qmp') {
-        extraHTML = `
-        <div class="layers-container">
-            <h4>QMP — Quilted Construction</h4>
-            <div class="layer-list">
-                <div class="layer-item"><span class="layer-num">1</span><strong>Top:</strong> Quilted polycotton surface for softness.</div>
-                <div class="layer-item"><span class="layer-num">2</span><strong>Fill:</strong> 120 GSM lightweight microfiber padding.</div>
-                <div class="layer-item"><span class="layer-num">3</span><strong>Base:</strong> Breathable polycotton backing (non-waterproof).</div>
-                <div class="layer-item"><span class="layer-num">4</span><strong>Fit:</strong> Deep elasticated fitted skirt — up to 35cm mattress depth.</div>
-            </div>
-        </div>`;
-    } else if (p.id === 'protector-terry') {
-        extraHTML = `
-        <div class="layers-container">
-            <h4>Terry — 2-Layer Construction</h4>
-            <div class="layer-list">
-                <div class="layer-item"><span class="layer-num">1</span><strong>Surface:</strong> 100% Cotton Terry loop pile — soft & highly absorbent.</div>
-                <div class="layer-item"><span class="layer-num">2</span><strong>Barrier:</strong> 100% Waterproof PU/TPU membrane backing.</div>
-                <div class="layer-item"><span class="layer-num">3</span><strong>Fit:</strong> Deep elasticated fitted skirt on every size — up to 35cm depth.</div>
-            </div>
-        </div>`;
-    } else if (p.category === 'pillows') {
-        extraHTML = `
-        <div class="layers-container">
-            <h4>Goose Feather &amp; Duck Down Fill</h4>
-            <div class="layer-list">
-                <div class="layer-item"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#award"></use></svg> <strong>Goose:</strong> 85% white goose feather, 15% soft goose down.</div>
-                <div class="layer-item"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#award"></use></svg> <strong>Duck:</strong> 80% duck feather, 20% soft duck down.</div>
-                <div class="layer-item"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#calc"></use></svg> Standard size only (50×75cm) — pair of 2 pillows per piece.</div>
-                <div class="layer-item"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg> Specify goose or duck fill when requesting your quote.</div>
-            </div>
-        </div>`;
-    }
+    const shortDesc = (p.desc || '').split('.')[0] + '.';
+    const topSpecs = (p.highlights || []).slice(0, 3)
+        .map((h) => `<span class="spec-badge">${h}</span>`)
+        .join('');
 
     modalDetailBody.innerHTML = `
-        <div class="detail-gallery">
+        <div class="detail-gallery detail-gallery--simple">
             ${buildDetailGallery(p)}
         </div>
         <div class="detail-info">
-            <span class="detail-category">${p.category === 'protectors' ? 'Mattress Protector' : 'Luxury Pillow'}</span>
+            <span class="detail-category">${p.category === 'protectors' ? 'Mattress Protector' : 'Pillow'}</span>
             <h2 class="detail-title">${p.title}</h2>
-            <p class="detail-desc">${p.desc}</p>
-
-            ${extraHTML}
-
-            <div class="detail-specs-list">
-                <h4>Specifications &amp; Features:</h4>
-                <ul>${specsHTML}</ul>
-            </div>
+            <p class="detail-desc">${shortDesc}</p>
+            <div class="product-specs detail-simple-specs">${topSpecs}</div>
+            <p class="detail-moq-hint">MOQ <strong>${p.moq} pieces</strong> per size (1 trade box). Add each size you need — basket keeps them all.</p>
 
             <div class="detail-purchase-controls">
                 <div class="form-group detail-size-group">
-                    <label>Select Size</label>
+                    <label>1. Choose size</label>
                     <div class="detail-size-picker" id="detail-size-picker">
                         ${sizePickerHTML}
                     </div>
                     <input type="hidden" id="detail-size-index" value="0">
-                    <p class="detail-moq-hint">MOQ <strong>${p.moq} pieces</strong> per size — one full trade box.</p>
                 </div>
                 <div class="form-group detail-qty-group">
-                    <label for="detail-qty-input">Pieces Qty</label>
+                    <label for="detail-qty-input">2. Pieces qty</label>
                     <div class="qty-selector" style="height:42px">
                         <button class="qty-btn" type="button" onclick="adjustDetailQty(-10)">-10</button>
                         <input type="number" id="detail-qty-input" class="qty-input"
@@ -609,9 +623,14 @@ function openProductDetail(productId) {
                 </div>
             </div>
 
-            <div style="margin-top:20px">
-                <button class="btn btn-gold btn-block" onclick="triggerAddToCart('${p.id}')">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> Add to Quote Request
+            <div class="detail-add-actions">
+                <button class="btn btn-gold btn-block" type="button" onclick="triggerAddToCart('${p.id}')">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg>
+                    Add to Basket
+                </button>
+                <button class="btn btn-outline-dark btn-block" type="button" data-view-basket
+                        onclick="closeModal(); setCartDrawerOpen(true)">
+                    View Basket (${cart.length || 0})
                 </button>
             </div>
         </div>`;
@@ -723,6 +742,7 @@ rfqForm.addEventListener('submit', e => {
             prepareQuoteEmail(details, cartSnapshot, result.pricing);
 
             cart = [];
+            saveCart();
             updateCartBadge();
             renderCartItems();
             closeModal();
@@ -806,6 +826,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'success',
             'Stripe checkout completed. Our team will confirm your wholesale order shortly.'
         );
+        clearCart();
         const clean = new URL(window.location.href);
         clean.searchParams.delete('checkout');
         window.history.replaceState({}, '', clean.pathname + clean.search + clean.hash);
@@ -820,6 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initTheme();
+    loadCart();
     updateCartBadge();
     QuoteRequestPricingUI.resetSummary();
     CheckoutTotalsUI.bindShippingSelect(() => CheckoutTotalsUI.refresh(cart));

@@ -1700,7 +1700,7 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 .cart-drawer-header h3 { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
 .cart-drawer-header h3 i { color: var(--gold-bright); }
 
-.cart-drawer-body { flex: 0 1 auto; max-height: 28vh; overflow-y: auto; padding: 16px 20px; min-height: 0; }
+.cart-drawer-body { flex: 0 1 auto; max-height: 36vh; overflow-y: auto; padding: 16px 20px; min-height: 120px; }
 .empty-cart-message { text-align: center; padding: 50px 20px; color: var(--text-muted); }
 .empty-cart-message i { font-size: 3rem; margin-bottom: 16px; display: block; color: var(--text-light); }
 .empty-cart-message p { font-size: 0.9rem; margin-bottom: 8px; }
@@ -2018,16 +2018,60 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     flex-direction: column;
     gap: 12px;
 }
-.detail-gallery img {
+.detail-gallery img,
+.detail-gallery-main {
     width: 100%;
-    height: 340px;
+    height: 260px;
     object-fit: cover;
     border-radius: var(--radius-md);
 }
+.detail-gallery--simple img {
+    height: 240px;
+}
 .detail-gallery-extra {
-    height: 220px;
-    object-fit: contain;
-    background-color: var(--bg-alt);
+    display: none !important;
+}
+.detail-simple-specs {
+    margin: 8px 0 12px;
+}
+.detail-add-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+}
+.cart-add-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%) translateY(20px);
+    z-index: 2147483647;
+    background: #0d1f3c;
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(13,31,60,0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    font-size: 0.92rem;
+    max-width: min(92vw, 440px);
+    text-align: center;
+}
+.cart-add-toast.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+.cart-add-toast strong { color: #e8b923; }
+.cart-add-toast-link {
+    background: none;
+    border: none;
+    color: #e8b923;
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
 }
 .feature-strip-item {
     text-decoration: none;
