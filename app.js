@@ -964,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (checkoutState === 'success') {
         showCheckoutBanner(
             'success',
-            'Stripe checkout completed. Our team will confirm your wholesale order shortly.'
+            'Stripe payment received. A receipt email is on its way — we will confirm your wholesale order shortly.'
         );
         clearCart();
         const clean = new URL(window.location.href);

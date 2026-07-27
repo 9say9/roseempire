@@ -217,6 +217,7 @@ async function createStripeSession(env, body) {
   params.set("success_url", `${domain}/?checkout=success`);
   params.set("cancel_url", `${domain}/?checkout=cancel`);
   params.set("customer_email", email);
+  params.set("payment_intent_data[receipt_email]", email);
   params.set("allow_promotion_codes", "true");
   params.set("billing_address_collection", "required");
   params.set("shipping_address_collection[allowed_countries][0]", "GB");

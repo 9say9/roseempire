@@ -344,6 +344,7 @@ def api_checkout_create():
             success_url=f"{domain}/?checkout=success",
             cancel_url=f"{domain}/?checkout=cancel",
             customer_email=email,
+            payment_intent_data={"receipt_email": email},
             billing_address_collection="required",
             shipping_address_collection={"allowed_countries": ["GB"]},
             phone_number_collection={"enabled": True},

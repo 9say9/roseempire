@@ -55,8 +55,10 @@ npx wrangler deploy
 ```
 
 2. Confirm `site-config.js` still points at `rose-empire-checkout.adeelcolchester.workers.dev`.
+3. **Customer receipt** — in Stripe: Settings → Business → [Customer emails](https://dashboard.stripe.com/settings/emails) → turn on **Successful payments**. Checkout also sets `receipt_email` so live payments email the buyer.
+4. **Your order alert** — in Stripe: Settings → [Notifications](https://dashboard.stripe.com/settings/notifications) → enable successful payment emails to your inbox (and/or use the Stripe mobile app). Every paid order also appears under Payments.
 
-Checkout totals include volume discount, UK logistics, and 20% VAT (same rules as the on-page estimate). Payment confirmation webhooks are not wired yet — treat success as acknowledgment and confirm orders by email.
+Checkout totals include volume discount, UK logistics, and 20% VAT (same rules as the on-page estimate).
 
 ## Deploy (GitHub Pages)
 
