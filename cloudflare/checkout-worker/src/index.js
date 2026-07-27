@@ -3,17 +3,17 @@
  * Secrets: STRIPE_SECRET_KEY
  * Optional env: SITE_URL
  *
- * Shipping: £10 per trade box (20 pieces). Delivery address required from the site
- * and also collected again on Stripe Checkout for confirmation.
+ * Shipping per trade box: Mainland £10 · Scotland & Northern Ireland £15.
+ * Delivery address required from the site and confirmed on Stripe Checkout.
  */
 
 const PIECES_PER_BOX = 20;
-const FEE_PER_BOX = 10;
+const FEE_PER_BOX_DEFAULT = 10;
 
 const SHIPPING_REGIONS = {
-  mainland: { id: "mainland", label: "UK Mainland" },
-  highlands: { id: "highlands", label: "Scottish Highlands" },
-  northern_ireland: { id: "northern_ireland", label: "Northern Ireland" },
+  mainland: { id: "mainland", label: "UK Mainland", feePerBox: 10 },
+  highlands: { id: "highlands", label: "Scotland", feePerBox: 15 },
+  northern_ireland: { id: "northern_ireland", label: "Northern Ireland", feePerBox: 15 },
 };
 
 const ALLOWED_ORIGINS = new Set([
@@ -62,14 +62,21 @@ function boxCountFromItems(items) {
   }, 0);
 }
 
+function feePerBox(regionId) {
+  const region = SHIPPING_REGIONS[regionId] || SHIPPING_REGIONS.mainland;
+  return Number(region.feePerBox) || FEE_PER_BOX_DEFAULT;
+}
+
 function logisticsCost(regionId, items) {
   const region = SHIPPING_REGIONS[regionId] || SHIPPING_REGIONS.mainland;
   const boxes = boxCountFromItems(items);
-  if (boxes <= 0) return { cost: 0, label: region.label, boxes: 0 };
+  const fee = feePerBox(regionId);
+  if (boxes <= 0) return { cost: 0, label: region.label, boxes: 0, feePerBox: fee };
   return {
-    cost: boxes * FEE_PER_BOX,
+    cost: boxes * fee,
     label: region.label,
     boxes,
+    feePerBox: fee,
   };
 }
 
@@ -120,7 +127,10 @@ function buildTotals(items, shippingRegion) {
   const discountPct = discountPercent(totalPacks);
   const discountAmount = gross * (discountPct / 100);
   const productNet = gross - discountAmount;
-  const { cost: logistics, label: regionLabel, boxes } = logisticsCost(shippingRegion, cleaned);
+  const { cost: logistics, label: regionLabel, boxes, feePerBox: shipFee } = logisticsCost(
+    shippingRegion,
+    cleaned
+  );
   const netExVat = productNet + logistics;
   const vatAmount = netExVat * 0.2;
   const grandTotalIncVat = netExVat + vatAmount;
@@ -129,6 +139,7 @@ function buildTotals(items, shippingRegion) {
     items: cleaned,
     totalPacks,
     boxCount: boxes,
+    feePerBox: shipFee,
     discountPercent: discountPct,
     logisticsCost: logistics,
     regionLabel,
@@ -214,7 +225,7 @@ async function createStripeSession(env, body) {
   params.set("metadata[shipping_region]", shippingRegion);
   params.set("metadata[total_packs]", String(totals.totalPacks));
   params.set("metadata[box_count]", String(totals.boxCount));
-  params.set("metadata[shipping_fee_per_box]", String(FEE_PER_BOX));
+  params.set("metadata[shipping_fee_per_box]", String(totals.feePerBox));
   params.set("metadata[grand_total_inc_vat]", totals.grandTotalIncVat.toFixed(2));
   params.set("metadata[ship_name]", shippingAddress.name.slice(0, 450));
   params.set("metadata[ship_company]", shippingAddress.company.slice(0, 450));
@@ -250,7 +261,7 @@ async function createStripeSession(env, body) {
     params.set(`line_items[${idx}][price_data][currency]`, "gbp");
     params.set(
       `line_items[${idx}][price_data][product_data][name]`,
-      `UK shipping — ${totals.boxCount} box${totals.boxCount === 1 ? "" : "es"} × £${FEE_PER_BOX} (${totals.regionLabel})`
+      `UK shipping — ${totals.boxCount} box${totals.boxCount === 1 ? "" : "es"} × £${totals.feePerBox} (${totals.regionLabel})`
     );
     params.set(`line_items[${idx}][price_data][unit_amount]`, String(logisticsPence));
     params.set(`line_items[${idx}][quantity]`, "1");
@@ -297,7 +308,11 @@ export default {
 
     if (url.pathname === "/health" && request.method === "GET") {
       const configured = !isPlaceholderKey((env.STRIPE_SECRET_KEY || "").trim());
-      return json({ status: "ok", stripe_configured: configured, shipping: "£10/box" }, 200, origin);
+      return json(
+        { status: "ok", stripe_configured: configured, shipping: "Mainland £10 / Scotland & NI £15 per box" },
+        200,
+        origin
+      );
     }
 
     if (url.pathname === "/api/checkout/config" && request.method === "GET") {
@@ -307,10 +322,11 @@ export default {
           status: "success",
           enabled: configured,
           currency: "GBP",
-          shippingPerBox: FEE_PER_BOX,
+          shippingPerBoxMainland: 10,
+          shippingPerBoxScotlandNi: 15,
           piecesPerBox: PIECES_PER_BOX,
           message: configured
-            ? "Stripe ready. Shipping £10 per box (20 pieces)."
+            ? "Stripe ready. Shipping: Mainland £10 / Scotland & NI £15 per box."
             : "Set STRIPE_SECRET_KEY on the checkout worker.",
         },
         200,

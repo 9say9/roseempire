@@ -114,7 +114,7 @@ const QuoteRequestPricingUI = (function () {
         if (e.discountRow) e.discountRow.classList.add('hidden');
         if (e.productNet) e.productNet.textContent = QuotePricing.formatGBP(0);
         if (e.shippingRow) e.shippingRow.classList.remove('hidden');
-        if (e.shippingLabel) e.shippingLabel.textContent = 'Shipping (£10 / box):';
+        if (e.shippingLabel) e.shippingLabel.textContent = 'Shipping (Mainland £10 / Scotland & NI £15):';
         if (e.shippingAmount) e.shippingAmount.textContent = QuotePricing.formatGBP(0);
         if (e.netExVat) e.netExVat.textContent = QuotePricing.formatGBP(0);
         if (e.vatAmount) e.vatAmount.textContent = QuotePricing.formatGBP(0);
@@ -161,7 +161,8 @@ const QuoteRequestPricingUI = (function () {
         if (e.shippingRow && e.shippingLabel && e.shippingAmount) {
             e.shippingRow.classList.remove('hidden');
             const boxes = totals.boxCount || 0;
-            e.shippingLabel.textContent = `Shipping (${boxes} box${boxes === 1 ? '' : 'es'} × £10):`;
+            const fee = totals.feePerBox || ShippingLogistics.feePerBox(totals.regionId);
+            e.shippingLabel.textContent = `Shipping (${boxes} box${boxes === 1 ? '' : 'es'} × £${fee}):`;
             e.shippingAmount.textContent = QuotePricing.formatGBP(totals.logisticsCost);
         }
 

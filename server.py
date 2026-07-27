@@ -10,13 +10,13 @@ from flask import Flask, jsonify, request, send_from_directory
 ROOT = Path(__file__).resolve().parent
 
 SHIPPING_REGIONS = {
-    "mainland": {"id": "mainland", "label": "UK Mainland"},
-    "highlands": {"id": "highlands", "label": "Scottish Highlands"},
-    "northern_ireland": {"id": "northern_ireland", "label": "Northern Ireland"},
+    "mainland": {"id": "mainland", "label": "UK Mainland", "fee_per_box": 10.0},
+    "highlands": {"id": "highlands", "label": "Scotland", "fee_per_box": 15.0},
+    "northern_ireland": {"id": "northern_ireland", "label": "Northern Ireland", "fee_per_box": 15.0},
 }
 
 PIECES_PER_BOX = 20
-FEE_PER_BOX = 10.0
+FEE_PER_BOX_DEFAULT = 10.0
 
 ALLOWED_ORIGINS = {
     "http://127.0.0.1:5000",
@@ -99,12 +99,18 @@ def _box_count(items: list) -> int:
     return total
 
 
-def _logistics_cost(region_id: str, items: list) -> tuple[float, str, int]:
+def _fee_per_box(region_id: str) -> float:
+    region = SHIPPING_REGIONS.get(region_id) or SHIPPING_REGIONS["mainland"]
+    return float(region.get("fee_per_box") or FEE_PER_BOX_DEFAULT)
+
+
+def _logistics_cost(region_id: str, items: list) -> tuple[float, str, int, float]:
     region = SHIPPING_REGIONS.get(region_id) or SHIPPING_REGIONS["mainland"]
     boxes = _box_count(items)
+    fee = _fee_per_box(region_id)
     if boxes <= 0:
-        return 0.0, region["label"], 0
-    return boxes * FEE_PER_BOX, region["label"], boxes
+        return 0.0, region["label"], 0, fee
+    return boxes * fee, region["label"], boxes, fee
 
 
 def _normalize_address(raw) -> dict:
@@ -164,7 +170,7 @@ def _build_totals(items: list, shipping_region: str) -> dict:
     discount_percent = _discount_percent(total_packs)
     discount_amount = gross * (discount_percent / 100.0)
     product_net = gross - discount_amount
-    logistics, region_label, boxes = _logistics_cost(shipping_region, cleaned)
+    logistics, region_label, boxes, ship_fee = _logistics_cost(shipping_region, cleaned)
     net_ex_vat = product_net + logistics
     vat_amount = net_ex_vat * 0.2
     grand_total = net_ex_vat + vat_amount
@@ -173,6 +179,7 @@ def _build_totals(items: list, shipping_region: str) -> dict:
         "items": cleaned,
         "totalPacks": total_packs,
         "boxCount": boxes,
+        "feePerBox": ship_fee,
         "grossSubtotal": gross,
         "discountPercent": discount_percent,
         "discountAmount": discount_amount,
@@ -291,7 +298,7 @@ def api_checkout_create():
                     "product_data": {
                         "name": (
                             f"UK shipping — {boxes} box{'es' if boxes != 1 else ''} "
-                            f"× £{int(FEE_PER_BOX)} ({totals['regionLabel']})"
+                            f"× £{int(totals['feePerBox'])} ({totals['regionLabel']})"
                         ),
                     },
                     "unit_amount": logistics_pence,
