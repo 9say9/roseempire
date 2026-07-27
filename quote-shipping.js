@@ -31,12 +31,14 @@ const ShippingLogistics = {
         return packs > 0 ? Math.ceil(packs / this.PIECES_PER_BOX) : 0;
     },
 
-    /** Charge per size line so each MOQ/size ships as its own box count. */
+    /** Charge per cart line using that line's pieces-per-box (20 / 40 / 5). */
     boxCountFromCart(cart) {
         if (!cart || !cart.length) return 0;
         return cart.reduce((n, item) => {
             const qty = Math.max(0, parseInt(item.quantity, 10) || 0);
-            return n + (qty > 0 ? Math.ceil(qty / this.PIECES_PER_BOX) : 0);
+            if (qty <= 0) return n;
+            const perBox = Math.max(1, parseInt(item.piecesPerBox, 10) || parseInt(item.moq, 10) || 20);
+            return n + Math.ceil(qty / perBox);
         }, 0);
     },
 

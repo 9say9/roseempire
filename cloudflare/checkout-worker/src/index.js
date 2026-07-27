@@ -56,7 +56,9 @@ function discountPercent(totalPacks) {
 function boxCountFromItems(items) {
   return items.reduce((n, item) => {
     const qty = Math.max(0, parseInt(item.quantity, 10) || 0);
-    return n + (qty > 0 ? Math.ceil(qty / PIECES_PER_BOX) : 0);
+    if (qty <= 0) return n;
+    const perBox = Math.max(1, parseInt(item.piecesPerBox, 10) || 20);
+    return n + Math.ceil(qty / perBox);
   }, 0);
 }
 
@@ -108,6 +110,7 @@ function buildTotals(items, shippingRegion) {
       quantity: qty,
       unitPrice: unit,
       productId: String(item.productId || ""),
+      piecesPerBox: Math.max(1, parseInt(item.piecesPerBox, 10) || 20),
     });
     totalPacks += qty;
     gross += qty * unit;

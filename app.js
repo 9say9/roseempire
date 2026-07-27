@@ -32,12 +32,74 @@ async function loadCatalog() {
     }
 }
 
+function getSizeMeta(product, sizeIndex) {
+    const size = product?.sizes?.[sizeIndex];
+    if (!size) {
+        return { name: '', price: 0, moq: 20, piecesPerBox: 20 };
+    }
+    const name = size.name || '';
+    let piecesPerBox = Number(size.piecesPerBox) || Number(product.piecesPerBox) || 0;
+    if (!piecesPerBox) {
+        if (product.category === 'pillows') piecesPerBox = 5;
+        else if (/pillow/i.test(name)) piecesPerBox = 40;
+        else piecesPerBox = 20;
+    }
+    const moq = Number(size.moq) || piecesPerBox;
+    return {
+        name,
+        price: Number(size.price) || 0,
+        moq,
+        piecesPerBox,
+    };
+}
+
+function snapToBoxes(pieces, piecesPerBox) {
+    const box = Math.max(1, piecesPerBox || 20);
+    const qty = Math.max(box, parseInt(pieces, 10) || box);
+    return Math.ceil(qty / box) * box;
+}
+
+function boxesFromPieces(pieces, piecesPerBox) {
+    const box = Math.max(1, piecesPerBox || 20);
+    return Math.max(1, Math.round((parseInt(pieces, 10) || box) / box));
+}
+
 function buildDetailGallery(product) {
     // Keep size page simple: one main product photo only.
     const src = product.image || (product.gallery && product.gallery[0]) || '';
     const fallback = `https://placehold.co/400x300/0d1f3c/ffffff?text=${encodeURIComponent(product.title)}`;
     return `<img src="${src}" alt="${product.title}" class="detail-gallery-main"
               onerror="this.src='${fallback}'">`;
+}
+
+function renderDetailBasketPreview() {
+    const el = document.getElementById('detail-basket-preview');
+    if (!el) return;
+    if (!cart.length) {
+        el.innerHTML = `<p class="detail-basket-empty">Basket empty — add sizes below. Full boxes only.</p>`;
+        return;
+    }
+    const rows = cart.map((item, idx) => {
+        const boxes = boxesFromPieces(item.quantity, item.piecesPerBox || item.moq || 20);
+        const perBox = item.piecesPerBox || item.moq || 20;
+        return `<li>
+            <span><strong>${item.title}</strong> · ${item.sizeName}</span>
+            <span>${boxes} box${boxes === 1 ? '' : 'es'} (${item.quantity} pcs · ${perBox}/box)</span>
+            <button type="button" class="detail-basket-remove" onclick="removeFromCart(${idx}); refreshOpenDetailBasket();" aria-label="Remove">×</button>
+        </li>`;
+    }).join('');
+    el.innerHTML = `
+        <h4 class="detail-basket-title">In your basket</h4>
+        <ul class="detail-basket-list">${rows}</ul>`;
+}
+
+function refreshOpenDetailBasket() {
+    renderDetailBasketPreview();
+    const viewBtn = modalDetailBody?.querySelector('[data-view-basket]');
+    if (viewBtn) {
+        viewBtn.textContent = `View Basket (${cart.length} size${cart.length === 1 ? '' : 's'})`;
+    }
+    updateCartBadge();
 }
 
 
@@ -53,7 +115,28 @@ function loadCart() {
     try {
         const raw = localStorage.getItem(CART_STORAGE_KEY);
         const parsed = raw ? JSON.parse(raw) : [];
-        cart = Array.isArray(parsed) ? parsed.filter((item) => item && item.productId && item.sizeName) : [];
+        if (!Array.isArray(parsed)) {
+            cart = [];
+            return;
+        }
+        cart = parsed
+            .filter((item) => item && item.productId && item.sizeName)
+            .map((item) => {
+                let piecesPerBox = parseInt(item.piecesPerBox, 10) || 0;
+                if (!piecesPerBox) {
+                    if (item.category === 'pillows') piecesPerBox = 5;
+                    else if (/pillow/i.test(item.sizeName || '')) piecesPerBox = 40;
+                    else piecesPerBox = 20;
+                }
+                const moq = parseInt(item.moq, 10) || piecesPerBox;
+                return {
+                    ...item,
+                    piecesPerBox,
+                    moq,
+                    quantity: snapToBoxes(item.quantity, piecesPerBox),
+                };
+            });
+        saveCart();
     } catch {
         cart = [];
     }
@@ -288,7 +371,9 @@ function renderCartItems() {
     cart.forEach((item, idx) => {
         const unit = item.unitPrice || 0;
         const lineTotal = QuotePricing.lineTotal(item.quantity, unit);
-        const belowMOQ  = item.quantity < item.moq;
+        const perBox = item.piecesPerBox || item.moq || 20;
+        const boxes = boxesFromPieces(item.quantity, perBox);
+        const belowMOQ = item.quantity < (item.moq || perBox);
 
         const div = document.createElement('div');
         div.className = 'cart-item';
@@ -305,35 +390,31 @@ function renderCartItems() {
                 <div class="cart-item-meta">
                     <div>Size: <strong>${item.sizeName}</strong></div>
                     <div>Wholesale rate: <strong>${QuotePricing.formatGBP(unit)}/piece</strong></div>
-                    <div>MOQ: <strong>${item.moq} pieces min.</strong></div>
+                    <div>Box: <strong>${perBox} pcs</strong> · full boxes only</div>
                 </div>
                 <div class="cart-item-controls">
                     <div class="qty-selector">
-                        <button class="qty-btn" type="button" onclick="adjustCartQty(${idx}, -10)">-10</button>
-                        <input type="number" class="qty-input" value="${item.quantity}" min="1"
-                               data-cart-idx="${idx}" aria-label="Piece quantity">
-                        <button class="qty-btn" type="button" onclick="adjustCartQty(${idx}, 10)">+10</button>
+                        <button class="qty-btn" type="button" onclick="adjustCartQty(${idx}, -1)">-1 box</button>
+                        <input type="number" class="qty-input" value="${item.quantity}" min="${perBox}"
+                               step="${perBox}" data-cart-idx="${idx}" aria-label="Piece quantity" readonly>
+                        <button class="qty-btn" type="button" onclick="adjustCartQty(${idx}, 1)">+1 box</button>
                     </div>
-                    <div class="cart-item-total">${QuotePricing.formatGBP(lineTotal)}</div>
+                    <div class="cart-item-total">${QuotePricing.formatGBP(lineTotal)}<small style="display:block;font-weight:600;opacity:.7">${boxes} box${boxes === 1 ? '' : 'es'}</small></div>
                 </div>
                 ${belowMOQ ? `
                 <div class="moq-warning" style="grid-column:1/-1">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#warn"></use></svg> Below MOQ of ${item.moq} pieces
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#warn"></use></svg> Below 1 box (${perBox} pcs)
                 </div>` : ''}
             </div>`;
         cartDrawerItems.appendChild(div);
-
-        const qtyInput = div.querySelector('.qty-input');
-        qtyInput.addEventListener('input', () => setCartQty(idx, qtyInput.value));
-        qtyInput.addEventListener('change', () => setCartQty(idx, qtyInput.value));
     });
 
     CheckoutTotalsUI.refresh(cart);
 
-    const hasMOQFail = cart.some(i => i.quantity < i.moq);
+    const hasMOQFail = cart.some(i => i.quantity < (i.moq || i.piecesPerBox || 20));
     proceedQuoteBtn.disabled = hasMOQFail;
     proceedQuoteBtn.textContent = hasMOQFail
-        ? 'Resolve MOQ Warnings to Proceed'
+        ? 'Resolve box quantity warnings'
         : 'Proceed to Request Quote';
     if (stripeCheckoutBtn) stripeCheckoutBtn.disabled = false;
 }
@@ -489,15 +570,18 @@ async function startStripeCheckout() {
 function addToCart(productId, sizeIndex, quantity, { keepModalOpen = true } = {}) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
-    const size = product.sizes[sizeIndex];
-    if (!size) return;
-    const sizeName = size.name;
-    const qty = Math.max(1, parseInt(quantity, 10) || product.moq || 20);
+    const meta = getSizeMeta(product, sizeIndex);
+    if (!meta.name) return;
+    const piecesPerBox = meta.piecesPerBox;
+    const qty = snapToBoxes(quantity, piecesPerBox);
+    const sizeName = meta.name;
     const existing = cart.findIndex(i => i.productId === productId && i.sizeName === sizeName);
 
     if (existing > -1) {
-        cart[existing].quantity += qty;
-        cart[existing].unitPrice = size.price;
+        cart[existing].quantity = snapToBoxes(cart[existing].quantity + qty, piecesPerBox);
+        cart[existing].unitPrice = meta.price;
+        cart[existing].moq = meta.moq;
+        cart[existing].piecesPerBox = piecesPerBox;
     } else {
         cart.push({
             productId: product.id,
@@ -505,22 +589,20 @@ function addToCart(productId, sizeIndex, quantity, { keepModalOpen = true } = {}
             image:     product.image,
             category:  product.category,
             sizeName,
-            unitPrice: size.price,
+            unitPrice: meta.price,
             quantity:  qty,
-            moq:       product.moq
+            moq:       meta.moq,
+            piecesPerBox,
         });
     }
 
     saveCart();
     updateCartBadge();
     renderCartItems();
+    refreshOpenDetailBasket();
 
     if (keepModalOpen && productDetailModal.classList.contains('open')) {
-        showAddToast(sizeName, qty);
-        const viewBtn = modalDetailBody.querySelector('[data-view-basket]');
-        if (viewBtn) {
-            viewBtn.textContent = `View Basket (${cart.length} size${cart.length === 1 ? '' : 's'})`;
-        }
+        showAddToast(sizeName, qty, piecesPerBox);
         return;
     }
 
@@ -528,7 +610,7 @@ function addToCart(productId, sizeIndex, quantity, { keepModalOpen = true } = {}
     setTimeout(() => setCartDrawerOpen(true), 120);
 }
 
-function showAddToast(sizeName, qty) {
+function showAddToast(sizeName, qty, piecesPerBox) {
     let toast = document.getElementById('cart-add-toast');
     if (!toast) {
         toast = document.createElement('div');
@@ -537,9 +619,10 @@ function showAddToast(sizeName, qty) {
         toast.setAttribute('role', 'status');
         document.body.appendChild(toast);
     }
+    const boxes = boxesFromPieces(qty, piecesPerBox);
     toast.innerHTML = `
-        <strong>✓ ${sizeName}</strong> added (${qty} pcs).
-        <span>Add another size below, or <button type="button" class="cart-add-toast-link" id="cart-add-toast-view">View Basket</button></span>`;
+        <strong>✓ ${sizeName}</strong> added — ${boxes} box${boxes === 1 ? '' : 'es'} (${qty} pcs).
+        <span>Add another size, or <button type="button" class="cart-add-toast-link" id="cart-add-toast-view">View Basket</button></span>`;
     toast.classList.add('visible');
     const viewBtn = document.getElementById('cart-add-toast-view');
     if (viewBtn) {
@@ -558,20 +641,30 @@ function removeFromCart(idx) {
     saveCart();
     updateCartBadge();
     renderCartItems();
+    refreshOpenDetailBasket();
 }
 
-function adjustCartQty(idx, amt) {
-    cart[idx].quantity = Math.max(1, cart[idx].quantity + amt);
+function adjustCartQty(idx, boxDelta) {
+    const item = cart[idx];
+    if (!item) return;
+    const perBox = item.piecesPerBox || item.moq || 20;
+    const boxes = Math.max(1, boxesFromPieces(item.quantity, perBox) + boxDelta);
+    item.quantity = boxes * perBox;
     saveCart();
     renderCartItems();
     updateCartBadge();
+    refreshOpenDetailBasket();
 }
 
 function setCartQty(idx, val) {
-    cart[idx].quantity = Math.max(1, parseInt(val) || 1);
+    const item = cart[idx];
+    if (!item) return;
+    const perBox = item.piecesPerBox || item.moq || 20;
+    item.quantity = snapToBoxes(val, perBox);
     saveCart();
     renderCartItems();
     updateCartBadge();
+    refreshOpenDetailBasket();
 }
 
 // ==========================================================================
@@ -581,13 +674,17 @@ function openProductDetail(productId) {
     const p = products.find(x => x.id === productId);
     if (!p) return;
 
-    const sizePickerHTML = p.sizes.map((s, i) => `
+    const sizePickerHTML = p.sizes.map((s, i) => {
+        const meta = getSizeMeta(p, i);
+        return `
         <button type="button" class="detail-size-option${i === 0 ? ' active' : ''}"
-                data-size-index="${i}" onclick="selectDetailSize(${i})">
-            <span class="detail-size-name">${s.name}</span>
-            <span class="detail-size-price">£${s.price.toFixed(2)}/pc</span>
-        </button>`).join('');
+                data-size-index="${i}" onclick="selectDetailSize(${i}, '${p.id}')">
+            <span class="detail-size-name">${meta.name}</span>
+            <span class="detail-size-price">£${meta.price.toFixed(2)}/pc · ${meta.piecesPerBox}/box</span>
+        </button>`;
+    }).join('');
 
+    const first = getSizeMeta(p, 0);
     const shortDesc = (p.desc || '').split('.')[0] + '.';
     const topSpecs = (p.highlights || []).slice(0, 3)
         .map((h) => `<span class="spec-badge">${h}</span>`)
@@ -596,13 +693,17 @@ function openProductDetail(productId) {
     modalDetailBody.innerHTML = `
         <div class="detail-gallery detail-gallery--simple">
             ${buildDetailGallery(p)}
+            <div id="detail-basket-preview" class="detail-basket-preview" aria-live="polite"></div>
         </div>
         <div class="detail-info">
             <span class="detail-category">${p.category === 'protectors' ? 'Mattress Protector' : 'Pillow'}</span>
             <h2 class="detail-title">${p.title}</h2>
             <p class="detail-desc">${shortDesc}</p>
             <div class="product-specs detail-simple-specs">${topSpecs}</div>
-            <p class="detail-moq-hint">MOQ <strong>${p.moq} pieces</strong> per size (1 trade box). Add each size you need — basket keeps them all.</p>
+            <p class="detail-moq-hint" id="detail-box-hint">
+                Full boxes only — this size is <strong>${first.piecesPerBox} pcs / box</strong>
+                (order 1, 2, 3… boxes). We do not open boxes.
+            </p>
 
             <div class="detail-purchase-controls">
                 <div class="form-group detail-size-group">
@@ -611,15 +712,19 @@ function openProductDetail(productId) {
                         ${sizePickerHTML}
                     </div>
                     <input type="hidden" id="detail-size-index" value="0">
+                    <input type="hidden" id="detail-product-id" value="${p.id}">
+                    <input type="hidden" id="detail-box-size" value="${first.piecesPerBox}">
                 </div>
                 <div class="form-group detail-qty-group">
-                    <label for="detail-qty-input">2. Pieces qty</label>
-                    <div class="qty-selector" style="height:42px">
-                        <button class="qty-btn" type="button" onclick="adjustDetailQty(-10)">-10</button>
+                    <label for="detail-qty-input">2. Boxes / pieces</label>
+                    <div class="qty-selector qty-selector--boxes" style="height:42px">
+                        <button class="qty-btn" type="button" onclick="adjustDetailQty(-1)">-1 box</button>
                         <input type="number" id="detail-qty-input" class="qty-input"
-                               value="${p.moq}" min="${p.moq}" style="height:42px">
-                        <button class="qty-btn" type="button" onclick="adjustDetailQty(10)">+10</button>
+                               value="${first.moq}" min="${first.moq}" step="${first.piecesPerBox}"
+                               style="height:42px" readonly>
+                        <button class="qty-btn" type="button" onclick="adjustDetailQty(1)">+1 box</button>
                     </div>
+                    <p class="detail-box-readout" id="detail-box-readout">1 box = ${first.piecesPerBox} pcs</p>
                 </div>
             </div>
 
@@ -637,9 +742,11 @@ function openProductDetail(productId) {
 
     productDetailModal.classList.add('open');
     document.body.style.overflow = 'hidden';
+    renderDetailBasketPreview();
+    updateDetailBoxReadout();
 }
 
-function selectDetailSize(index) {
+function selectDetailSize(index, productId) {
     const picker = document.getElementById('detail-size-picker');
     const hidden = document.getElementById('detail-size-index');
     if (!picker || !hidden) return;
@@ -648,12 +755,45 @@ function selectDetailSize(index) {
         btn.classList.toggle('active', i === index);
     });
     hidden.value = String(index);
+
+    const product = products.find((x) => x.id === (productId || document.getElementById('detail-product-id')?.value));
+    if (!product) return;
+    const meta = getSizeMeta(product, index);
+    const boxField = document.getElementById('detail-box-size');
+    const qtyInput = document.getElementById('detail-qty-input');
+    const hint = document.getElementById('detail-box-hint');
+    if (boxField) boxField.value = String(meta.piecesPerBox);
+    if (qtyInput) {
+        qtyInput.value = String(meta.moq);
+        qtyInput.min = String(meta.moq);
+        qtyInput.step = String(meta.piecesPerBox);
+    }
+    if (hint) {
+        hint.innerHTML = `Full boxes only — this size is <strong>${meta.piecesPerBox} pcs / box</strong> (order 1, 2, 3… boxes). We do not open boxes.`;
+    }
+    updateDetailBoxReadout();
 }
 
-function adjustDetailQty(amount) {
-    const input  = document.getElementById('detail-qty-input');
-    const minVal = parseInt(input.getAttribute('min')) || 1;
-    input.value  = Math.max(minVal, (parseInt(input.value) || minVal) + amount);
+function updateDetailBoxReadout() {
+    const qtyInput = document.getElementById('detail-qty-input');
+    const boxField = document.getElementById('detail-box-size');
+    const readout = document.getElementById('detail-box-readout');
+    if (!qtyInput || !boxField || !readout) return;
+    const perBox = parseInt(boxField.value, 10) || 20;
+    const pcs = snapToBoxes(qtyInput.value, perBox);
+    qtyInput.value = String(pcs);
+    const boxes = boxesFromPieces(pcs, perBox);
+    readout.textContent = `${boxes} box${boxes === 1 ? '' : 'es'} = ${pcs} pcs (${perBox} pcs per box)`;
+}
+
+function adjustDetailQty(boxDelta) {
+    const input = document.getElementById('detail-qty-input');
+    const boxField = document.getElementById('detail-box-size');
+    if (!input) return;
+    const perBox = parseInt(boxField?.value, 10) || parseInt(input.step, 10) || 20;
+    const boxes = Math.max(1, boxesFromPieces(input.value, perBox) + boxDelta);
+    input.value = String(boxes * perBox);
+    updateDetailBoxReadout();
 }
 
 function triggerAddToCart(productId) {

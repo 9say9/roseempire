@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-26",
+  "updatedAt": "2026-07-27",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -8,7 +8,7 @@
   },
   "wholesale": {
     "moqPerSize": 20,
-    "boxLabel": "1 trade box = 20 pieces",
+    "boxLabel": "Sold in full trade boxes only (no open boxes)",
     "volumeDiscounts": [
       {
         "minPieces": 50,
@@ -47,32 +47,45 @@
         "Washable: Machine washable at 60°C"
       ],
       "moq": 20,
-      "boxLabel": "1 trade box = 20 pieces",
+      "piecesPerBox": 20,
+      "boxLabel": "1 box = 20 pieces (mattress sizes)",
       "basePrice": 6.99,
       "sizes": [
         {
-          "name": "Pillow Pair",
-          "price": 5.99
+          "name": "Pillow Cover Pair",
+          "price": 5.99,
+          "moq": 40,
+          "piecesPerBox": 40
         },
         {
           "name": "Single (90×190cm)",
-          "price": 6.99
+          "price": 6.99,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "4ft / Small Double (120×190cm)",
-          "price": 8.99
+          "price": 8.99,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "Double (135×190cm)",
-          "price": 9.49
+          "price": 9.49,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "King (150×200cm)",
-          "price": 10.99
+          "price": 10.99,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "Super King (180×200cm)",
-          "price": 12.99
+          "price": 12.99,
+          "moq": 20,
+          "piecesPerBox": 20
         }
       ],
       "highlights": [
@@ -105,32 +118,45 @@
         "Washable: Machine washable at 60°C"
       ],
       "moq": 20,
-      "boxLabel": "1 trade box = 20 pieces",
+      "piecesPerBox": 20,
+      "boxLabel": "1 box = 20 pieces (mattress sizes)",
       "basePrice": 5.4,
       "sizes": [
         {
-          "name": "Pillow Pair",
-          "price": 4.74
+          "name": "Pillow Cover Pair",
+          "price": 4.74,
+          "moq": 40,
+          "piecesPerBox": 40
         },
         {
           "name": "Single (90×190cm)",
-          "price": 5.4
+          "price": 5.4,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "4ft / Small Double (120×190cm)",
-          "price": 5.95
+          "price": 5.95,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "Double (135×190cm)",
-          "price": 6.19
+          "price": 6.19,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "King (150×200cm)",
-          "price": 6.54
+          "price": 6.54,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "Super King (180×200cm)",
-          "price": 7.21
+          "price": 7.21,
+          "moq": 20,
+          "piecesPerBox": 20
         }
       ],
       "highlights": [
@@ -163,36 +189,51 @@
         "Durability: Industrial-laundry resistant – up to 60°C wash"
       ],
       "moq": 20,
-      "boxLabel": "1 trade box = 20 pieces",
+      "piecesPerBox": 20,
+      "boxLabel": "1 box = 20 pieces (mattress sizes)",
       "basePrice": 5.2,
       "sizes": [
         {
-          "name": "Pillow Pair",
-          "price": 4.4
+          "name": "Pillow Cover Pair",
+          "price": 4.4,
+          "moq": 40,
+          "piecesPerBox": 40
         },
         {
           "name": "Cot",
-          "price": 4.4
+          "price": 4.4,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "Single (90×190cm)",
-          "price": 5.2
+          "price": 5.2,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "4ft / Small Double (120×190cm)",
-          "price": 5.6
+          "price": 5.6,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "Double (135×190cm)",
-          "price": 5.7
+          "price": 5.7,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "King (150×200cm)",
-          "price": 6.3
+          "price": 6.3,
+          "moq": 20,
+          "piecesPerBox": 20
         },
         {
           "name": "Super King (180×200cm)",
-          "price": 6.85
+          "price": 6.85,
+          "moq": 20,
+          "piecesPerBox": 20
         }
       ],
       "highlights": [
@@ -210,28 +251,38 @@
       "tag": "Wholesale",
       "tagClass": "tag-gold",
       "image": "assets/down_pillows.png",
-      "desc": "Wholesale feather and down pillows with goose feather or duck down filling. Down-proof cover, medium loft, sold as a pair of 2 pillows per piece. Standard size only.",
+      "desc": "Wholesale feather and down pillows with goose feather or duck down filling. Down-proof cover, medium loft, sold as a pair of 2 pillows per piece. Standard size only. Full boxes only — 5 pieces per box.",
       "specs": [
         "Sold as: Pair of 2 pillows per piece",
         "Fill options: Goose feather & down, or duck feather & down",
         "Goose fill: 85% white goose feather, 15% soft goose down",
         "Duck fill: 80% duck feather, 20% soft duck down",
         "Size: Standard (50×75cm) only",
+        "Box: 5 pieces per trade box (no open boxes)",
         "Care: Machine washable at 40°C"
       ],
-      "moq": 20,
-      "boxLabel": "1 trade box = 20 pieces",
+      "moq": 5,
+      "piecesPerBox": 5,
+      "boxLabel": "1 box = 5 pieces",
       "basePrice": 12.49,
       "sizes": [
         {
-          "name": "Standard (50×75cm) – 2 Piece",
-          "price": 12.49
+          "name": "Standard (50×75cm) – Goose – 2 Piece",
+          "price": 12.49,
+          "moq": 5,
+          "piecesPerBox": 5
+        },
+        {
+          "name": "Standard (50×75cm) – Duck – 2 Piece",
+          "price": 12.49,
+          "moq": 5,
+          "piecesPerBox": 5
         }
       ],
       "highlights": [
         "Goose Feather & Down",
         "Duck Feather & Down",
-        "Standard Size",
+        "5 per box",
         "Set of 2 Pieces"
       ],
       "stockStatus": "In stock"

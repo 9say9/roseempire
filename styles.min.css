@@ -2034,6 +2034,66 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 .detail-simple-specs {
     margin: 8px 0 12px;
 }
+.detail-basket-preview {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(13, 31, 60, 0.04);
+    border: 1px solid rgba(13, 31, 60, 0.1);
+}
+.dark-mode .detail-basket-preview {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.1);
+}
+.detail-basket-title {
+    margin: 0 0 8px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--navy);
+}
+.dark-mode .detail-basket-title { color: var(--text-main); }
+.detail-basket-empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.detail-basket-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+.detail-basket-list li {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: start;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(13,31,60,0.08);
+}
+.detail-basket-list li:last-child { border-bottom: none; padding-bottom: 0; }
+.detail-basket-remove {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(224,62,62,0.12);
+    color: #dc2626;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.detail-box-readout {
+    margin: 6px 0 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
 .detail-add-actions {
     display: grid;
     gap: 10px;
