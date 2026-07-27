@@ -1,29 +1,23 @@
 /* ==========================================================================
-   Rose Empire — UK logistics estimates by destination & pack volume
+   Rose Empire — UK shipping: £10 per trade box (20 pieces)
    ========================================================================== */
 
 const ShippingLogistics = {
+    PIECES_PER_BOX: 20,
+    FEE_PER_BOX: 10,
+
     REGIONS: {
         mainland: {
             id: 'mainland',
-            label: 'UK Mainland (Standard Freight)',
-            flatUpToPacks: 50,
-            flatFee: 15,
-            perPackOver: 0.5
+            label: 'UK Mainland'
         },
         highlands: {
             id: 'highlands',
-            label: 'Scottish Highlands (Extended Route)',
-            flatUpToPacks: 50,
-            flatFee: 28,
-            perPackOver: 0.85
+            label: 'Scottish Highlands'
         },
         northern_ireland: {
             id: 'northern_ireland',
-            label: 'Northern Ireland (Sea Freight)',
-            flatUpToPacks: 50,
-            flatFee: 55,
-            perPackOver: 1.2
+            label: 'Northern Ireland'
         }
     },
 
@@ -31,36 +25,49 @@ const ShippingLogistics = {
         return this.REGIONS[regionId] || this.REGIONS.mainland;
     },
 
-    /**
-     * Flat fee up to N packs, then per-pack surcharge (e.g. Mainland £15 ≤50 packs, +£0.50/pack after).
-     */
-    calculate(regionId, totalPacks) {
-        const region = this.getRegion(regionId);
+    /** One trade box = 20 pieces. Partial boxes still count as one box for shipping. */
+    boxCountFromPieces(totalPacks) {
         const packs = Math.max(0, parseInt(totalPacks, 10) || 0);
+        return packs > 0 ? Math.ceil(packs / this.PIECES_PER_BOX) : 0;
+    },
 
-        if (packs === 0) {
+    /** Charge per size line so each MOQ/size ships as its own box count. */
+    boxCountFromCart(cart) {
+        if (!cart || !cart.length) return 0;
+        return cart.reduce((n, item) => {
+            const qty = Math.max(0, parseInt(item.quantity, 10) || 0);
+            return n + (qty > 0 ? Math.ceil(qty / this.PIECES_PER_BOX) : 0);
+        }, 0);
+    },
+
+    /**
+     * Shipping = £10 × number of trade boxes.
+     * Region is kept for destination labelling / order notes only.
+     */
+    calculate(regionId, totalPacks, cart) {
+        const region = this.getRegion(regionId);
+        const boxes = cart && cart.length
+            ? this.boxCountFromCart(cart)
+            : this.boxCountFromPieces(totalPacks);
+
+        if (boxes === 0) {
             return {
                 regionId: region.id,
                 regionLabel: region.label,
+                boxCount: 0,
                 logisticsCost: 0,
-                breakdown: 'Select products to estimate freight.'
+                breakdown: 'Add products to calculate shipping (£10 per box).'
             };
         }
 
-        let logisticsCost = region.flatFee;
+        const logisticsCost = boxes * this.FEE_PER_BOX;
         const fmt = (n) => `£${Number(n).toFixed(2)}`;
-        let breakdown = `${fmt(region.flatFee)} base (up to ${region.flatUpToPacks} pieces)`;
-
-        if (packs > region.flatUpToPacks) {
-            const extraPacks = packs - region.flatUpToPacks;
-            const surcharge = extraPacks * region.perPackOver;
-            logisticsCost += surcharge;
-            breakdown += ` + ${extraPacks} × ${fmt(region.perPackOver)}/piece`;
-        }
+        const breakdown = `${boxes} box${boxes === 1 ? '' : 'es'} × ${fmt(this.FEE_PER_BOX)}`;
 
         return {
             regionId: region.id,
             regionLabel: region.label,
+            boxCount: boxes,
             logisticsCost,
             breakdown
         };
@@ -111,9 +118,9 @@ const CheckoutTotalsUI = (function () {
 
         const hint = document.getElementById('rfq-shipping-hint');
         if (hint) {
-            hint.textContent = totals.totalPacks > 0
-                ? `Freight estimate: ${totals.breakdown} → ${QuotePricing.formatGBP(totals.logisticsCost)}`
-                : '';
+            hint.textContent = totals.boxCount > 0
+                ? `Shipping: ${totals.breakdown} = ${QuotePricing.formatGBP(totals.logisticsCost)} (1 box = 20 pieces)`
+                : 'Shipping is £10 per trade box (20 pieces).';
         }
 
         updateCheckoutPanel(totals);
@@ -141,7 +148,10 @@ const CheckoutTotalsUI = (function () {
         setText('checkout-total-packs', String(totals.totalPacks));
         setText('checkout-gross', QuotePricing.formatGBP(totals.grossSubtotal));
         setText('checkout-product-net', QuotePricing.formatGBP(totals.estimatedSubtotal));
-        setText('checkout-logistics-label', `Logistics (${totals.regionLabel}):`);
+        setText(
+            'checkout-logistics-label',
+            `Shipping (${totals.boxCount} box${totals.boxCount === 1 ? '' : 'es'} × £10):`
+        );
         setText('checkout-logistics', QuotePricing.formatGBP(totals.logisticsCost));
         setText('checkout-net-ex-vat', QuotePricing.formatGBP(totals.netExVat));
         setText('checkout-vat', QuotePricing.formatGBP(totals.vatAmount));

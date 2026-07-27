@@ -1805,26 +1805,30 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 }
 .cart-checkout-fields {
     display: grid;
-    gap: 10px;
+    gap: 8px;
     margin: 0 0 12px;
     position: relative;
     z-index: 5;
     pointer-events: auto;
+    max-height: min(52vh, 520px);
+    overflow-y: auto;
+    padding-right: 4px;
 }
 .cart-checkout-label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 700;
     color: var(--navy);
+    margin-top: 2px;
 }
 .dark-mode .cart-checkout-label { color: var(--text-main); }
 .cart-checkout-input {
     width: 100%;
-    min-height: 48px;
-    padding: 12px 14px;
+    min-height: 44px;
+    padding: 10px 12px;
     border: 2px solid rgba(13, 31, 60, 0.2);
     border-radius: 10px;
     font: inherit;
-    font-size: 1rem;
+    font-size: 0.95rem;
     background: #fff;
     color: var(--navy);
     position: relative;

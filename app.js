@@ -336,6 +336,57 @@ function getCheckoutShippingRegion() {
     return 'mainland';
 }
 
+function getCartShippingAddress() {
+    const val = (id) => (document.getElementById(id)?.value || '').trim();
+    return {
+        name: val('cart-ship-name'),
+        company: val('cart-ship-company'),
+        phone: val('cart-ship-phone'),
+        line1: val('cart-ship-line1'),
+        line2: val('cart-ship-line2'),
+        city: val('cart-ship-city'),
+        postcode: val('cart-ship-postcode').toUpperCase(),
+        region: getCheckoutShippingRegion(),
+    };
+}
+
+function formatShippingAddressBlock(addr) {
+    return [
+        addr.name,
+        addr.company,
+        addr.line1,
+        addr.line2,
+        addr.city,
+        addr.postcode,
+        addr.phone ? `Tel: ${addr.phone}` : '',
+    ].filter(Boolean).join('\n');
+}
+
+function validateCartShippingAddress(addr) {
+    if (!addr.name) return { ok: false, field: 'cart-ship-name', message: 'Enter the delivery contact name.' };
+    if (!addr.phone || addr.phone.length < 7) return { ok: false, field: 'cart-ship-phone', message: 'Enter a delivery phone number.' };
+    if (!addr.line1) return { ok: false, field: 'cart-ship-line1', message: 'Enter delivery address line 1.' };
+    if (!addr.city) return { ok: false, field: 'cart-ship-city', message: 'Enter the town / city.' };
+    if (!addr.postcode || addr.postcode.length < 5) {
+        return { ok: false, field: 'cart-ship-postcode', message: 'Enter a valid UK postcode.' };
+    }
+    return { ok: true };
+}
+
+function syncCartAddressToRfq(addr, email) {
+    const setIf = (id, value) => {
+        const el = document.getElementById(id);
+        if (el && value) el.value = value;
+    };
+    setIf('rfq-email', email);
+    setIf('rfq-name', addr.name);
+    setIf('rfq-company', addr.company);
+    setIf('rfq-phone', addr.phone);
+    setIf('rfq-shipping-region', addr.region);
+    const addressEl = document.getElementById('rfq-address');
+    if (addressEl) addressEl.value = formatShippingAddressBlock(addr);
+}
+
 async function startStripeCheckout() {
     if (!cart.length) {
         showCheckoutBanner('error', 'Add products to your quote list before starting checkout.');
@@ -347,6 +398,7 @@ async function startStripeCheckout() {
     const shippingRegion = getCheckoutShippingRegion();
     const customerEmail = getCheckoutEmail();
     const cartEmailField = document.getElementById('cart-checkout-email');
+    const shippingAddress = getCartShippingAddress();
 
     if (!customerEmail || !customerEmail.includes('@')) {
         showCheckoutBanner('error', 'Enter your email above the Stripe button, then try again.');
@@ -354,11 +406,14 @@ async function startStripeCheckout() {
         return;
     }
 
-    // Keep RFQ email in sync for quote PDF / mailto flow
-    const rfqEmail = document.getElementById('rfq-email');
-    if (rfqEmail && !rfqEmail.value.trim()) rfqEmail.value = customerEmail;
-    const rfqShip = document.getElementById('rfq-shipping-region');
-    if (rfqShip) rfqShip.value = shippingRegion;
+    const addressCheck = validateCartShippingAddress(shippingAddress);
+    if (!addressCheck.ok) {
+        showCheckoutBanner('error', addressCheck.message);
+        document.getElementById(addressCheck.field)?.focus();
+        return;
+    }
+
+    syncCartAddressToRfq(shippingAddress, customerEmail);
 
     if (stripeCheckoutBtn) {
         stripeCheckoutBtn.disabled = true;
@@ -373,7 +428,8 @@ async function startStripeCheckout() {
                 items: cart,
                 domain: window.location.origin,
                 shippingRegion,
-                customerEmail
+                customerEmail,
+                shippingAddress,
             })
         });
         const data = await response.json().catch(() => ({}));
@@ -589,10 +645,27 @@ window.addEventListener('click', e => {
 
 // Cart → RFQ flow
 proceedQuoteBtn.addEventListener('click', () => {
+    const customerEmail = getCheckoutEmail();
+    const shippingAddress = getCartShippingAddress();
+    const addressCheck = validateCartShippingAddress(shippingAddress);
+
+    if (!customerEmail || !customerEmail.includes('@')) {
+        showCheckoutBanner('error', 'Enter your email in the checkout form first.');
+        document.getElementById('cart-checkout-email')?.focus();
+        return;
+    }
+    if (!addressCheck.ok) {
+        showCheckoutBanner('error', addressCheck.message);
+        document.getElementById(addressCheck.field)?.focus();
+        return;
+    }
+
+    syncCartAddressToRfq(shippingAddress, customerEmail);
     setCartDrawerOpen(false);
     setTimeout(() => {
         rfqFormModal.classList.add('open');
         document.body.style.overflow = 'hidden';
+        if (typeof CheckoutTotalsUI !== 'undefined') CheckoutTotalsUI.refresh(cart);
     }, 200);
 });
 

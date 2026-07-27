@@ -10,28 +10,13 @@ from flask import Flask, jsonify, request, send_from_directory
 ROOT = Path(__file__).resolve().parent
 
 SHIPPING_REGIONS = {
-    "mainland": {
-        "id": "mainland",
-        "label": "UK Mainland (Standard Freight)",
-        "flat_up_to": 50,
-        "flat_fee": 15.0,
-        "per_pack_over": 0.5,
-    },
-    "highlands": {
-        "id": "highlands",
-        "label": "Scottish Highlands (Extended Route)",
-        "flat_up_to": 50,
-        "flat_fee": 28.0,
-        "per_pack_over": 0.85,
-    },
-    "northern_ireland": {
-        "id": "northern_ireland",
-        "label": "Northern Ireland (Sea Freight)",
-        "flat_up_to": 50,
-        "flat_fee": 55.0,
-        "per_pack_over": 1.2,
-    },
+    "mainland": {"id": "mainland", "label": "UK Mainland"},
+    "highlands": {"id": "highlands", "label": "Scottish Highlands"},
+    "northern_ireland": {"id": "northern_ireland", "label": "Northern Ireland"},
 }
+
+PIECES_PER_BOX = 20
+FEE_PER_BOX = 10.0
 
 ALLOWED_ORIGINS = {
     "http://127.0.0.1:5000",
@@ -105,15 +90,49 @@ def _discount_percent(total_packs: int) -> int:
     return 0
 
 
-def _logistics_cost(region_id: str, total_packs: int) -> tuple[float, str]:
+def _box_count(items: list) -> int:
+    total = 0
+    for item in items:
+        qty = max(0, int(item.get("quantity") or 0))
+        if qty > 0:
+            total += (qty + PIECES_PER_BOX - 1) // PIECES_PER_BOX
+    return total
+
+
+def _logistics_cost(region_id: str, items: list) -> tuple[float, str, int]:
     region = SHIPPING_REGIONS.get(region_id) or SHIPPING_REGIONS["mainland"]
-    if total_packs <= 0:
-        return 0.0, region["label"]
-    cost = float(region["flat_fee"])
-    if total_packs > region["flat_up_to"]:
-        extra = total_packs - region["flat_up_to"]
-        cost += extra * float(region["per_pack_over"])
-    return cost, region["label"]
+    boxes = _box_count(items)
+    if boxes <= 0:
+        return 0.0, region["label"], 0
+    return boxes * FEE_PER_BOX, region["label"], boxes
+
+
+def _normalize_address(raw) -> dict:
+    src = raw if isinstance(raw, dict) else {}
+    clean = lambda v: str(v or "").strip()
+    return {
+        "name": clean(src.get("name")),
+        "company": clean(src.get("company")),
+        "phone": clean(src.get("phone")),
+        "line1": clean(src.get("line1")),
+        "line2": clean(src.get("line2")),
+        "city": clean(src.get("city")),
+        "postcode": clean(src.get("postcode")).upper(),
+    }
+
+
+def _validate_address(addr: dict) -> str:
+    if not addr["name"]:
+        return "Delivery contact name is required."
+    if not addr["phone"] or len(addr["phone"]) < 7:
+        return "Delivery phone number is required."
+    if not addr["line1"]:
+        return "Delivery address line 1 is required."
+    if not addr["city"]:
+        return "Town / city is required."
+    if not addr["postcode"] or len(addr["postcode"]) < 5:
+        return "A valid UK postcode is required."
+    return ""
 
 
 def _build_totals(items: list, shipping_region: str) -> dict:
@@ -145,7 +164,7 @@ def _build_totals(items: list, shipping_region: str) -> dict:
     discount_percent = _discount_percent(total_packs)
     discount_amount = gross * (discount_percent / 100.0)
     product_net = gross - discount_amount
-    logistics, region_label = _logistics_cost(shipping_region, total_packs)
+    logistics, region_label, boxes = _logistics_cost(shipping_region, cleaned)
     net_ex_vat = product_net + logistics
     vat_amount = net_ex_vat * 0.2
     grand_total = net_ex_vat + vat_amount
@@ -153,6 +172,7 @@ def _build_totals(items: list, shipping_region: str) -> dict:
     return {
         "items": cleaned,
         "totalPacks": total_packs,
+        "boxCount": boxes,
         "grossSubtotal": gross,
         "discountPercent": discount_percent,
         "discountAmount": discount_amount,
@@ -216,8 +236,13 @@ def api_checkout_create():
     email = (data.get("customerEmail") or "").strip()
     if not email or "@" not in email:
         return jsonify(
-            {"status": "error", "message": "Enter a valid email in the quote form before checkout."}
+            {"status": "error", "message": "Enter a valid email before checkout."}
         ), 400
+
+    shipping_address = _normalize_address(data.get("shippingAddress"))
+    address_error = _validate_address(shipping_address)
+    if address_error:
+        return jsonify({"status": "error", "message": address_error}), 400
 
     shipping_region = (data.get("shippingRegion") or "mainland").strip()
     try:
@@ -258,12 +283,16 @@ def api_checkout_create():
 
     logistics_pence = int(round(totals["logisticsCost"] * 100))
     if logistics_pence > 0:
+        boxes = totals["boxCount"]
         line_items.append(
             {
                 "price_data": {
                     "currency": "gbp",
                     "product_data": {
-                        "name": f"UK logistics — {totals['regionLabel']}",
+                        "name": (
+                            f"UK shipping — {boxes} box{'es' if boxes != 1 else ''} "
+                            f"× £{int(FEE_PER_BOX)} ({totals['regionLabel']})"
+                        ),
                     },
                     "unit_amount": logistics_pence,
                 },
@@ -287,6 +316,20 @@ def api_checkout_create():
     if not line_items:
         return jsonify({"status": "error", "message": "No valid line items."}), 400
 
+    address_block = ", ".join(
+        p
+        for p in (
+            shipping_address["name"],
+            shipping_address["company"],
+            shipping_address["line1"],
+            shipping_address["line2"],
+            shipping_address["city"],
+            shipping_address["postcode"],
+            f"Tel: {shipping_address['phone']}" if shipping_address["phone"] else "",
+        )
+        if p
+    )
+
     try:
         session = stripe.checkout.Session.create(
             mode="payment",
@@ -294,10 +337,17 @@ def api_checkout_create():
             success_url=f"{domain}/?checkout=success",
             cancel_url=f"{domain}/?checkout=cancel",
             customer_email=email,
+            billing_address_collection="required",
+            shipping_address_collection={"allowed_countries": ["GB"]},
+            phone_number_collection={"enabled": True},
             metadata={
                 "source": "rose-empire-site",
                 "shipping_region": shipping_region,
                 "total_packs": str(totals["totalPacks"]),
+                "box_count": str(totals["boxCount"]),
+                "ship_address_full": address_block[:450],
+                "ship_postcode": shipping_address["postcode"],
+                "ship_phone": shipping_address["phone"][:100],
                 "grand_total_inc_vat": f"{totals['grandTotalIncVat']:.2f}",
             },
             allow_promotion_codes=True,

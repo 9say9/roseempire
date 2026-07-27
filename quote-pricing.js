@@ -49,7 +49,7 @@ const QuotePricing = {
 
     calculateFullCheckout(cart, shippingRegionId) {
         const product = this.calculate(cart);
-        const shipping = ShippingLogistics.calculate(shippingRegionId, product.totalPacks);
+        const shipping = ShippingLogistics.calculate(shippingRegionId, product.totalPacks, cart);
         const netExVat = product.estimatedSubtotal + shipping.logisticsCost;
         const vatRate = 0.2;
         const vatAmount = netExVat * vatRate;
@@ -158,7 +158,8 @@ const QuoteRequestPricingUI = (function () {
 
         if (e.shippingRow && e.shippingLabel && e.shippingAmount) {
             e.shippingRow.classList.remove('hidden');
-            e.shippingLabel.textContent = `Est. Logistics (${totals.regionLabel}):`;
+            const boxes = totals.boxCount || 0;
+            e.shippingLabel.textContent = `Shipping (${boxes} box${boxes === 1 ? '' : 'es'} × £10):`;
             e.shippingAmount.textContent = QuotePricing.formatGBP(totals.logisticsCost);
         }
 

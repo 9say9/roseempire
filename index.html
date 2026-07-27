@@ -323,8 +323,8 @@
     <style>
 :root{--navy:#102241;--gold-bright:#b89549;--gold-on-light:#7a5c18;--bg-main:#f6f4f0;--text-main:#0f1f35;--text-white:#fff;--gradient-hero:linear-gradient(145deg,#081424 0%,#133865 40%,#1f4d72 100%);--radius-lg:22px;--font-body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--font-display:Georgia,'Times New Roman',serif}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font-body);background:var(--bg-main);color:var(--text-main);line-height:1.6}.container{width:min(1200px,92%);margin:0 auto}.ico{display:inline-block;width:1em;height:1em;vertical-align:-.15em;fill:currentColor}.ico-spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.top-bar{background:#0c1b30;color:rgba(255,255,255,.85);font-size:.78rem;padding:8px 0}.top-bar a{color:inherit}.header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid #e2dcd2}.header-container{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}.logo-title{font-weight:700;font-size:1.15rem}.logo-accent{color:var(--gold-on-light)}.logo-subtitle{display:block;font-size:.68rem;opacity:.75}.hero{background:var(--gradient-hero);color:var(--text-white);padding:48px 0 56px;position:relative;overflow:hidden}.hero-container{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}.hero-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);line-height:1.1;margin:.5rem 0}.hero-description{opacity:.92;max-width:56ch;margin:1rem 0}.hero-product-img{width:100%;height:auto;border-radius:var(--radius-lg);display:block}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:999px;border:none;font-weight:600;text-decoration:none;cursor:pointer}.btn-gold{background:linear-gradient(135deg,#a48440,#d7bb72,#b89549);color:#1a1208}@media(max-width:900px){.hero-container{grid-template-columns:1fr}.hero-image-side{order:-1}}
     </style>
-    <link rel="preload" href="styles.min.css?v=20260722a" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles.min.css?v=20260722a"></noscript>
+    <link rel="preload" href="styles.min.css?v=20260727a" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.min.css?v=20260727a"></noscript>
 </head>
 <body data-page="wholesale">
 
@@ -710,7 +710,7 @@
                     </details>
                     <details class="faq-item">
                         <summary>Does Rose Empire deliver mattress protectors and pillows across the UK?</summary>
-                        <p>Yes. We supply wholesale bedding UK-wide including mainland England, Scotland, Wales, Scottish Highlands and Northern Ireland. Freight is quoted by destination and order size at checkout.</p>
+                        <p>Yes. We supply wholesale bedding UK-wide including mainland England, Scotland, Wales, Scottish Highlands and Northern Ireland. Shipping is a flat £10 per trade box (20 pieces), shown at checkout before you pay.</p>
                     </details>
                     <details class="faq-item">
                         <summary>What wholesale mattress protectors does Rose Empire supply?</summary>
@@ -792,18 +792,41 @@
                         <span id="summary-volume-badge" class="volume-discount-badge hidden" role="status"></span>
                     </span>
                 </div>
-                <p class="vat-note">*Logistics based on UK destination &amp; piece count. Final freight confirmed on review.</p>
+                <p class="vat-note">*Shipping £10 per trade box (20 pieces). VAT 20% applied on products + shipping.</p>
             </div>
             <div class="cart-checkout-panel">
             <div class="cart-checkout-fields">
-                <label class="cart-checkout-label" for="cart-checkout-email">Email for Stripe receipt</label>
-                <input type="email" id="cart-checkout-email" class="cart-checkout-input" placeholder="you@company.co.uk" autocomplete="email">
-                <label class="cart-checkout-label" for="cart-shipping-region">UK shipping destination</label>
-                <select id="cart-shipping-region" class="cart-checkout-input" aria-label="UK shipping destination">
-                    <option value="mainland">UK Mainland (Standard Freight)</option>
-                    <option value="highlands">Scottish Highlands (Extended Route)</option>
-                    <option value="northern_ireland">Northern Ireland (Sea Freight)</option>
+                <label class="cart-checkout-label" for="cart-checkout-email">Email for order confirmation <span class="required">*</span></label>
+                <input type="email" id="cart-checkout-email" class="cart-checkout-input" placeholder="you@company.co.uk" autocomplete="email" required>
+
+                <label class="cart-checkout-label" for="cart-ship-name">Full name / contact <span class="required">*</span></label>
+                <input type="text" id="cart-ship-name" class="cart-checkout-input" placeholder="Jane Smith" autocomplete="name" required>
+
+                <label class="cart-checkout-label" for="cart-ship-company">Company (optional)</label>
+                <input type="text" id="cart-ship-company" class="cart-checkout-input" placeholder="Acme Hotels Ltd" autocomplete="organization">
+
+                <label class="cart-checkout-label" for="cart-ship-phone">Phone <span class="required">*</span></label>
+                <input type="tel" id="cart-ship-phone" class="cart-checkout-input" placeholder="+44 7..." autocomplete="tel" required>
+
+                <label class="cart-checkout-label" for="cart-ship-line1">Delivery address line 1 <span class="required">*</span></label>
+                <input type="text" id="cart-ship-line1" class="cart-checkout-input" placeholder="Unit B, Wholesale Park" autocomplete="address-line1" required>
+
+                <label class="cart-checkout-label" for="cart-ship-line2">Address line 2 (optional)</label>
+                <input type="text" id="cart-ship-line2" class="cart-checkout-input" placeholder="Building / floor" autocomplete="address-line2">
+
+                <label class="cart-checkout-label" for="cart-ship-city">Town / City <span class="required">*</span></label>
+                <input type="text" id="cart-ship-city" class="cart-checkout-input" placeholder="Manchester" autocomplete="address-level2" required>
+
+                <label class="cart-checkout-label" for="cart-ship-postcode">Postcode <span class="required">*</span></label>
+                <input type="text" id="cart-ship-postcode" class="cart-checkout-input" placeholder="M1 1AA" autocomplete="postal-code" required>
+
+                <label class="cart-checkout-label" for="cart-shipping-region">UK delivery area <span class="required">*</span></label>
+                <select id="cart-shipping-region" class="cart-checkout-input" aria-label="UK delivery area">
+                    <option value="mainland">UK Mainland</option>
+                    <option value="highlands">Scottish Highlands</option>
+                    <option value="northern_ireland">Northern Ireland</option>
                 </select>
+                <p class="vat-note" style="margin-top:6px">Shipping is a flat <strong>£10 per box</strong> (1 box = 20 pieces), added before VAT.</p>
             </div>
             <button class="btn btn-outline-dark btn-block" id="stripe-checkout-btn" type="button">
                 <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg> Secure Stripe Checkout
@@ -811,7 +834,7 @@
             <button class="btn btn-gold btn-block" id="proceed-quote-btn" disabled>
                 Proceed to Request Quote
             </button>
-            <p class="vat-note">Use Stripe for a fast card-payment path or request a wholesale quote for custom freight and volume pricing.</p>
+            <p class="vat-note">Pay securely by card via Stripe, or request a wholesale quote. Delivery address is required for both.</p>
             </div>
             </div>
         </div>
@@ -874,11 +897,11 @@
                     <div class="form-group">
                         <label for="rfq-shipping-region">UK Shipping Destination <span class="required">*</span></label>
                         <select id="rfq-shipping-region" required aria-describedby="rfq-shipping-hint">
-                            <option value="mainland">UK Mainland (Standard Freight)</option>
-                            <option value="highlands">Scottish Highlands (Extended Route)</option>
-                            <option value="northern_ireland">Northern Ireland (Sea Freight)</option>
+                            <option value="mainland">UK Mainland</option>
+                            <option value="highlands">Scottish Highlands</option>
+                            <option value="northern_ireland">Northern Ireland</option>
                         </select>
-                        <p class="field-hint" id="rfq-shipping-hint">Freight is estimated from your piece quantity and destination.</p>
+                        <p class="field-hint" id="rfq-shipping-hint">Shipping is £10 per trade box (20 pieces), added before VAT.</p>
                     </div>
 
                     <aside class="checkout-totals-panel" id="checkout-totals-panel" aria-live="polite">
@@ -1003,10 +1026,10 @@
 
     <script src="rose-icons.js" defer></script>
     <script src="site-config.js?v=20260722a" defer></script>
-    <script src="quote-shipping.js" defer></script>
-    <script src="quote-pricing.js" defer></script>
+    <script src="quote-shipping.js?v=20260727a" defer></script>
+    <script src="quote-pricing.js?v=20260727a" defer></script>
     <script src="quote-pdf.js" defer></script>
-    <script src="app.js?v=20260722a" defer></script>
+    <script src="app.js?v=20260727a" defer></script>
     <!-- Sarah wholesale chat — local widget + Cloudflare lead API -->
     <script
       src="sarah-widget.js?v=20260722a"
