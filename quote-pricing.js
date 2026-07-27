@@ -113,7 +113,9 @@ const QuoteRequestPricingUI = (function () {
         if (e.grossSubtotal) e.grossSubtotal.textContent = QuotePricing.formatGBP(0);
         if (e.discountRow) e.discountRow.classList.add('hidden');
         if (e.productNet) e.productNet.textContent = QuotePricing.formatGBP(0);
-        if (e.shippingRow) e.shippingRow.classList.add('hidden');
+        if (e.shippingRow) e.shippingRow.classList.remove('hidden');
+        if (e.shippingLabel) e.shippingLabel.textContent = 'Shipping (£10 / box):';
+        if (e.shippingAmount) e.shippingAmount.textContent = QuotePricing.formatGBP(0);
         if (e.netExVat) e.netExVat.textContent = QuotePricing.formatGBP(0);
         if (e.vatAmount) e.vatAmount.textContent = QuotePricing.formatGBP(0);
         e.totalPrice.textContent = QuotePricing.formatGBP(0);

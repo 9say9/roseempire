@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Wholesale Mattress Protectors &amp; Pillows UK | Rose Empire Manchester</title>
     <meta name="description" content="Buy wholesale mattress protectors and goose feather pillows UK — manufacturer-direct from Manchester. WQMP, QMP &amp; terry lines. MOQ 20, from £4.40/pc. OEKO-TEX certified, UK-tested. Hotels, care homes &amp; retailers.">
     <meta name="keywords" content="wholesale mattress protectors UK, waterproof quilted mattress protector, terry mattress protector wholesale, care home bedding wholesale, hotel mattress protectors, goose feather pillows wholesale, Rose Empire Manchester, B2B bedding supplier UK">
@@ -323,8 +326,8 @@
     <style>
 :root{--navy:#102241;--gold-bright:#b89549;--gold-on-light:#7a5c18;--bg-main:#f6f4f0;--text-main:#0f1f35;--text-white:#fff;--gradient-hero:linear-gradient(145deg,#081424 0%,#133865 40%,#1f4d72 100%);--radius-lg:22px;--font-body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--font-display:Georgia,'Times New Roman',serif}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font-body);background:var(--bg-main);color:var(--text-main);line-height:1.6}.container{width:min(1200px,92%);margin:0 auto}.ico{display:inline-block;width:1em;height:1em;vertical-align:-.15em;fill:currentColor}.ico-spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.top-bar{background:#0c1b30;color:rgba(255,255,255,.85);font-size:.78rem;padding:8px 0}.top-bar a{color:inherit}.header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid #e2dcd2}.header-container{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}.logo-title{font-weight:700;font-size:1.15rem}.logo-accent{color:var(--gold-on-light)}.logo-subtitle{display:block;font-size:.68rem;opacity:.75}.hero{background:var(--gradient-hero);color:var(--text-white);padding:48px 0 56px;position:relative;overflow:hidden}.hero-container{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}.hero-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);line-height:1.1;margin:.5rem 0}.hero-description{opacity:.92;max-width:56ch;margin:1rem 0}.hero-product-img{width:100%;height:auto;border-radius:var(--radius-lg);display:block}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:999px;border:none;font-weight:600;text-decoration:none;cursor:pointer}.btn-gold{background:linear-gradient(135deg,#a48440,#d7bb72,#b89549);color:#1a1208}@media(max-width:900px){.hero-container{grid-template-columns:1fr}.hero-image-side{order:-1}}
     </style>
-    <link rel="preload" href="styles.min.css?v=20260727a" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles.min.css?v=20260727a"></noscript>
+    <link rel="preload" href="styles.min.css?v=20260727c" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.min.css?v=20260727c"></noscript>
 </head>
 <body data-page="wholesale">
 
@@ -750,7 +753,7 @@
         </div>
 
         <div class="cart-drawer-footer" id="cart-drawer-footer">
-            <div class="cart-drawer-footer-inner">
+            <div class="cart-drawer-scroll" id="cart-drawer-scroll">
             <p class="volume-tier-hint" id="volume-tier-hint">Size-specific rates · 50+ pieces = 10% off · 200+ = 20% off</p>
             <div class="cart-summary">
                 <div class="summary-row">
@@ -773,8 +776,8 @@
                     <span>Product Subtotal (ex VAT):</span>
                     <span id="summary-product-net">£0.00</span>
                 </div>
-                <div class="summary-row summary-shipping-row hidden" id="summary-shipping-row">
-                    <span id="summary-shipping-label">Est. Logistics:</span>
+                <div class="summary-row summary-shipping-row" id="summary-shipping-row">
+                    <span id="summary-shipping-label">Shipping (£10 / box):</span>
                     <span id="summary-shipping-amount">£0.00</span>
                 </div>
                 <div class="summary-row">
@@ -786,27 +789,34 @@
                     <span id="summary-vat-amount">£0.00</span>
                 </div>
                 <div class="summary-row total-row">
-                    <span>Est. Checkout Total (inc. VAT):</span>
+                    <span>Checkout Total (inc. VAT):</span>
                     <span class="summary-total-wrap">
                         <span id="summary-total-price">£0.00</span>
                         <span id="summary-volume-badge" class="volume-discount-badge hidden" role="status"></span>
                     </span>
                 </div>
-                <p class="vat-note">*Shipping £10 per trade box (20 pieces). VAT 20% applied on products + shipping.</p>
+                <p class="vat-note">Shipping = £10 × trade boxes (1 box = 20 pieces). VAT applies to products + shipping.</p>
             </div>
+
             <div class="cart-checkout-panel">
+            <h4 class="cart-checkout-heading">Delivery details</h4>
             <div class="cart-checkout-fields">
                 <label class="cart-checkout-label" for="cart-checkout-email">Email for order confirmation <span class="required">*</span></label>
                 <input type="email" id="cart-checkout-email" class="cart-checkout-input" placeholder="you@company.co.uk" autocomplete="email" required>
 
-                <label class="cart-checkout-label" for="cart-ship-name">Full name / contact <span class="required">*</span></label>
-                <input type="text" id="cart-ship-name" class="cart-checkout-input" placeholder="Jane Smith" autocomplete="name" required>
+                <div class="cart-checkout-grid">
+                    <div>
+                        <label class="cart-checkout-label" for="cart-ship-name">Full name / contact <span class="required">*</span></label>
+                        <input type="text" id="cart-ship-name" class="cart-checkout-input" placeholder="Jane Smith" autocomplete="name" required>
+                    </div>
+                    <div>
+                        <label class="cart-checkout-label" for="cart-ship-phone">Phone <span class="required">*</span></label>
+                        <input type="tel" id="cart-ship-phone" class="cart-checkout-input" placeholder="+44 7..." autocomplete="tel" required>
+                    </div>
+                </div>
 
                 <label class="cart-checkout-label" for="cart-ship-company">Company (optional)</label>
                 <input type="text" id="cart-ship-company" class="cart-checkout-input" placeholder="Acme Hotels Ltd" autocomplete="organization">
-
-                <label class="cart-checkout-label" for="cart-ship-phone">Phone <span class="required">*</span></label>
-                <input type="tel" id="cart-ship-phone" class="cart-checkout-input" placeholder="+44 7..." autocomplete="tel" required>
 
                 <label class="cart-checkout-label" for="cart-ship-line1">Delivery address line 1 <span class="required">*</span></label>
                 <input type="text" id="cart-ship-line1" class="cart-checkout-input" placeholder="Unit B, Wholesale Park" autocomplete="address-line1" required>
@@ -814,11 +824,16 @@
                 <label class="cart-checkout-label" for="cart-ship-line2">Address line 2 (optional)</label>
                 <input type="text" id="cart-ship-line2" class="cart-checkout-input" placeholder="Building / floor" autocomplete="address-line2">
 
-                <label class="cart-checkout-label" for="cart-ship-city">Town / City <span class="required">*</span></label>
-                <input type="text" id="cart-ship-city" class="cart-checkout-input" placeholder="Manchester" autocomplete="address-level2" required>
-
-                <label class="cart-checkout-label" for="cart-ship-postcode">Postcode <span class="required">*</span></label>
-                <input type="text" id="cart-ship-postcode" class="cart-checkout-input" placeholder="M1 1AA" autocomplete="postal-code" required>
+                <div class="cart-checkout-grid">
+                    <div>
+                        <label class="cart-checkout-label" for="cart-ship-city">Town / City <span class="required">*</span></label>
+                        <input type="text" id="cart-ship-city" class="cart-checkout-input" placeholder="Manchester" autocomplete="address-level2" required>
+                    </div>
+                    <div>
+                        <label class="cart-checkout-label" for="cart-ship-postcode">Postcode <span class="required">*</span></label>
+                        <input type="text" id="cart-ship-postcode" class="cart-checkout-input" placeholder="M1 1AA" autocomplete="postal-code" required>
+                    </div>
+                </div>
 
                 <label class="cart-checkout-label" for="cart-shipping-region">UK delivery area <span class="required">*</span></label>
                 <select id="cart-shipping-region" class="cart-checkout-input" aria-label="UK delivery area">
@@ -826,16 +841,19 @@
                     <option value="highlands">Scottish Highlands</option>
                     <option value="northern_ireland">Northern Ireland</option>
                 </select>
-                <p class="vat-note" style="margin-top:6px">Shipping is a flat <strong>£10 per box</strong> (1 box = 20 pieces), added before VAT.</p>
+                <p class="vat-note" style="margin-top:6px">Flat shipping <strong>£10 per box</strong> (20 pieces). Scroll down if needed, then pay with Stripe.</p>
             </div>
+            </div>
+            </div>
+
+            <div class="cart-checkout-actions">
             <button class="btn btn-outline-dark btn-block" id="stripe-checkout-btn" type="button">
                 <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg> Secure Stripe Checkout
             </button>
             <button class="btn btn-gold btn-block" id="proceed-quote-btn" disabled>
                 Proceed to Request Quote
             </button>
-            <p class="vat-note">Pay securely by card via Stripe, or request a wholesale quote. Delivery address is required for both.</p>
-            </div>
+            <p class="vat-note">Fill delivery details above, then pay by card or request a quote.</p>
             </div>
         </div>
     </div>
@@ -1026,10 +1044,10 @@
 
     <script src="rose-icons.js" defer></script>
     <script src="site-config.js?v=20260722a" defer></script>
-    <script src="quote-shipping.js?v=20260727a" defer></script>
-    <script src="quote-pricing.js?v=20260727a" defer></script>
+    <script src="quote-shipping.js?v=20260727c" defer></script>
+    <script src="quote-pricing.js?v=20260727c" defer></script>
     <script src="quote-pdf.js" defer></script>
-    <script src="app.js?v=20260727a" defer></script>
+    <script src="app.js?v=20260727c" defer></script>
     <!-- Sarah wholesale chat — local widget + Cloudflare lead API -->
     <script
       src="sarah-widget.js?v=20260722a"

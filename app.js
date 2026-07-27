@@ -219,6 +219,18 @@ function setCartDrawerOpen(isOpen) {
             el.style.removeProperty('visibility');
         }
     });
+
+    if (isOpen) {
+        // Jump to totals + delivery form so PC users don't miss address fields.
+        requestAnimationFrame(() => {
+            const scroll = document.getElementById('cart-drawer-scroll');
+            const heading = document.querySelector('.cart-checkout-heading');
+            if (scroll && heading) {
+                scroll.scrollTop = Math.max(0, heading.offsetTop - 12);
+            }
+            document.getElementById('cart-checkout-email')?.focus({ preventScroll: true });
+        });
+    }
 }
 
 function toggleCartDrawer() {
