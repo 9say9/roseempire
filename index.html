@@ -147,7 +147,10 @@
                 ],
                 "sameAs": [
                     "https://www.linkedin.com/company/rose-empire-wholesale-home-textiles"
-                ]
+                ],
+                "hasMerchantReturnPolicy": {
+                    "@id": "https://www.roseempire.co.uk/shipping-and-returns.html#return-policy"
+                }
             },
             {
                 "@type": "WebSite",
@@ -171,7 +174,7 @@
                     "url": "https://www.roseempire.co.uk/assets/og-share.png"
                 },
                 "inLanguage": "en-GB",
-                "dateModified": "2026-07-26"
+                "dateModified": "2026-07-29"
             },
             {
                 "@type": "FAQPage",
@@ -243,11 +246,85 @@
                     "lowPrice": "5.99",
                     "highPrice": "12.99",
                     "offerCount": "6",
+                    "validFrom": "2026-01-01",
                     "priceValidUntil": "2027-12-31",
                     "availability": "https://schema.org/InStock",
+                    "itemCondition": "https://schema.org/NewCondition",
                     "eligibleCustomerType": "https://schema.org/Business",
                     "seller": { "@id": "https://www.roseempire.co.uk/#wholesale-store" },
-                    "description": "Wholesale MOQ 20 pieces (1 trade box per size). Volume pricing available for bulk orders."
+                    "description": "Wholesale MOQ 20 pieces (1 trade box per size). Volume pricing available for bulk orders.",
+                    "hasMerchantReturnPolicy": {
+                        "@type": "MerchantReturnPolicy",
+                        "applicableCountry": "GB",
+                        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                        "merchantReturnDays": 14,
+                        "returnMethod": "https://schema.org/ReturnByMail",
+                        "returnFees": "https://schema.org/ReturnShippingFees",
+                        "returnShippingFeesAmount": {
+                            "@type": "MonetaryAmount",
+                            "value": "10.00",
+                            "currency": "GBP"
+                        },
+                        "merchantReturnLink": "https://www.roseempire.co.uk/shipping-and-returns.html#returns"
+                    },
+                    "shippingDetails": [
+                        {
+                            "@type": "OfferShippingDetails",
+                            "shippingRate": {
+                                "@type": "MonetaryAmount",
+                                "value": "10.00",
+                                "currency": "GBP"
+                            },
+                            "shippingDestination": {
+                                "@type": "DefinedRegion",
+                                "addressCountry": "GB",
+                                "name": "UK Mainland"
+                            },
+                            "deliveryTime": {
+                                "@type": "ShippingDeliveryTime",
+                                "handlingTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 3,
+                                    "unitCode": "DAY"
+                                },
+                                "transitTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 5,
+                                    "unitCode": "DAY"
+                                }
+                            }
+                        },
+                        {
+                            "@type": "OfferShippingDetails",
+                            "shippingRate": {
+                                "@type": "MonetaryAmount",
+                                "value": "15.00",
+                                "currency": "GBP"
+                            },
+                            "shippingDestination": {
+                                "@type": "DefinedRegion",
+                                "addressCountry": "GB",
+                                "name": "Scotland and Northern Ireland"
+                            },
+                            "deliveryTime": {
+                                "@type": "ShippingDeliveryTime",
+                                "handlingTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 3,
+                                    "unitCode": "DAY"
+                                },
+                                "transitTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 2,
+                                    "maxValue": 7,
+                                    "unitCode": "DAY"
+                                }
+                            }
+                        }
+                    ]
                 }
             },
             {
@@ -266,11 +343,85 @@
                     "lowPrice": "4.74",
                     "highPrice": "7.21",
                     "offerCount": "6",
+                    "validFrom": "2026-01-01",
                     "priceValidUntil": "2027-12-31",
                     "availability": "https://schema.org/InStock",
+                    "itemCondition": "https://schema.org/NewCondition",
                     "eligibleCustomerType": "https://schema.org/Business",
                     "seller": { "@id": "https://www.roseempire.co.uk/#wholesale-store" },
-                    "description": "Wholesale MOQ 20 pieces (1 trade box per size). Bulk supply across the UK."
+                    "description": "Wholesale MOQ 20 pieces (1 trade box per size). Bulk supply across the UK.",
+                    "hasMerchantReturnPolicy": {
+                        "@type": "MerchantReturnPolicy",
+                        "applicableCountry": "GB",
+                        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                        "merchantReturnDays": 14,
+                        "returnMethod": "https://schema.org/ReturnByMail",
+                        "returnFees": "https://schema.org/ReturnShippingFees",
+                        "returnShippingFeesAmount": {
+                            "@type": "MonetaryAmount",
+                            "value": "10.00",
+                            "currency": "GBP"
+                        },
+                        "merchantReturnLink": "https://www.roseempire.co.uk/shipping-and-returns.html#returns"
+                    },
+                    "shippingDetails": [
+                        {
+                            "@type": "OfferShippingDetails",
+                            "shippingRate": {
+                                "@type": "MonetaryAmount",
+                                "value": "10.00",
+                                "currency": "GBP"
+                            },
+                            "shippingDestination": {
+                                "@type": "DefinedRegion",
+                                "addressCountry": "GB",
+                                "name": "UK Mainland"
+                            },
+                            "deliveryTime": {
+                                "@type": "ShippingDeliveryTime",
+                                "handlingTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 3,
+                                    "unitCode": "DAY"
+                                },
+                                "transitTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 5,
+                                    "unitCode": "DAY"
+                                }
+                            }
+                        },
+                        {
+                            "@type": "OfferShippingDetails",
+                            "shippingRate": {
+                                "@type": "MonetaryAmount",
+                                "value": "15.00",
+                                "currency": "GBP"
+                            },
+                            "shippingDestination": {
+                                "@type": "DefinedRegion",
+                                "addressCountry": "GB",
+                                "name": "Scotland and Northern Ireland"
+                            },
+                            "deliveryTime": {
+                                "@type": "ShippingDeliveryTime",
+                                "handlingTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 3,
+                                    "unitCode": "DAY"
+                                },
+                                "transitTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 2,
+                                    "maxValue": 7,
+                                    "unitCode": "DAY"
+                                }
+                            }
+                        }
+                    ]
                 }
             },
             {
@@ -289,11 +440,85 @@
                     "lowPrice": "4.40",
                     "highPrice": "6.85",
                     "offerCount": "7",
+                    "validFrom": "2026-01-01",
                     "priceValidUntil": "2027-12-31",
                     "availability": "https://schema.org/InStock",
+                    "itemCondition": "https://schema.org/NewCondition",
                     "eligibleCustomerType": "https://schema.org/Business",
                     "seller": { "@id": "https://www.roseempire.co.uk/#wholesale-store" },
-                    "description": "Wholesale MOQ 20 pieces (1 trade box per size). Preferred for hotels and care homes."
+                    "description": "Wholesale MOQ 20 pieces (1 trade box per size). Preferred for hotels and care homes.",
+                    "hasMerchantReturnPolicy": {
+                        "@type": "MerchantReturnPolicy",
+                        "applicableCountry": "GB",
+                        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                        "merchantReturnDays": 14,
+                        "returnMethod": "https://schema.org/ReturnByMail",
+                        "returnFees": "https://schema.org/ReturnShippingFees",
+                        "returnShippingFeesAmount": {
+                            "@type": "MonetaryAmount",
+                            "value": "10.00",
+                            "currency": "GBP"
+                        },
+                        "merchantReturnLink": "https://www.roseempire.co.uk/shipping-and-returns.html#returns"
+                    },
+                    "shippingDetails": [
+                        {
+                            "@type": "OfferShippingDetails",
+                            "shippingRate": {
+                                "@type": "MonetaryAmount",
+                                "value": "10.00",
+                                "currency": "GBP"
+                            },
+                            "shippingDestination": {
+                                "@type": "DefinedRegion",
+                                "addressCountry": "GB",
+                                "name": "UK Mainland"
+                            },
+                            "deliveryTime": {
+                                "@type": "ShippingDeliveryTime",
+                                "handlingTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 3,
+                                    "unitCode": "DAY"
+                                },
+                                "transitTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 5,
+                                    "unitCode": "DAY"
+                                }
+                            }
+                        },
+                        {
+                            "@type": "OfferShippingDetails",
+                            "shippingRate": {
+                                "@type": "MonetaryAmount",
+                                "value": "15.00",
+                                "currency": "GBP"
+                            },
+                            "shippingDestination": {
+                                "@type": "DefinedRegion",
+                                "addressCountry": "GB",
+                                "name": "Scotland and Northern Ireland"
+                            },
+                            "deliveryTime": {
+                                "@type": "ShippingDeliveryTime",
+                                "handlingTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 3,
+                                    "unitCode": "DAY"
+                                },
+                                "transitTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 2,
+                                    "maxValue": 7,
+                                    "unitCode": "DAY"
+                                }
+                            }
+                        }
+                    ]
                 }
             },
             {
@@ -310,11 +535,85 @@
                     "url": "https://www.roseempire.co.uk/#catalog-section",
                     "priceCurrency": "GBP",
                     "price": "12.49",
+                    "validFrom": "2026-01-01",
                     "priceValidUntil": "2027-12-31",
                     "availability": "https://schema.org/InStock",
+                    "itemCondition": "https://schema.org/NewCondition",
                     "eligibleCustomerType": "https://schema.org/Business",
                     "seller": { "@id": "https://www.roseempire.co.uk/#wholesale-store" },
-                    "description": "Wholesale MOQ 20 pieces — standard size only (2 pillows per piece)."
+                    "description": "Wholesale MOQ — full boxes only (5 pieces per box). Standard size only (2 pillows per piece).",
+                    "hasMerchantReturnPolicy": {
+                        "@type": "MerchantReturnPolicy",
+                        "applicableCountry": "GB",
+                        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                        "merchantReturnDays": 14,
+                        "returnMethod": "https://schema.org/ReturnByMail",
+                        "returnFees": "https://schema.org/ReturnShippingFees",
+                        "returnShippingFeesAmount": {
+                            "@type": "MonetaryAmount",
+                            "value": "10.00",
+                            "currency": "GBP"
+                        },
+                        "merchantReturnLink": "https://www.roseempire.co.uk/shipping-and-returns.html#returns"
+                    },
+                    "shippingDetails": [
+                        {
+                            "@type": "OfferShippingDetails",
+                            "shippingRate": {
+                                "@type": "MonetaryAmount",
+                                "value": "10.00",
+                                "currency": "GBP"
+                            },
+                            "shippingDestination": {
+                                "@type": "DefinedRegion",
+                                "addressCountry": "GB",
+                                "name": "UK Mainland"
+                            },
+                            "deliveryTime": {
+                                "@type": "ShippingDeliveryTime",
+                                "handlingTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 3,
+                                    "unitCode": "DAY"
+                                },
+                                "transitTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 5,
+                                    "unitCode": "DAY"
+                                }
+                            }
+                        },
+                        {
+                            "@type": "OfferShippingDetails",
+                            "shippingRate": {
+                                "@type": "MonetaryAmount",
+                                "value": "15.00",
+                                "currency": "GBP"
+                            },
+                            "shippingDestination": {
+                                "@type": "DefinedRegion",
+                                "addressCountry": "GB",
+                                "name": "Scotland and Northern Ireland"
+                            },
+                            "deliveryTime": {
+                                "@type": "ShippingDeliveryTime",
+                                "handlingTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 1,
+                                    "maxValue": 3,
+                                    "unitCode": "DAY"
+                                },
+                                "transitTime": {
+                                    "@type": "QuantitativeValue",
+                                    "minValue": 2,
+                                    "maxValue": 7,
+                                    "unitCode": "DAY"
+                                }
+                            }
+                        }
+                    ]
                 }
             }
         ]
@@ -713,7 +1012,7 @@
                     </details>
                     <details class="faq-item">
                         <summary>Does Rose Empire deliver mattress protectors and pillows across the UK?</summary>
-                        <p>Yes. We supply wholesale bedding UK-wide including mainland England, Scotland, Wales and Northern Ireland. Shipping is <strong>£10 per box</strong> on the mainland and <strong>£15 per box</strong> for Scotland and Northern Ireland, shown at checkout before you pay.</p>
+                        <p>Yes. We supply wholesale bedding UK-wide including mainland England, Scotland, Wales and Northern Ireland. Shipping is <strong>£10 per box</strong> on the mainland and <strong>£15 per box</strong> for Scotland and Northern Ireland, shown at checkout before you pay. Full policy: <a href="shipping-and-returns.html">shipping &amp; returns</a>.</p>
                     </details>
                     <details class="faq-item">
                         <summary>What wholesale mattress protectors does Rose Empire supply?</summary>
@@ -1000,6 +1299,7 @@
                         <li><a href="assets/Rose-Empire-BS-EN-12935-Pillow-Report.pdf" download id="footer-uk-test-link">BS EN 12935 pillow report</a></li>
                         <li><a href="#faq">FAQ</a></li>
                         <li><a href="privacy.html">Privacy policy</a></li>
+                        <li><a href="shipping-and-returns.html">Shipping &amp; returns</a></li>
                         <li><a href="https://www.linkedin.com/company/rose-empire-wholesale-home-textiles" rel="noopener noreferrer">LinkedIn</a></li>
                         <li><a href="#footer">Contact</a></li>
                     </ul>
