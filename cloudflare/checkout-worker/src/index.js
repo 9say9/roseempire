@@ -642,8 +642,30 @@ export default {
       return json(result.data, result.status, origin);
     }
 
-    if (url.pathname === "/api/stripe/webhook" && request.method === "POST") {
-      return handleStripeWebhook(request, env);
+    if (url.pathname === "/api/stripe/webhook") {
+      if (request.method === "GET" || request.method === "HEAD") {
+        const webhookReady = Boolean(String(env.STRIPE_WEBHOOK_SECRET || "").trim());
+        return json(
+          {
+            status: "ok",
+            message:
+              "This URL is a Stripe webhook endpoint. Open it only from Stripe Dashboard → Webhooks (POST). Do not open it in a browser tab.",
+            method_required: "POST",
+            webhook_secret_set: webhookReady,
+            listen_for: ["checkout.session.completed"],
+            setup:
+              webhookReady
+                ? "Secret is set. In Stripe, add this exact URL and send a test event."
+                : "Run: npx wrangler secret put STRIPE_WEBHOOK_SECRET (paste whsec_… from Stripe).",
+          },
+          200,
+          origin
+        );
+      }
+      if (request.method === "POST") {
+        return handleStripeWebhook(request, env);
+      }
+      return json({ status: "error", message: "Use POST from Stripe." }, 405, origin);
     }
 
     return json({ status: "error", message: "Not found" }, 404, origin);
