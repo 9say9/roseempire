@@ -666,7 +666,7 @@
           "We supply wholesale mattress protectors and feather & down pillows for UK hotels, care homes, guest houses and retailers:\n" +
           "• WQMP — Waterproof Quilted Mattress Protector (silent TPU, OEKO-TEX)\n" +
           "• QMP — Quilted Mattress Protector (breathable, non-waterproof)\n" +
-          "• Terry Waterproof Mattress Protector (hotel-grade cotton terry)\n" +
+          "• Terry Waterproof Mattress Protector (limited offer −50p all sizes)\n" +
           "• Goose Feather & Duck Down Pillows (2-piece sets, standard 50×75cm)"
         );
       }

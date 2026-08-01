@@ -35,7 +35,7 @@ async function loadCatalog() {
 function getSizeMeta(product, sizeIndex) {
     const size = product?.sizes?.[sizeIndex];
     if (!size) {
-        return { name: '', price: 0, moq: 20, piecesPerBox: 20 };
+        return { name: '', price: 0, wasPrice: 0, moq: 20, piecesPerBox: 20 };
     }
     const name = size.name || '';
     let piecesPerBox = Number(size.piecesPerBox) || Number(product.piecesPerBox) || 0;
@@ -48,6 +48,7 @@ function getSizeMeta(product, sizeIndex) {
     return {
         name,
         price: Number(size.price) || 0,
+        wasPrice: Number(size.wasPrice) || 0,
         moq,
         piecesPerBox,
     };
@@ -251,11 +252,22 @@ function renderProducts() {
         card.className = 'product-card animate-in';
         card.style.animationDelay = `${i * 0.06}s`;
 
+        const promo = product.promo;
+        const fromWas = Number(product.sizes?.[0]?.wasPrice) || 0;
+        const priceHtml = promo && fromWas > product.basePrice
+            ? `<span class="price-was">£${fromWas.toFixed(2)}</span>
+               <span class="price-value price-value--sale">£${product.basePrice.toFixed(2)}/pc</span>`
+            : `<span class="price-value">£${product.basePrice.toFixed(2)}/pc</span>`;
+        const promoBanner = promo
+            ? `<div class="product-promo-banner" role="status">${promo.label}${promo.detail ? ` · ${promo.detail}` : ''}</div>`
+            : '';
+
         card.innerHTML = `
             <div class="product-image-container">
                 <span class="product-tag ${product.tagClass || ''}">${product.tag}</span>
                 <img src="${product.image}" alt="${product.title}"
                      onerror="this.src='https://placehold.co/400x300/0d1f3c/ffffff?text=${encodeURIComponent(product.title)}'">
+                ${promoBanner}
             </div>
             <div class="product-info">
                 <h3 class="product-title">${product.title}</h3>
@@ -272,7 +284,7 @@ function renderProducts() {
                     </div>
                     <div class="pricing-info" style="text-align:right">
                         <span class="moq-label">From</span>
-                        <span class="price-value">£${product.basePrice.toFixed(2)}/pc</span>
+                        ${priceHtml}
                     </div>
                     </div>
                 </div>
@@ -676,11 +688,14 @@ function openProductDetail(productId) {
 
     const sizePickerHTML = p.sizes.map((s, i) => {
         const meta = getSizeMeta(p, i);
+        const priceLine = meta.wasPrice > meta.price
+            ? `<span class="detail-size-price"><span class="price-was">£${meta.wasPrice.toFixed(2)}</span> £${meta.price.toFixed(2)}/pc · ${meta.piecesPerBox}/box</span>`
+            : `<span class="detail-size-price">£${meta.price.toFixed(2)}/pc · ${meta.piecesPerBox}/box</span>`;
         return `
         <button type="button" class="detail-size-option${i === 0 ? ' active' : ''}"
                 data-size-index="${i}" onclick="selectDetailSize(${i}, '${p.id}')">
             <span class="detail-size-name">${meta.name}</span>
-            <span class="detail-size-price">£${meta.price.toFixed(2)}/pc · ${meta.piecesPerBox}/box</span>
+            ${priceLine}
         </button>`;
     }).join('');
 
@@ -689,6 +704,9 @@ function openProductDetail(productId) {
     const topSpecs = (p.highlights || []).slice(0, 3)
         .map((h) => `<span class="spec-badge">${h}</span>`)
         .join('');
+    const promoNote = p.promo
+        ? `<p class="detail-promo-note" role="status"><strong>${p.promo.label}</strong> — ${p.promo.detail || 'Special trade pricing on all sizes.'}</p>`
+        : '';
 
     modalDetailBody.innerHTML = `
         <div class="detail-gallery detail-gallery--simple">
@@ -698,6 +716,7 @@ function openProductDetail(productId) {
         <div class="detail-info">
             <span class="detail-category">${p.category === 'protectors' ? 'Mattress Protector' : 'Pillow'}</span>
             <h2 class="detail-title">${p.title}</h2>
+            ${promoNote}
             <p class="detail-desc">${shortDesc}</p>
             <div class="product-specs detail-simple-specs">${topSpecs}</div>
             <p class="detail-moq-hint" id="detail-box-hint">

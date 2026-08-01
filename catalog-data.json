@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-27",
+  "updatedAt": "2026-08-01",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -171,15 +171,20 @@
       "id": "protector-terry",
       "title": "Terry Waterproof Mattress Protector",
       "category": "protectors",
-      "tag": "Hotel Grade",
-      "tagClass": "tag-gold",
+      "tag": "Limited Offer",
+      "tagClass": "tag-sale",
+      "promo": {
+        "label": "Limited time offer",
+        "detail": "50p off every size",
+        "amountOff": 0.5
+      },
       "image": "assets/products/terry-lifestyle-bed.jpg",
       "gallery": [
         "assets/products/terry-lifestyle-bed.jpg",
         "assets/products/terry-elastic-skirt.jpg",
         "assets/products/terry-waterproof-product.jpg"
       ],
-      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent cotton loop pile, deep elastic fitted skirt on every size, and industrial-laundry durability — the preferred choice for hotels and care homes.",
+      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent cotton loop pile, deep elastic fitted skirt on every size, and industrial-laundry durability — the preferred choice for hotels and care homes. Limited time: 50p off every size.",
       "specs": [
         "Type: Terry Towelling Waterproof Mattress Protector",
         "Surface: 100% Cotton Terry loop pile top layer",
@@ -191,56 +196,63 @@
       "moq": 20,
       "piecesPerBox": 20,
       "boxLabel": "1 box = 20 pieces (mattress sizes)",
-      "basePrice": 5.2,
+      "basePrice": 3.9,
       "sizes": [
         {
           "name": "Pillow Cover Pair",
-          "price": 4.4,
+          "price": 3.9,
+          "wasPrice": 4.4,
           "moq": 40,
           "piecesPerBox": 40
         },
         {
           "name": "Cot",
-          "price": 4.4,
+          "price": 3.9,
+          "wasPrice": 4.4,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Single (90×190cm)",
-          "price": 5.2,
+          "price": 4.7,
+          "wasPrice": 5.2,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "4ft / Small Double (120×190cm)",
-          "price": 5.6,
+          "price": 5.1,
+          "wasPrice": 5.6,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Double (135×190cm)",
-          "price": 5.7,
+          "price": 5.2,
+          "wasPrice": 5.7,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "King (150×200cm)",
-          "price": 6.3,
+          "price": 5.8,
+          "wasPrice": 6.3,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Super King (180×200cm)",
-          "price": 6.85,
+          "price": 6.35,
+          "wasPrice": 6.85,
           "moq": 20,
           "piecesPerBox": 20
         }
       ],
       "highlights": [
+        "Limited Time Offer",
         "Terry Cotton Surface",
         "Deep Elastic Skirt",
-        "100% Waterproof",
-        "Hotel Grade"
+        "100% Waterproof"
       ],
       "stockStatus": "In stock"
     },
