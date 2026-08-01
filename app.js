@@ -18,7 +18,7 @@ async function loadCatalog() {
         grid.innerHTML = '<div class="no-results">' + roseIcon('spinner', true) + '<h3>Loading catalog…</h3></div>';
     }
     try {
-        const res = await fetch(CATALOG_URL + "?v=" + encodeURIComponent(new Date().toISOString().slice(0, 10)));
+        const res = await fetch(CATALOG_URL + "?v=20260801b");
         if (!res.ok) throw new Error("HTTP " + res.status);
         catalogData = await res.json();
         products = catalogData.products || [];
@@ -51,6 +51,38 @@ function getSizeMeta(product, sizeIndex) {
         wasPrice: Number(size.wasPrice) || 0,
         moq,
         piecesPerBox,
+    };
+}
+
+/** Featured was/now price for promo cards (prefers Single / promo.example*). */
+function getPromoDisplayPrice(product) {
+    const promo = product?.promo;
+    if (!promo) return null;
+    const exampleWas = Number(promo.exampleWas) || 0;
+    const exampleNow = Number(promo.exampleNow) || 0;
+    if (exampleWas > exampleNow && exampleNow > 0) {
+        return {
+            was: exampleWas,
+            now: exampleNow,
+            sizeLabel: promo.exampleSize || '',
+            save: Math.round((exampleWas - exampleNow) * 100) / 100,
+            badge: promo.badge || promo.label || 'Sale',
+            detail: promo.detail || '',
+            headline: promo.headline || promo.label || 'Sale',
+        };
+    }
+    const withWas = (product.sizes || []).find((s) => Number(s.wasPrice) > Number(s.price));
+    if (!withWas) return null;
+    const was = Number(withWas.wasPrice);
+    const now = Number(withWas.price);
+    return {
+        was,
+        now,
+        sizeLabel: withWas.name || '',
+        save: Math.round((was - now) * 100) / 100,
+        badge: promo.badge || promo.label || 'Sale',
+        detail: promo.detail || '',
+        headline: promo.headline || promo.label || 'Sale',
     };
 }
 
@@ -252,19 +284,22 @@ function renderProducts() {
         card.className = 'product-card animate-in';
         card.style.animationDelay = `${i * 0.06}s`;
 
-        const promo = product.promo;
-        const fromWas = Number(product.sizes?.[0]?.wasPrice) || 0;
-        const priceHtml = promo && fromWas > product.basePrice
-            ? `<span class="price-was">£${fromWas.toFixed(2)}</span>
-               <span class="price-value price-value--sale">£${product.basePrice.toFixed(2)}/pc</span>`
+        const promo = getPromoDisplayPrice(product);
+        const priceHtml = promo
+            ? `<div class="price-stack">
+                    <span class="price-was">Was £${promo.was.toFixed(2)}</span>
+                    <span class="price-value price-value--sale">£${promo.now.toFixed(2)}/pc</span>
+                    <span class="price-save">${promo.detail || ('Save £' + promo.save.toFixed(2))}</span>
+               </div>`
             : `<span class="price-value">£${product.basePrice.toFixed(2)}/pc</span>`;
         const promoBanner = promo
-            ? `<div class="product-promo-banner" role="status">${promo.label}${promo.detail ? ` · ${promo.detail}` : ''}</div>`
+            ? `<div class="product-promo-banner" role="status"><span>${promo.badge}</span><span>${promo.headline}</span></div>`
             : '';
+        const tagLabel = product.promo?.badge || product.tag;
 
         card.innerHTML = `
-            <div class="product-image-container">
-                <span class="product-tag ${product.tagClass || ''}">${product.tag}</span>
+            <div class="product-image-container${promo ? ' product-image-container--sale' : ''}">
+                <span class="product-tag ${product.tagClass || ''}">${tagLabel}</span>
                 <img src="${product.image}" alt="${product.title}"
                      onerror="this.src='https://placehold.co/400x300/0d1f3c/ffffff?text=${encodeURIComponent(product.title)}'">
                 ${promoBanner}
@@ -283,14 +318,14 @@ function renderProducts() {
                         <span class="price-value">${product.moq} Pieces</span>
                     </div>
                     <div class="pricing-info" style="text-align:right">
-                        <span class="moq-label">From</span>
+                        <span class="moq-label">${promo ? (promo.sizeLabel ? promo.sizeLabel + ' now' : 'Sale from') : 'From'}</span>
                         ${priceHtml}
                     </div>
                     </div>
                 </div>
                 <div class="product-actions">
                     <button class="btn btn-navy-sm btn-block" onclick="openProductDetail('${product.id}')">
-                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> Choose Sizes &amp; Add
+                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> ${promo ? 'Shop sale sizes' : 'Choose Sizes &amp; Add'}
                     </button>
                 </div>
             </div>`;
@@ -689,7 +724,11 @@ function openProductDetail(productId) {
     const sizePickerHTML = p.sizes.map((s, i) => {
         const meta = getSizeMeta(p, i);
         const priceLine = meta.wasPrice > meta.price
-            ? `<span class="detail-size-price"><span class="price-was">£${meta.wasPrice.toFixed(2)}</span> £${meta.price.toFixed(2)}/pc · ${meta.piecesPerBox}/box</span>`
+            ? `<span class="detail-size-price detail-size-price--sale">
+                    <span class="price-was">Was £${meta.wasPrice.toFixed(2)}</span>
+                    <strong class="price-now">£${meta.price.toFixed(2)}/pc</strong>
+                    <span class="price-box-meta">${meta.piecesPerBox}/box</span>
+               </span>`
             : `<span class="detail-size-price">£${meta.price.toFixed(2)}/pc · ${meta.piecesPerBox}/box</span>`;
         return `
         <button type="button" class="detail-size-option${i === 0 ? ' active' : ''}"
@@ -704,8 +743,12 @@ function openProductDetail(productId) {
     const topSpecs = (p.highlights || []).slice(0, 3)
         .map((h) => `<span class="spec-badge">${h}</span>`)
         .join('');
-    const promoNote = p.promo
-        ? `<p class="detail-promo-note" role="status"><strong>${p.promo.label}</strong> — ${p.promo.detail || 'Special trade pricing on all sizes.'}</p>`
+    const promo = getPromoDisplayPrice(p);
+    const promoNote = promo
+        ? `<div class="detail-promo-note" role="status">
+                <strong>${promo.badge}</strong>
+                <span>${promo.headline} — ${promo.detail}. Example: ${promo.sizeLabel || 'Single'} <span class="price-was">£${promo.was.toFixed(2)}</span> <strong>£${promo.now.toFixed(2)}</strong></span>
+           </div>`
         : '';
 
     modalDetailBody.innerHTML = `

@@ -625,8 +625,8 @@
     <style>
 :root{--navy:#102241;--gold-bright:#b89549;--gold-on-light:#7a5c18;--bg-main:#f6f4f0;--text-main:#0f1f35;--text-white:#fff;--gradient-hero:linear-gradient(145deg,#081424 0%,#133865 40%,#1f4d72 100%);--radius-lg:22px;--font-body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--font-display:Georgia,'Times New Roman',serif}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font-body);background:var(--bg-main);color:var(--text-main);line-height:1.6}.container{width:min(1200px,92%);margin:0 auto}.ico{display:inline-block;width:1em;height:1em;vertical-align:-.15em;fill:currentColor}.ico-spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.top-bar{background:#0c1b30;color:rgba(255,255,255,.85);font-size:.78rem;padding:8px 0}.top-bar a{color:inherit}.header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid #e2dcd2}.header-container{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}.logo-title{font-weight:700;font-size:1.15rem}.logo-accent{color:var(--gold-on-light)}.logo-subtitle{display:block;font-size:.68rem;opacity:.75}.hero{background:var(--gradient-hero);color:var(--text-white);padding:48px 0 56px;position:relative;overflow:hidden}.hero-container{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}.hero-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);line-height:1.1;margin:.5rem 0}.hero-description{opacity:.92;max-width:56ch;margin:1rem 0}.hero-product-img{width:100%;height:auto;border-radius:var(--radius-lg);display:block}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:999px;border:none;font-weight:600;text-decoration:none;cursor:pointer}.btn-gold{background:linear-gradient(135deg,#a48440,#d7bb72,#b89549);color:#1a1208}@media(max-width:900px){.hero-container{grid-template-columns:1fr}.hero-image-side{order:-1}}
     </style>
-    <link rel="preload" href="styles.min.css?v=20260801a" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles.min.css?v=20260801a"></noscript>
+    <link rel="preload" href="styles.min.css?v=20260801b" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.min.css?v=20260801b"></noscript>
 </head>
 <body data-page="wholesale">
 
@@ -641,6 +641,20 @@
             <span data-sarah-section="opening-hours"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#clock"></use></svg> Mon–Fri: 9:00 AM – 5:00 PM</span>
         </div>
     </div>
+
+    <aside class="site-offer-bar" aria-label="Terry waterproof trade sale">
+        <div class="container site-offer-bar-inner">
+            <span class="site-offer-badge">Trade Sale</span>
+            <p class="site-offer-copy">
+                <strong>Terry Waterproof</strong> — save <strong>£0.50</strong> on every size.
+                Single <span class="site-offer-was">£5.20</span> <span class="site-offer-now">£4.70</span>/pc
+            </p>
+            <a href="#catalog-section" class="site-offer-cta"
+               onclick="setCategoryFilter('all'); openProductDetail('protector-terry'); return false;">
+                Shop Terry sale
+            </a>
+        </div>
+    </aside>
 
     <!-- Navigation Header -->
     <header class="header" id="header">
@@ -711,8 +725,9 @@
                         <span class="hero-pill"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#tag"></use></svg> Elastic skirt fit</span>
                     </div>
                     <div class="hero-actions">
-                        <a href="#catalog-section" class="btn btn-gold">Browse catalog</a>
-                        <button type="button" class="btn btn-outline-light" onclick="document.getElementById('cart-toggle-btn').click()">Buy now</button>
+                        <a href="#catalog-section" class="btn btn-gold"
+                           onclick="setCategoryFilter('all'); openProductDetail('protector-terry'); return false;">Shop Terry Trade Sale</a>
+                        <a href="#catalog-section" class="btn btn-outline-light">Browse full catalog</a>
                     </div>
                 </div>
                 <div class="hero-image-side hero-image-side--compact">
@@ -800,13 +815,14 @@
                         </picture>
                         <h3>QMP Quilted Protector</h3>
                     </a>
-                    <a href="#catalog-section" class="feature-strip-item" onclick="setCategoryFilter('all'); openProductDetail('protector-terry'); return false;">
+                    <a href="#catalog-section" class="feature-strip-item feature-strip-item--sale" onclick="setCategoryFilter('all'); openProductDetail('protector-terry'); return false;">
                         <picture>
                             <source type="image/webp" srcset="assets/products/terry-lifestyle-bed.webp">
-                            <img src="assets/products/terry-lifestyle-bed.jpg" alt="Terry waterproof mattress protector" loading="lazy" width="400" height="300" decoding="async">
+                            <img src="assets/products/terry-lifestyle-bed.jpg" alt="Terry waterproof mattress protector trade sale" loading="lazy" width="400" height="300" decoding="async">
                         </picture>
                         <h3>Terry Waterproof</h3>
-                        <span class="feature-strip-badge">Limited offer −50p</span>
+                        <span class="feature-strip-badge">Trade Sale · Save £0.50</span>
+                        <span class="feature-strip-price"><s>£5.20</s> <strong>£4.70</strong> Single</span>
                     </a>
                     <a href="#catalog-section" class="feature-strip-item" onclick="setCategoryFilter('pillows'); return true;">
                         <picture>
@@ -861,7 +877,7 @@
                     <div class="product-card">
                         <div class="product-info">
                             <h3 class="product-title">Terry Waterproof Mattress Protector</h3>
-                            <p class="product-desc">Terry waterproof protector for care homes and hotels. Limited offer from £3.90/pc · MOQ 20.</p>
+                            <p class="product-desc">Terry waterproof protector — Trade Sale: Single <s>£5.20</s> <strong>£4.70</strong>/pc · save £0.50 every size · MOQ 20.</p>
                             <a href="hotels.html">Hotel wholesale supply</a>
                         </div>
                     </div>
@@ -1347,7 +1363,7 @@
     <script src="quote-shipping.js?v=20260727f" defer></script>
     <script src="quote-pricing.js?v=20260727f" defer></script>
     <script src="quote-pdf.js" defer></script>
-    <script src="app.js?v=20260801a" defer></script>
+    <script src="app.js?v=20260801b" defer></script>
     <!-- Sarah wholesale chat — local widget + Cloudflare lead API -->
     <script
       src="sarah-widget.js?v=20260722a"

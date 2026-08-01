@@ -171,12 +171,17 @@
       "id": "protector-terry",
       "title": "Terry Waterproof Mattress Protector",
       "category": "protectors",
-      "tag": "Limited Offer",
+      "tag": "Trade Sale",
       "tagClass": "tag-sale",
       "promo": {
-        "label": "Limited time offer",
-        "detail": "50p off every size",
-        "amountOff": 0.5
+        "label": "Trade Sale",
+        "headline": "Terry Waterproof Trade Sale",
+        "detail": "Save £0.50 on every size",
+        "amountOff": 0.5,
+        "badge": "SAVE £0.50",
+        "exampleSize": "Single",
+        "exampleWas": 5.2,
+        "exampleNow": 4.7
       },
       "image": "assets/products/terry-lifestyle-bed.jpg",
       "gallery": [
@@ -184,7 +189,7 @@
         "assets/products/terry-elastic-skirt.jpg",
         "assets/products/terry-waterproof-product.jpg"
       ],
-      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent cotton loop pile, deep elastic fitted skirt on every size, and industrial-laundry durability — the preferred choice for hotels and care homes. Limited time: 50p off every size.",
+      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent cotton loop pile, deep elastic fitted skirt on every size, and industrial-laundry durability — the preferred choice for hotels and care homes. Trade sale: save £0.50 on every size.",
       "specs": [
         "Type: Terry Towelling Waterproof Mattress Protector",
         "Surface: 100% Cotton Terry loop pile top layer",
@@ -249,7 +254,7 @@
         }
       ],
       "highlights": [
-        "Limited Time Offer",
+        "Trade Sale",
         "Terry Cotton Surface",
         "Deep Elastic Skirt",
         "100% Waterproof"
