@@ -45,6 +45,8 @@ A yellow floating grammar dot in the browser is usually a **browser extension** 
 
 ## Stripe (live)
 
+**To switch Stripe accounts**, follow **[STRIPE_SWITCH.md](STRIPE_SWITCH.md)** (replace `STRIPE_SECRET_KEY` + webhook secret on the checkout worker; delete old Stripe webhooks).
+
 1. Deploy the checkout worker only when intentionally updating it (secrets must already be set):
 
 ```powershell
