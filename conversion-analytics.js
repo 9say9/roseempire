@@ -150,11 +150,15 @@
         }
 
         if (isQuoteControl(el)) {
-          track("quote_click", {
-            source: el.id || el.getAttribute("data-from") || trackName || "quote_cta",
-            link_text: linkText(el),
-            link_url: href,
-          });
+          // Ignore synthetic .click() from proxy CTAs (hero/mobile → #cart-toggle-btn)
+          // so one user tap does not emit two quote_click events.
+          if (e.isTrusted !== false) {
+            track("quote_click", {
+              source: el.id || el.getAttribute("data-from") || trackName || "quote_cta",
+              link_text: linkText(el),
+              link_url: href,
+            });
+          }
         }
 
         if (href.indexOf("tel:") === 0) {

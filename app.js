@@ -633,17 +633,16 @@ async function handleQuickEnquiry(form, source) {
         source: `roseempire.co.uk ${source}`,
     };
 
-    if (window.RoseEmpireTrack?.contactFormSubmit) {
-        window.RoseEmpireTrack.contactFormSubmit({
-            form_type: 'quick_enquiry',
-            source: source || 'unknown',
-        });
-    }
-
     const result = await submitLeadToServer(payload);
     if (btn) { btn.disabled = false; btn.textContent = originalText; }
 
     if (result.ok) {
+        if (window.RoseEmpireTrack?.contactFormSubmit) {
+            window.RoseEmpireTrack.contactFormSubmit({
+                form_type: 'quick_enquiry',
+                source: source || 'unknown',
+            });
+        }
         form.reset();
         form.innerHTML = '<p class="quick-enquiry-success">Thanks — your enquiry is with our sales team. We reply within 1 business day.</p>';
     } else {
@@ -1060,19 +1059,9 @@ rfqForm.addEventListener('submit', e => {
         address,
         shippingRegion: document.getElementById('rfq-shipping-region').value,
         shippingLabel: ShippingLogistics.getRegion(document.getElementById('rfq-shipping-region').value).label,
-        notes:   document.getElementById('rfq-notes').value || 'No special notes.'
+        notes:   document.getElementById('rfq-notes').value || 'No special notes.',
+        website: (document.getElementById('rfq-website')?.value || '').trim(),
     };
-
-    if (window.RoseEmpireTrack?.contactFormSubmit) {
-        window.RoseEmpireTrack.contactFormSubmit({
-            form_type: 'rfq',
-            source: 'rfq-form',
-            company: details.company,
-            item_count: cart.length,
-            total_pieces: cart.reduce((a, i) => a + i.quantity, 0),
-            shipping_region: details.shippingRegion,
-        });
-    }
 
     const btnText   = document.getElementById('btn-text');
     const btnLoader = document.getElementById('btn-loader');
@@ -1084,6 +1073,13 @@ rfqForm.addEventListener('submit', e => {
 
     setTimeout(async () => {
         try {
+            if (details.website) {
+                // Honeypot filled — pretend success, do not notify or clear cart.
+                closeModal();
+                alert('Done — your quote request is with our sales team.');
+                return;
+            }
+
             const cartSnapshot = cart.map(item => ({ ...item }));
             const result = await RoseEmpireQuotePDF.generate(details, cartSnapshot);
             const pricing = result.pricing.vatAmount != null
@@ -1100,6 +1096,7 @@ rfqForm.addEventListener('submit', e => {
                 address: details.address,
                 shippingLabel: details.shippingLabel,
                 notes: details.notes,
+                website: details.website,
                 source: 'roseempire.co.uk rfq-form',
                 items: cartSnapshot.map(i => ({
                     title: i.title,
@@ -1114,6 +1111,15 @@ rfqForm.addEventListener('submit', e => {
             });
 
             if (lead.ok) {
+                if (window.RoseEmpireTrack?.contactFormSubmit) {
+                    window.RoseEmpireTrack.contactFormSubmit({
+                        form_type: 'rfq',
+                        source: 'rfq-form',
+                        item_count: cartSnapshot.length,
+                        total_pieces: cartSnapshot.reduce((a, i) => a + i.quantity, 0),
+                        shipping_region: details.shippingRegion,
+                    });
+                }
                 cart = [];
                 saveCart();
                 updateCartBadge();
