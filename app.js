@@ -32,7 +32,7 @@ async function loadCatalog() {
         grid.innerHTML = '<div class="no-results">' + roseIcon('spinner', true) + '<h3>Loading catalog…</h3></div>';
     }
     try {
-        const res = await fetch(CATALOG_URL + "?v=20260801b");
+        const res = await fetch(CATALOG_URL + "?v=20260802h");
         if (!res.ok) throw new Error("HTTP " + res.status);
         catalogData = await res.json();
         products = catalogData.products || [];
@@ -434,7 +434,7 @@ function renderCartItems() {
                     <button type="button" class="btn btn-gold btn-sm" onclick="setCartDrawerOpen(false); document.getElementById('catalog-section')?.scrollIntoView({behavior:'smooth'});">
                         Browse catalog
                     </button>
-                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf" class="btn btn-outline-dark btn-sm" download data-track="catalog_download">
+                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" class="btn btn-outline-dark btn-sm" download data-track="catalog_download">
                         Download catalog
                     </a>
                 </div>
@@ -852,6 +852,16 @@ function openProductDetail(productId) {
     const p = products.find(x => x.id === productId);
     if (!p) return;
 
+    // Prefer promo example size (e.g. Single) so Trade Sale was/now is obvious.
+    let defaultIdx = 0;
+    const exampleSize = String(p.promo?.exampleSize || '').toLowerCase();
+    if (exampleSize) {
+        const found = (p.sizes || []).findIndex((s) =>
+            String(s.name || '').toLowerCase().includes(exampleSize)
+        );
+        if (found >= 0) defaultIdx = found;
+    }
+
     const sizePickerHTML = p.sizes.map((s, i) => {
         const meta = getSizeMeta(p, i);
         const priceLine = meta.wasPrice > meta.price
@@ -862,23 +872,23 @@ function openProductDetail(productId) {
                </span>`
             : `<span class="detail-size-price">£${meta.price.toFixed(2)}/pc · ${meta.piecesPerBox}/box</span>`;
         return `
-        <button type="button" class="detail-size-option${i === 0 ? ' active' : ''}"
-                data-size-index="${i}" onclick="selectDetailSize(${i}, '${p.id}')">
-            <span class="detail-size-name">${meta.name}</span>
+        <button type="button" class="detail-size-option${i === defaultIdx ? ' active' : ''}"
+                data-size-index="${i}" onclick="selectDetailSize(${i}, '${safeProductId(p.id)}')">
+            <span class="detail-size-name">${escapeHtml(meta.name)}</span>
             ${priceLine}
         </button>`;
     }).join('');
 
-    const first = getSizeMeta(p, 0);
-    const shortDesc = (p.desc || '').split('.')[0] + '.';
+    const first = getSizeMeta(p, defaultIdx);
+    const shortDesc = escapeHtml((p.desc || '').split('.')[0] + '.');
     const topSpecs = (p.highlights || []).slice(0, 3)
-        .map((h) => `<span class="spec-badge">${h}</span>`)
+        .map((h) => `<span class="spec-badge">${escapeHtml(h)}</span>`)
         .join('');
     const promo = getPromoDisplayPrice(p);
     const promoNote = promo
         ? `<div class="detail-promo-note" role="status">
-                <strong>${promo.badge}</strong>
-                <span>${promo.headline} — ${promo.detail}. Example: ${promo.sizeLabel || 'Single'} <span class="price-was">£${promo.was.toFixed(2)}</span> <strong>£${promo.now.toFixed(2)}</strong></span>
+                <strong>${escapeHtml(promo.badge)}</strong>
+                <span>${escapeHtml(promo.headline)} — ${escapeHtml(promo.detail)}. Example: ${escapeHtml(promo.sizeLabel || 'Single')} <span class="price-was">£${promo.was.toFixed(2)}</span> <strong>£${promo.now.toFixed(2)}</strong></span>
            </div>`
         : '';
 
@@ -889,7 +899,7 @@ function openProductDetail(productId) {
         </div>
         <div class="detail-info">
             <span class="detail-category">${p.category === 'protectors' ? 'Mattress Protector' : 'Pillow'}</span>
-            <h2 class="detail-title">${p.title}</h2>
+            <h2 class="detail-title">${escapeHtml(p.title)}</h2>
             ${promoNote}
             <p class="detail-desc">${shortDesc}</p>
             <div class="product-specs detail-simple-specs">${topSpecs}</div>
@@ -904,8 +914,8 @@ function openProductDetail(productId) {
                     <div class="detail-size-picker" id="detail-size-picker">
                         ${sizePickerHTML}
                     </div>
-                    <input type="hidden" id="detail-size-index" value="0">
-                    <input type="hidden" id="detail-product-id" value="${p.id}">
+                    <input type="hidden" id="detail-size-index" value="${defaultIdx}">
+                    <input type="hidden" id="detail-product-id" value="${safeProductId(p.id)}">
                     <input type="hidden" id="detail-box-size" value="${first.piecesPerBox}">
                 </div>
                 <div class="form-group detail-qty-group">
@@ -922,7 +932,7 @@ function openProductDetail(productId) {
             </div>
 
             <div class="detail-add-actions">
-                <button class="btn btn-gold btn-block" type="button" onclick="triggerAddToCart('${p.id}')">
+                <button class="btn btn-gold btn-block" type="button" onclick="triggerAddToCart('${safeProductId(p.id)}')">
                     <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg>
                     Add to quote
                 </button>
