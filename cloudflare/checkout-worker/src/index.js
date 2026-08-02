@@ -366,6 +366,126 @@ async function notifyOwnerEmail(env, payload) {
   return { ok: true, id: data.id };
 }
 
+function buildLeadAlert(body) {
+  const clean = (v, max = 500) => String(v || "").trim().slice(0, max);
+  const leadType = clean(body.leadType) === "quick_enquiry" ? "quick_enquiry" : "rfq";
+  const name = clean(body.name, 120);
+  const company = clean(body.company, 160);
+  const email = clean(body.email, 160);
+  const phone = clean(body.phone, 40);
+  const address = clean(body.address, 600);
+  const notes = clean(body.notes, 1500);
+  const source = clean(body.source, 120) || "roseempire.co.uk";
+  const regionLabel = clean(body.shippingLabel, 60);
+
+  const items = Array.isArray(body.items) ? body.items.slice(0, 40) : [];
+  const lineItems = items.map((i) => ({
+    name: `${clean(i.title, 160)}${i.sizeName ? ` (${clean(i.sizeName, 60)})` : ""}`,
+    quantity: Math.max(0, parseInt(i.quantity, 10) || 0),
+    amount: `£${(Number(i.unitPrice) || 0).toFixed(2)}/pc`,
+  }));
+  const linesText = lineItems.length
+    ? lineItems.map((li) => `• ${li.quantity}× ${li.name} — ${li.amount}`).join("\n")
+    : "(No line items — general enquiry)";
+
+  const totals = body.totals && typeof body.totals === "object" ? body.totals : {};
+  const totalLine = totals.grandTotalIncVat
+    ? `Est. total inc VAT: £${(Number(totals.grandTotalIncVat) || 0).toFixed(2)}`
+    : "";
+
+  const heading = leadType === "quick_enquiry" ? "QUICK ENQUIRY" : "QUOTE REQUEST (RFQ)";
+  const email_subject = `Rose Empire ${leadType === "quick_enquiry" ? "enquiry" : "quote request"} — ${company || name || email}`;
+  const email_body = [
+    `New ${heading} from ${source}.`,
+    "",
+    `Name: ${name || "—"}`,
+    `Company: ${company || "—"}`,
+    `Email: ${email || "—"}`,
+    `Phone: ${phone || "—"}`,
+    `Delivery address: ${address || "To be confirmed"}`,
+    regionLabel ? `Shipping region: ${regionLabel}` : "",
+    "",
+    "Items:",
+    linesText,
+    totalLine,
+    "",
+    `Notes: ${notes || "—"}`,
+  ]
+    .filter((l) => l !== "")
+    .join("\n");
+
+  const whatsapp_message = [
+    `📩 *Rose Empire — ${heading}*`,
+    `Name: ${name || "—"} (${company || "no company"})`,
+    `Email: ${email || "—"} · Phone: ${phone || "—"}`,
+    "",
+    linesText,
+    totalLine,
+    notes ? `Notes: ${notes.slice(0, 300)}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return {
+    event: leadType === "quick_enquiry" ? "rose_empire.quick_enquiry" : "rose_empire.rfq_submitted",
+    source: "rose-empire-rfq-endpoint",
+    lead_type: leadType,
+    customer_email: email,
+    customer_name: name,
+    company,
+    phone,
+    address,
+    notes,
+    page_source: source,
+    line_items: lineItems,
+    totals,
+    email_subject,
+    email_body,
+    whatsapp_message,
+  };
+}
+
+async function handleRfqLead(request, env, origin) {
+  let body = {};
+  try {
+    body = await request.json();
+  } catch {
+    return json({ status: "error", message: "Invalid JSON body." }, 400, origin);
+  }
+
+  const email = String(body.email || "").trim();
+  const name = String(body.name || "").trim();
+  if (!email || !email.includes("@") || email.length > 200) {
+    return json({ status: "error", message: "A valid email is required." }, 400, origin);
+  }
+  if (!name) {
+    return json({ status: "error", message: "Your name is required." }, 400, origin);
+  }
+  // Honeypot: bots fill every field.
+  if (String(body.website || "").trim()) {
+    return json({ status: "success", delivered: { spam: true } }, 200, origin);
+  }
+
+  const payload = buildLeadAlert(body);
+  const [zapier, ownerEmail] = await Promise.all([
+    notifyZapier(env, payload),
+    notifyOwnerEmail(env, payload),
+  ]);
+
+  console.log("rfq lead", { lead_type: payload.lead_type, email: payload.customer_email, zapier, ownerEmail });
+
+  const deliveredSomewhere =
+    (zapier && zapier.ok) || (ownerEmail && ownerEmail.ok);
+  if (!deliveredSomewhere) {
+    return json(
+      { status: "error", message: "Lead delivery is not configured.", delivered: { zapier, email: ownerEmail } },
+      502,
+      origin
+    );
+  }
+  return json({ status: "success", delivered: { zapier, email: ownerEmail } }, 200, origin);
+}
+
 async function handleStripeWebhook(request, env) {
   const secret = (env.STRIPE_SECRET_KEY || "").trim();
   const webhookSecret = String(env.STRIPE_WEBHOOK_SECRET || "").trim();
@@ -640,6 +760,10 @@ export default {
       }
       const result = await createStripeSession(env, body);
       return json(result.data, result.status, origin);
+    }
+
+    if (url.pathname === "/api/rfq" && request.method === "POST") {
+      return handleRfqLead(request, env, origin);
     }
 
     if (url.pathname === "/api/stripe/webhook") {

@@ -55,14 +55,14 @@
       id: "hotels",
       test: (p) => /hotels/i.test(p),
       nudge: "Equipping a hotel? I can help with trade pricing, MOQs, and a quick quote.",
-      chips: ["Hotel-grade protectors", "MOQ & pricing", "Get a quote"],
+      chips: ["Hotel-grade protectors", "MOQ & pricing", "Request a quote"],
       topic: "sales",
     },
     {
       id: "care-homes",
       test: (p) => /care-homes/i.test(p),
       nudge: "Supplying a care home? Ask me about waterproof protectors, volumes, and trade terms.",
-      chips: ["Care-home bestsellers", "MOQ & pricing", "Get a quote"],
+      chips: ["Care-home bestsellers", "MOQ & pricing", "Request a quote"],
       topic: "sales",
     },
     {
@@ -821,7 +821,7 @@
       if (/deliver|shipping|freight|post(?:age)?|uk\s*wide/i.test(q)) {
         return (
           `We deliver UK-wide. Freight is quoted by destination and volume — mainland, Scottish Highlands, and Northern Ireland each have different rates in the quote cart. ` +
-          `Add your lines to "Get A Quote" and you'll see logistics + VAT on the estimate.`
+          `Add your lines to "Request a quote" and you'll see logistics + VAT on the estimate.`
         );
       }
 
@@ -836,10 +836,10 @@
         return (
           `Easiest path on the website:\n` +
           `1) Pick products & sizes on the page\n` +
-          `2) Add them to Get A Quote\n` +
+          `2) Add them to Request a quote\n` +
           `3) Enter your details and request the quote (or pay via checkout when ready)\n\n` +
           `Formal quotes are confirmed within 24 hours. I can also take your details here and the team will follow up — ` +
-          `or open Get A Quote now and I'll stay out of the way while you finish.`
+          `or open Request a quote now and I'll stay out of the way while you finish.`
         );
       }
 
@@ -863,7 +863,7 @@
             .join("\n");
           return (
             `Trade pricing for ${product.title} (ex-VAT, before volume discount):\n${lines}\n` +
-            `MOQ ${product.moq || 20} per size. Add to Get A Quote for freight + VAT, or tell me your volume and I'll help you close it.`
+            `MOQ ${product.moq || 20} per size. Add to Request a quote for freight + VAT, or tell me your volume and I'll help you close it.`
           );
         }
         if (CatalogFacts.products.length) {
@@ -877,7 +877,7 @@
         }
         return (
           `Trade pricing starts from around £4.40–£8.97 per piece depending on product and size, with volume discounts at 50+ and 200+. ` +
-          `Tell me the product and size and I'll give the trade figure, or open Get A Quote on the page for a full estimate.`
+          `Tell me the product and size and I'll give the trade figure, or open Request a quote on the page for a full estimate.`
         );
       }
 
@@ -916,7 +916,7 @@
       const summary = bits.length ? ` I've got you down for ${bits.join(" · ")}.` : "";
       return (
         `You're in good shape for a trade quote.${summary} ` +
-        `Next step: tap Get A Quote on the site, add your sizes, and submit — or reply with any last sizes and I'll make sure the team prioritises ${lead.email}. ` +
+        `Next step: tap Request a quote on the site, add your sizes, and submit — or reply with any last sizes and I'll make sure the team prioritises ${lead.email}. ` +
         `We confirm formal quotes within 24 hours.`
       );
     },
@@ -957,7 +957,7 @@
         const ask = field ? this.askFor(field, lead) : "";
         if (ask) parts.push(ask);
         else if (/quote|order|buy|need|interested|looking for/i.test(query)) {
-          parts.push("If you share your facility type and a rough volume, I can steer you straight into Get A Quote.");
+          parts.push("If you share your facility type and a rough volume, I can steer you straight into Request a quote.");
         }
       }
 

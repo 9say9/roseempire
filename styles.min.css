@@ -803,6 +803,73 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     justify-content: center;
 }
 
+/* Quick enquiry — empty quote drawer + footer lead forms */
+.quick-enquiry-form {
+    position: relative;
+    display: grid;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(16, 34, 65, 0.2);
+    text-align: left;
+}
+.quick-enquiry-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted, #5a6478);
+    margin: 0;
+}
+.quick-enquiry-form input,
+.quick-enquiry-form textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid rgba(16, 34, 65, 0.25);
+    border-radius: 8px;
+    font: inherit;
+    font-size: 0.88rem;
+    background: #fff;
+    color: var(--text-main);
+}
+.quick-enquiry-form textarea { resize: vertical; }
+.quick-enquiry-success {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1c7a3d;
+    text-align: center;
+    padding: 12px 6px;
+}
+.dark-mode .quick-enquiry-form input,
+.dark-mode .quick-enquiry-form textarea {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-main);
+}
+
+/* Collapsible delivery details in the quote drawer */
+details.cart-delivery-details > summary.cart-delivery-summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0 8px;
+    user-select: none;
+}
+details.cart-delivery-details > summary.cart-delivery-summary::-webkit-details-marker { display: none; }
+details.cart-delivery-details > summary.cart-delivery-summary::before {
+    content: "▸";
+    font-size: 0.85em;
+    transition: transform 0.15s ease;
+}
+details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
+    transform: rotate(90deg);
+}
+.cart-delivery-summary-hint {
+    font-weight: 500;
+    font-size: 0.78rem;
+    color: var(--text-muted, #5a6478);
+}
+
 /* Mid-page quote / catalog CTA after catalog */
 .quote-next-strip {
     background: linear-gradient(135deg, #102241 0%, #1a3a5c 100%);
@@ -2805,6 +2872,28 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     color: var(--navy);
     transform: translateY(-1px);
 }
+.quick-enquiry-form--footer {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 4px;
+}
+.quick-enquiry-form--footer input,
+.quick-enquiry-form--footer textarea {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
+}
+.quick-enquiry-form--footer input::placeholder,
+.quick-enquiry-form--footer textarea::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+.quick-enquiry-form--footer .quick-enquiry-success { color: #7ddf9f; }
+.footer-quote-alt {
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+.footer-quote-alt a { color: var(--gold-bright); }
 
 .footer-bottom {
     background-color: #070f1f;

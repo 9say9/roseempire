@@ -325,7 +325,7 @@ function renderProducts() {
                 </div>
                 <div class="product-actions">
                     <button class="btn btn-navy-sm btn-block" onclick="openProductDetail('${product.id}')">
-                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> Add to quote
+                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> View sizes &amp; add
                     </button>
                 </div>
             </div>`;
@@ -422,6 +422,7 @@ function renderCartItems() {
                         Download catalog
                     </a>
                 </div>
+                ${quickEnquiryFormHTML('empty-quote-drawer')}
             </div>`;
         proceedQuoteBtn.disabled = true;
         if (stripeCheckoutBtn) stripeCheckoutBtn.disabled = true;
@@ -566,6 +567,90 @@ function syncCartAddressToRfq(addr, email) {
     if (addressEl) addressEl.value = formatShippingAddressBlock(addr);
 }
 
+// ==========================================================================
+// Lead capture — server-side RFQ / enquiry delivery (worker /api/rfq)
+// ==========================================================================
+async function submitLeadToServer(payload) {
+    const base = (window.RoseEmpireConfig && window.RoseEmpireConfig.checkoutApiUrl) || '';
+    if (!base) return { ok: false };
+    try {
+        const resp = await fetch(`${base.replace(/\/$/, '')}/api/rfq`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        const data = await resp.json().catch(() => ({}));
+        return { ok: resp.ok && data.status === 'success', data };
+    } catch (err) {
+        console.error('Lead submit failed', err);
+        return { ok: false };
+    }
+}
+
+function setDeliveryPanelOpen(open) {
+    const details = document.getElementById('cart-delivery-details');
+    if (details) details.open = Boolean(open);
+}
+
+/** Quick enquiry forms (empty quote drawer + footer). Returns false to stop native submit. */
+async function handleQuickEnquiry(form, source) {
+    const val = (name) => (form.querySelector(`[name="${name}"]`)?.value || '').trim();
+    const name = val('name');
+    const email = val('email');
+    if (!name || !email || !email.includes('@')) {
+        alert('Please enter your name and a valid email so we can reply.');
+        return false;
+    }
+
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+    const payload = {
+        leadType: 'quick_enquiry',
+        name,
+        company: val('company'),
+        email,
+        phone: val('phone'),
+        notes: val('message'),
+        website: val('website'), // honeypot
+        source: `roseempire.co.uk ${source}`,
+    };
+
+    if (window.RoseEmpireTrack?.rfqSubmit) {
+        window.RoseEmpireTrack.rfqSubmit({ lead_type: 'quick_enquiry', source });
+    }
+
+    const result = await submitLeadToServer(payload);
+    if (btn) { btn.disabled = false; btn.textContent = originalText; }
+
+    if (result.ok) {
+        form.reset();
+        form.innerHTML = '<p class="quick-enquiry-success">Thanks — your enquiry is with our sales team. We reply within 1 business day.</p>';
+    } else {
+        const subject = encodeURIComponent(`Wholesale enquiry — ${payload.company || name}`);
+        const body = encodeURIComponent(
+            `Name: ${name}\nCompany: ${payload.company}\nPhone: ${payload.phone}\n\n${payload.notes}`
+        );
+        window.location.href = `mailto:info@roseempire.co.uk?subject=${subject}&body=${body}`;
+    }
+    return false;
+}
+window.handleQuickEnquiry = handleQuickEnquiry;
+
+function quickEnquiryFormHTML(source) {
+    return `
+        <form class="quick-enquiry-form" onsubmit="event.preventDefault(); handleQuickEnquiry(this, '${source}');">
+            <p class="quick-enquiry-title">Or send a quick enquiry — no sizes needed:</p>
+            <input type="text" name="name" placeholder="Your name *" autocomplete="name" required>
+            <input type="text" name="company" placeholder="Company / facility" autocomplete="organization">
+            <input type="email" name="email" placeholder="Work email *" autocomplete="email" required>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+            <textarea name="message" rows="2" placeholder="e.g. 60 single Terry protectors for a 20-room hotel"></textarea>
+            <button type="submit" class="btn btn-gold btn-sm btn-block">Send enquiry</button>
+        </form>`;
+}
+
 async function startStripeCheckout() {
     if (!cart.length) {
         showCheckoutBanner('error', 'Add products to your quote list before starting checkout.');
@@ -580,13 +665,15 @@ async function startStripeCheckout() {
     const shippingAddress = getCartShippingAddress();
 
     if (!customerEmail || !customerEmail.includes('@')) {
-        showCheckoutBanner('error', 'Enter your email above the Stripe button, then try again.');
+        setDeliveryPanelOpen(true);
+        showCheckoutBanner('error', 'Enter your email in the delivery details, then try again.');
         cartEmailField?.focus();
         return;
     }
 
     const addressCheck = validateCartShippingAddress(shippingAddress);
     if (!addressCheck.ok) {
+        setDeliveryPanelOpen(true);
         showCheckoutBanner('error', addressCheck.message);
         document.getElementById(addressCheck.field)?.focus();
         return;
@@ -903,22 +990,14 @@ window.addEventListener('click', e => {
 
 // Cart → RFQ flow
 proceedQuoteBtn.addEventListener('click', () => {
+    // Quote requests are soft: full delivery address is only needed for card payment.
     const customerEmail = getCheckoutEmail();
     const shippingAddress = getCartShippingAddress();
     const addressCheck = validateCartShippingAddress(shippingAddress);
 
-    if (!customerEmail || !customerEmail.includes('@')) {
-        showCheckoutBanner('error', 'Enter your email in the checkout form first.');
-        document.getElementById('cart-checkout-email')?.focus();
-        return;
+    if (addressCheck.ok || customerEmail) {
+        syncCartAddressToRfq(shippingAddress, customerEmail);
     }
-    if (!addressCheck.ok) {
-        showCheckoutBanner('error', addressCheck.message);
-        document.getElementById(addressCheck.field)?.focus();
-        return;
-    }
-
-    syncCartAddressToRfq(shippingAddress, customerEmail);
     setCartDrawerOpen(false);
     setTimeout(() => {
         rfqFormModal.classList.add('open');
@@ -943,6 +1022,7 @@ rfqBackBtn.addEventListener('click', () => {
 rfqForm.addEventListener('submit', e => {
     e.preventDefault();
 
+    // Address is optional for quote requests — sales confirm it before invoicing.
     const addressEl = document.getElementById('rfq-address');
     let address = (addressEl?.value || '').trim();
     if (!address) {
@@ -950,11 +1030,7 @@ rfqForm.addEventListener('submit', e => {
         address = formatShippingAddressBlock(cartAddr);
         if (addressEl && address) addressEl.value = address;
     }
-    if (!address) {
-        showCheckoutBanner('error', 'Add a delivery address in the quote cart, or enter it on this form.');
-        addressEl?.focus();
-        return;
-    }
+    if (!address) address = 'To be confirmed with our sales team';
 
     const details = {
         name:    document.getElementById('rfq-name').value,
@@ -988,18 +1064,52 @@ rfqForm.addEventListener('submit', e => {
         try {
             const cartSnapshot = cart.map(item => ({ ...item }));
             const result = await RoseEmpireQuotePDF.generate(details, cartSnapshot);
-            prepareQuoteEmail(details, cartSnapshot, result.pricing);
+            const pricing = result.pricing.vatAmount != null
+                ? result.pricing
+                : QuotePricing.calculateFullCheckout(cartSnapshot, details.shippingRegion || 'mainland');
 
-            cart = [];
-            saveCart();
-            updateCartBadge();
-            renderCartItems();
-            closeModal();
+            // Deliver the lead server-side so nothing depends on the buyer's email client.
+            const lead = await submitLeadToServer({
+                leadType: 'rfq',
+                name: details.name,
+                company: details.company,
+                email: details.email,
+                phone: details.phone,
+                address: details.address,
+                shippingLabel: details.shippingLabel,
+                notes: details.notes,
+                source: 'roseempire.co.uk rfq-form',
+                items: cartSnapshot.map(i => ({
+                    title: i.title,
+                    sizeName: i.sizeName,
+                    quantity: i.quantity,
+                    unitPrice: i.unitPrice,
+                })),
+                totals: {
+                    totalPacks: pricing.totalPacks,
+                    grandTotalIncVat: pricing.grandTotalIncVat,
+                },
+            });
 
-            alert(
-                'Your wholesale quote PDF has been downloaded as "Rose Empire Wholesale Quote.pdf". ' +
-                'An email draft to info@roseempire.co.uk will open next — attach the PDF before sending.'
-            );
+            if (lead.ok) {
+                cart = [];
+                saveCart();
+                updateCartBadge();
+                renderCartItems();
+                closeModal();
+                alert(
+                    'Done — your quote request is with our sales team and your PDF quote has been downloaded. ' +
+                    'We reply within 1 business day to ' + details.email + '.'
+                );
+            } else {
+                // Keep the cart so nothing is lost; fall back to an email draft.
+                prepareQuoteEmail(details, cartSnapshot, pricing);
+                closeModal();
+                alert(
+                    'Your PDF quote has been downloaded. We could not reach our server, so an email draft to ' +
+                    'info@roseempire.co.uk will open next — please send it (attach the PDF). Your quote list is kept.'
+                );
+            }
         } catch (err) {
             console.error(err);
             alert('Could not generate the quote PDF. Please try again or contact us at info@roseempire.co.uk.');
@@ -1096,6 +1206,27 @@ document.addEventListener('DOMContentLoaded', () => {
     QuoteRequestPricingUI.resetSummary();
     CheckoutTotalsUI.bindShippingSelect(() => CheckoutTotalsUI.refresh(cart));
     renderCartItems();
+
+    // Deep-link straight to a product: /?openProduct=protector-terry&from=hotels
+    const openProduct = params.get('openProduct');
+    if (openProduct) {
+        // Catalog loads async on idle — poll briefly until the product exists.
+        let attempts = 0;
+        const tryOpen = () => {
+            attempts += 1;
+            if (products.some(p => p.id === openProduct)) {
+                document.getElementById('catalog-section')?.scrollIntoView();
+                openProductDetail(openProduct);
+                const clean = new URL(window.location.href);
+                clean.searchParams.delete('openProduct');
+                clean.searchParams.delete('from');
+                window.history.replaceState({}, '', clean.pathname + clean.search + clean.hash);
+            } else if (attempts < 30) {
+                setTimeout(tryOpen, 250);
+            }
+        };
+        setTimeout(tryOpen, 300);
+    }
 
     // Deep-link from sector pages: /?openQuote=1&from=hotels-hero
     const openQuote = params.get('openQuote') === '1' || window.location.hash === '#get-quote';

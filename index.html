@@ -625,8 +625,8 @@
     <style>
 :root{--navy:#102241;--gold-bright:#b89549;--gold-on-light:#7a5c18;--bg-main:#f6f4f0;--text-main:#0f1f35;--text-white:#fff;--gradient-hero:linear-gradient(145deg,#081424 0%,#133865 40%,#1f4d72 100%);--radius-lg:22px;--font-body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--font-display:Georgia,'Times New Roman',serif}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font-body);background:var(--bg-main);color:var(--text-main);line-height:1.6}.container{width:min(1200px,92%);margin:0 auto}.ico{display:inline-block;width:1em;height:1em;vertical-align:-.15em;fill:currentColor}.ico-spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.top-bar{background:#0c1b30;color:rgba(255,255,255,.85);font-size:.78rem;padding:8px 0}.top-bar a{color:inherit}.header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid #e2dcd2}.header-container{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}.logo-title{font-weight:700;font-size:1.15rem}.logo-accent{color:var(--gold-on-light)}.logo-subtitle{display:block;font-size:.68rem;opacity:.75}.hero{background:var(--gradient-hero);color:var(--text-white);padding:48px 0 56px;position:relative;overflow:hidden}.hero-container{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}.hero-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);line-height:1.1;margin:.5rem 0}.hero-description{opacity:.92;max-width:56ch;margin:1rem 0}.hero-product-img{width:100%;height:auto;border-radius:var(--radius-lg);display:block}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:999px;border:none;font-weight:600;text-decoration:none;cursor:pointer}.btn-gold{background:linear-gradient(135deg,#a48440,#d7bb72,#b89549);color:#1a1208}@media(max-width:900px){.hero-container{grid-template-columns:1fr}.hero-image-side{order:-1}}
     </style>
-    <link rel="preload" href="styles.min.css?v=20260802d" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles.min.css?v=20260802d"></noscript>
+    <link rel="preload" href="styles.min.css?v=20260802e" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.min.css?v=20260802e"></noscript>
 </head>
 <body data-page="wholesale">
 
@@ -687,7 +687,7 @@
                 </button>
                 <button class="cart-btn quote-btn" id="cart-toggle-btn" aria-label="Open Quote Request List">
                     <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#invoice"></use></svg>
-                    <span>Get A Quote</span>
+                    <span>Request a quote</span>
                     <span class="cart-badge" id="cart-badge-count">0</span>
                 </button>
             </div>
@@ -710,11 +710,12 @@
                 <div class="hero-content">
                     <span class="hero-tagline">Manchester manufacturer-direct · UK trade only</span>
                     <h1 class="hero-title">Wholesale mattress protectors &amp; pillows</h1>
-                    <p class="hero-description">Trade pricing for hotels, care homes and retailers. <strong>MOQ 20/size</strong>. Protectors from <strong>£4.70/pc</strong> (Terry sale Single) · pillows from <strong>£12.49/pc</strong>. <strong>OEKO-TEX</strong> + UK test reports.</p>
+                    <p class="hero-description">Trade pricing for hotels, care homes and retailers. <strong>MOQ 20/size</strong>. Protectors from <strong>£3.90/pc</strong> (Terry Trade Sale) · pillows from <strong>£12.49/pc</strong>. <strong>OEKO-TEX</strong> + UK test reports.</p>
                     <div class="hero-trust-icons">
                         <span class="trust-icon trust-icon--highlight"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg> MOQ 20 per size</span>
                         <span class="trust-icon"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#certificate"></use></svg> OEKO-TEX Standard 100</span>
                         <span class="trust-icon"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#truck"></use></svg> UK delivery from £10/box</span>
+                        <span class="trust-icon"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#clock"></use></svg> Quotes answered within 1 business day</span>
                     </div>
                     <div class="hero-actions">
                         <button type="button" class="btn btn-gold" id="hero-request-quote"
@@ -726,67 +727,13 @@
                             Download catalog
                         </a>
                     </div>
-                    <p class="hero-quote-path">Add sizes → <strong>Get A Quote</strong> → PDF quote or Stripe checkout.</p>
+                    <p class="hero-quote-path">Add sizes → <strong>Request a quote</strong> → PDF quote or Stripe checkout.</p>
                 </div>
                 <div class="hero-image-side hero-image-side--compact">
                     <picture>
                         <source type="image/webp" srcset="assets/mattress_protector-640.webp 640w, assets/mattress_protector.webp 1024w" sizes="(max-width: 768px) 100vw, 520px">
                         <img src="assets/mattress_protector.png" alt="Rose Empire wholesale mattress protector" class="hero-product-img" width="520" height="520" fetchpriority="high" decoding="async">
                     </picture>
-                </div>
-            </div>
-        </section>
-
-        <section class="value-strip" aria-label="Why Rose Empire">
-            <div class="container value-strip-grid">
-                <div class="value-strip-item">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#certificate"></use></svg>
-                    <div><strong>OEKO-TEX Standard 100</strong><span>Certified materials plus <a href="#certifications">UK test report</a> for trade buyers</span></div>
-                </div>
-                <div class="value-strip-item">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#percent"></use></svg>
-                    <div><strong>Volume discounts</strong><span>10% at 50+ · 20% at 200+ pieces</span></div>
-                </div>
-                <div class="value-strip-item">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#invoice"></use></svg>
-                    <div><strong>Instant quote PDF</strong><span>Build your order and download in minutes</span></div>
-                </div>
-                <div class="value-strip-item">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#pdf"></use></svg>
-                    <div><strong>Trade catalog PDF</strong><span><a href="assets/Rose-Empire-Wholesale-Catalog.pdf" download>Download wholesale prices</a></span></div>
-                </div>
-            </div>
-        </section>
-
-        <section class="stats-bar" aria-label="Wholesale trust metrics">
-            <div class="container stats-bar-grid">
-                <div class="stat-item">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#industry"></use></svg>
-                    <div>
-                        <strong>Factory direct</strong>
-                        <span>From our manufacturing line to your bulk order</span>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg>
-                    <div>
-                        <strong>Trade-ready stock</strong>
-                        <span>Fast handling for hotels, care homes and retailers</span>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#shield"></use></svg>
-                    <div>
-                        <strong>Quality assured</strong>
-                        <span>OEKO-TEX certified range with UK test documentation for procurement teams</span>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#truck"></use></svg>
-                    <div>
-                        <strong>UK-wide delivery</strong>
-                        <span>Reliable logistics across the mainland and remote regions</span>
-                    </div>
                 </div>
             </div>
         </section>
@@ -876,14 +823,14 @@
                     <div class="product-card">
                         <div class="product-info">
                             <h3 class="product-title">WQMP — Waterproof Quilted Mattress Protector</h3>
-                            <p class="product-desc">Wholesale waterproof quilted protector with silent TPU backing. OEKO-TEX Standard 100 certified. From £6.99/pc · MOQ 20.</p>
+                            <p class="product-desc">Wholesale waterproof quilted protector with silent TPU backing. OEKO-TEX Standard 100 certified. From £5.99/pc · MOQ 20.</p>
                             <a href="wholesale-mattress-protectors.html">Mattress protector details</a>
                         </div>
                     </div>
                     <div class="product-card">
                         <div class="product-info">
                             <h3 class="product-title">QMP — Quilted Mattress Protector</h3>
-                            <p class="product-desc">Breathable quilted polycotton protector for guest houses. From £5.40/pc · MOQ 20.</p>
+                            <p class="product-desc">Breathable quilted polycotton protector for guest houses. From £4.74/pc · MOQ 20.</p>
                             <a href="wholesale-mattress-protectors.html">View trade range</a>
                         </div>
                     </div>
@@ -919,6 +866,60 @@
                         Download catalog
                     </a>
                     <a href="tel:+447999988450" class="btn btn-outline-dark quote-next-call">Call +44 7999 988450</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="value-strip" aria-label="Why Rose Empire">
+            <div class="container value-strip-grid">
+                <div class="value-strip-item">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#certificate"></use></svg>
+                    <div><strong>OEKO-TEX Standard 100</strong><span>Certified materials plus <a href="#certifications">UK test report</a> for trade buyers</span></div>
+                </div>
+                <div class="value-strip-item">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#percent"></use></svg>
+                    <div><strong>Volume discounts</strong><span>10% at 50+ · 20% at 200+ pieces</span></div>
+                </div>
+                <div class="value-strip-item">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#invoice"></use></svg>
+                    <div><strong>Instant quote PDF</strong><span>Build your order and download in minutes</span></div>
+                </div>
+                <div class="value-strip-item">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#pdf"></use></svg>
+                    <div><strong>Trade catalog PDF</strong><span><a href="assets/Rose-Empire-Wholesale-Catalog.pdf" download>Download wholesale prices</a></span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-bar" aria-label="Wholesale trust metrics">
+            <div class="container stats-bar-grid">
+                <div class="stat-item">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#industry"></use></svg>
+                    <div>
+                        <strong>Factory direct</strong>
+                        <span>From our manufacturing line to your bulk order</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg>
+                    <div>
+                        <strong>Trade-ready stock</strong>
+                        <span>Fast handling for hotels, care homes and retailers</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#shield"></use></svg>
+                    <div>
+                        <strong>Quality assured</strong>
+                        <span>OEKO-TEX certified range with UK test documentation for procurement teams</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#truck"></use></svg>
+                    <div>
+                        <strong>UK-wide delivery</strong>
+                        <span>Reliable logistics across the mainland and remote regions</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1144,8 +1145,8 @@
                 <p class="vat-note">Shipping = Mainland £10 / Scotland &amp; NI £15 per trade box. VAT applies to products + shipping.</p>
             </div>
 
-            <div class="cart-checkout-panel">
-            <h4 class="cart-checkout-heading">Delivery details</h4>
+            <details class="cart-checkout-panel cart-delivery-details" id="cart-delivery-details">
+            <summary class="cart-checkout-heading cart-delivery-summary">Delivery details <span class="cart-delivery-summary-hint">(needed for card payment)</span></summary>
             <div class="cart-checkout-fields">
                 <label class="cart-checkout-label" for="cart-checkout-email">Email for order confirmation <span class="required">*</span></label>
                 <input type="email" id="cart-checkout-email" class="cart-checkout-input" placeholder="you@company.co.uk" autocomplete="email" required>
@@ -1189,7 +1190,7 @@
                 </select>
                 <p class="vat-note" style="margin-top:6px">Mainland <strong>£10</strong> · Scotland &amp; NI <strong>£15</strong> per box. Scroll down if needed, then pay with Stripe.</p>
             </div>
-            </div>
+            </details>
             </div>
 
             <div class="cart-checkout-actions">
@@ -1197,9 +1198,9 @@
                 <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg> Secure Stripe Checkout
             </button>
             <button class="btn btn-gold btn-block" id="proceed-quote-btn" disabled>
-                Proceed to Request Quote
+                Request a quote
             </button>
-            <p class="vat-note">Fill delivery details above, then pay by card or request a quote.</p>
+            <p class="vat-note">Delivery details are only needed for card payment — quotes can be requested without them.</p>
             </div>
         </div>
     </div>
@@ -1374,9 +1375,16 @@
                         <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#linkedin"></use></svg> Follow on LinkedIn
                     </a>
                     <div class="footer-quote-box">
-                        <h4>Get Wholesale Quote</h4>
-                        <p>Fill the form and our team will get back to you.</p>
-                        <button class="btn btn-gold" onclick="document.getElementById('cart-toggle-btn').click()">Request A Quote</button>
+                        <h4>Quick wholesale enquiry</h4>
+                        <form class="quick-enquiry-form quick-enquiry-form--footer" onsubmit="event.preventDefault(); handleQuickEnquiry(this, 'footer');">
+                            <input type="text" name="name" placeholder="Your name *" autocomplete="name" required>
+                            <input type="text" name="company" placeholder="Company / facility" autocomplete="organization">
+                            <input type="email" name="email" placeholder="Work email *" autocomplete="email" required>
+                            <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+                            <textarea name="message" rows="2" placeholder="What do you need and roughly how many?"></textarea>
+                            <button class="btn btn-gold" type="submit">Send enquiry</button>
+                        </form>
+                        <p class="footer-quote-alt">Or <a href="#catalog-section">build a full line-item quote</a> from the catalog.</p>
                     </div>
                 </div>
             </div>
@@ -1393,19 +1401,19 @@
     <nav class="mobile-quote-bar" aria-label="Mobile quote actions">
         <button type="button" class="mobile-quote-bar-btn mobile-quote-bar-btn--primary"
                 onclick="document.getElementById('cart-toggle-btn').click();">
-            Get a quote
+            Request a quote
         </button>
         <a href="tel:+447999988450" class="mobile-quote-bar-btn mobile-quote-bar-btn--call">Call</a>
         <a href="assets/Rose-Empire-Wholesale-Catalog.pdf" class="mobile-quote-bar-btn" download>Catalog</a>
     </nav>
 
     <script src="rose-icons.js" defer></script>
-    <script src="site-config.js?v=20260802d" defer></script>
-    <script src="conversion-analytics.js?v=20260802d" defer></script>
+    <script src="site-config.js?v=20260802e" defer></script>
+    <script src="conversion-analytics.js?v=20260802e" defer></script>
     <script src="quote-shipping.js?v=20260727f" defer></script>
     <script src="quote-pricing.js?v=20260727f" defer></script>
     <script src="quote-pdf.js" defer></script>
-    <script src="app.js?v=20260802d" defer></script>
+    <script src="app.js?v=20260802e" defer></script>
     <!-- Sarah wholesale chat — local widget + Cloudflare lead API -->
     <script
       src="sarah-widget.js?v=20260722a"
