@@ -14,6 +14,8 @@
         phone: '+447999988450',
         phoneDisplay: '+44 7999 988450',
         checkoutApiUrl: cloudflareCheckoutApi,
-        sarahApiBase: 'https://rose-empire-sarah.adeelcolchester.workers.dev'
+        sarahApiBase: 'https://rose-empire-sarah.adeelcolchester.workers.dev',
+        // Paste your GA4 Measurement ID (G-XXXXXXXX) to enable Analytics. Leave blank to keep events in dataLayer only.
+        gaMeasurementId: 'G-N6ZTN6HE16'
     };
 })();

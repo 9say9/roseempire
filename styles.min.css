@@ -752,6 +752,176 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 }
 
 .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.hero-quote-path {
+    margin: 14px 0 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.4;
+    max-width: 34rem;
+}
+.hero-quote-path strong { color: #ffe3a1; font-weight: 700; }
+
+.catalog-trust-downloads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(16, 34, 65, 0.04);
+    border: 1px solid rgba(16, 34, 65, 0.08);
+}
+.catalog-trust-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--navy);
+    text-decoration: none;
+}
+.catalog-trust-link:hover { color: var(--gold-on-light, #7a5c18); }
+.dark-mode .catalog-trust-downloads {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+.dark-mode .catalog-trust-link { color: var(--text-main); }
+
+.empty-cart-steps {
+    margin: 12px auto 16px;
+    padding-left: 1.2rem;
+    text-align: left;
+    max-width: 260px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-muted, #5a6478);
+}
+.empty-cart-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Mid-page quote / catalog CTA after catalog */
+.quote-next-strip {
+    background: linear-gradient(135deg, #102241 0%, #1a3a5c 100%);
+    color: #fff;
+    padding: 36px 0;
+    border-top: 1px solid rgba(184, 149, 73, 0.35);
+    border-bottom: 1px solid rgba(184, 149, 73, 0.2);
+}
+.quote-next-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+.quote-next-copy {
+    flex: 1 1 280px;
+    max-width: 36rem;
+}
+.quote-next-copy h2 {
+    margin: 0 0 8px;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #fff;
+}
+.quote-next-copy p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.45;
+}
+.quote-next-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+.quote-next-actions .btn-outline-dark {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #fff;
+}
+.quote-next-actions .btn-outline-dark:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ffe3a1;
+    color: #ffe3a1;
+}
+
+/* Sticky mobile conversion bar */
+.mobile-quote-bar {
+    display: none;
+}
+@media (max-width: 900px) {
+    .mobile-quote-bar {
+        display: flex;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1200;
+        gap: 8px;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+        background: rgba(16, 34, 65, 0.97);
+        border-top: 1px solid rgba(184, 149, 73, 0.45);
+        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .mobile-quote-bar-btn {
+        flex: 1 1 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 10px 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: transparent;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        font-family: inherit;
+    }
+    .mobile-quote-bar-btn--primary {
+        flex: 1.4 1 0;
+        background: linear-gradient(135deg, #b89549, #d4b36a);
+        border-color: transparent;
+        color: #102241;
+    }
+    .mobile-quote-bar-btn--call {
+        border-color: rgba(255, 227, 161, 0.55);
+        color: #ffe3a1;
+    }
+    body {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+    body.cart-drawer-open .mobile-quote-bar {
+        display: none;
+    }
+    /* Keep Sarah above content but clear of the sticky bar */
+    #sarah-launcher,
+    #sarah-nudge {
+        bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+@media (max-width: 700px) {
+    .quote-next-inner {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    .quote-next-actions {
+        justify-content: center;
+    }
+    .quote-next-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
 
 .hero-image-side {
     position: relative;
@@ -3011,6 +3181,17 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
 .sector-hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 16px; color: var(--navy, #0d1f3c); }
 .sector-lead { font-size: 1.05rem; line-height: 1.7; max-width: 760px; color: var(--text-muted, #5a6478); }
 .sector-cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.sector-trade-facts {
+    margin: 16px 0 0;
+    padding: 14px 18px 14px 28px;
+    max-width: 640px;
+    background: rgba(16, 34, 65, 0.04);
+    border: 1px solid rgba(16, 34, 65, 0.1);
+    border-radius: 12px;
+    line-height: 1.55;
+}
+.sector-trade-facts li { margin-bottom: 6px; }
+.sector-trade-facts li:last-child { margin-bottom: 0; }
 .sector-content { padding: 32px 0 64px; }
 .sector-prose { max-width: 760px; line-height: 1.7; }
 .sector-prose h2 { margin: 28px 0 12px; font-size: 1.35rem; color: var(--navy, #0d1f3c); }
@@ -3025,6 +3206,27 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     color: #fff;
 }
 .sector-cta-box p { opacity: 0.9; }
+.sector-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+.sector-cta-box .btn-outline-dark {
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #fff;
+}
+.sector-cta-box .btn-outline-dark:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ffe3a1;
+    color: #ffe3a1;
+}
+@media (max-width: 700px) {
+    .sector-cta-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
 .sector-product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

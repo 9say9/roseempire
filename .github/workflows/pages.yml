@@ -37,7 +37,7 @@ jobs:
         run: |
           mkdir -p site/assets/products
           cp index.html 404.html care-homes.html hotels.html wholesale-mattress-protectors.html privacy.html shipping-and-returns.html site/
-          cp styles.css styles.min.css app.js site-config.js quote-pdf.js quote-pricing.js quote-shipping.js rose-icons.js catalog-data.json sarah-widget.js sitemap.xml robots.txt CNAME .nojekyll site/
+          cp styles.css styles.min.css app.js site-config.js conversion-analytics.js quote-pdf.js quote-pricing.js quote-shipping.js rose-icons.js catalog-data.json sarah-widget.js sitemap.xml robots.txt CNAME .nojekyll site/
           cp -r assets/* site/assets/
 
       - name: Setup Pages

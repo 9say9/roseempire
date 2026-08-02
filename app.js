@@ -325,7 +325,7 @@ function renderProducts() {
                 </div>
                 <div class="product-actions">
                     <button class="btn btn-navy-sm btn-block" onclick="openProductDetail('${product.id}')">
-                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> ${promo ? 'Shop sale sizes' : 'Choose Sizes &amp; Add'}
+                        <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> Add to quote
                     </button>
                 </div>
             </div>`;
@@ -356,10 +356,14 @@ filterTabs.addEventListener('click', e => {
 // ==========================================================================
 // Quote Cart
 // ==========================================================================
-function setCartDrawerOpen(isOpen) {
+function setCartDrawerOpen(isOpen, source) {
+    const opening = Boolean(isOpen) && !cartDrawer.classList.contains('open');
     cartDrawer.classList.toggle('open', isOpen);
     drawerOverlay.classList.toggle('open', isOpen);
     document.body.classList.toggle('cart-drawer-open', isOpen);
+    if (opening && window.RoseEmpireTrack?.quoteOpen) {
+        window.RoseEmpireTrack.quoteOpen(source || 'cart_drawer');
+    }
 
     // Live Sarah widget uses max z-index and can sit over the cart footer.
     // Hide it while checkout is open so email/Stripe match localhost clickability.
@@ -404,8 +408,20 @@ function renderCartItems() {
         cartDrawerItems.innerHTML = `
             <div class="empty-cart-message">
                 <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#folder"></use></svg>
-                <p>Your Quote Request List is empty.</p>
-                <p>Browse our catalog and add products to start compiling your wholesale quote.</p>
+                <p><strong>Your quote list is empty</strong></p>
+                <ol class="empty-cart-steps">
+                    <li>Browse the wholesale catalog</li>
+                    <li>Add full boxes by size</li>
+                    <li>Request a quote or pay by card</li>
+                </ol>
+                <div class="empty-cart-actions">
+                    <button type="button" class="btn btn-gold btn-sm" onclick="setCartDrawerOpen(false); document.getElementById('catalog-section')?.scrollIntoView({behavior:'smooth'});">
+                        Browse catalog
+                    </button>
+                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf" class="btn btn-outline-dark btn-sm" download data-track="catalog_download">
+                        Download catalog
+                    </a>
+                </div>
             </div>`;
         proceedQuoteBtn.disabled = true;
         if (stripeCheckoutBtn) stripeCheckoutBtn.disabled = true;
@@ -648,6 +664,15 @@ function addToCart(productId, sizeIndex, quantity, { keepModalOpen = true } = {}
     renderCartItems();
     refreshOpenDetailBasket();
 
+    if (window.RoseEmpireTrack?.addToQuote) {
+        window.RoseEmpireTrack.addToQuote({
+            product_id: product.id,
+            size_name: sizeName,
+            quantity: qty,
+            unit_price: meta.price,
+        });
+    }
+
     if (keepModalOpen && productDetailModal.classList.contains('open')) {
         showAddToast(sizeName, qty, piecesPerBox);
         return;
@@ -669,14 +694,14 @@ function showAddToast(sizeName, qty, piecesPerBox) {
     const boxes = boxesFromPieces(qty, piecesPerBox);
     toast.innerHTML = `
         <strong>✓ ${sizeName}</strong> added — ${boxes} box${boxes === 1 ? '' : 'es'} (${qty} pcs).
-        <span>Add another size, or <button type="button" class="cart-add-toast-link" id="cart-add-toast-view">View Basket</button></span>`;
+        <span>Add another size, or <button type="button" class="cart-add-toast-link" id="cart-add-toast-view">Review quote</button></span>`;
     toast.classList.add('visible');
     const viewBtn = document.getElementById('cart-add-toast-view');
     if (viewBtn) {
         viewBtn.onclick = () => {
             toast.classList.remove('visible');
             closeModal();
-            setCartDrawerOpen(true);
+            setCartDrawerOpen(true, 'add_toast');
         };
     }
     clearTimeout(showAddToast._timer);
@@ -793,11 +818,11 @@ function openProductDetail(productId) {
             <div class="detail-add-actions">
                 <button class="btn btn-gold btn-block" type="button" onclick="triggerAddToCart('${p.id}')">
                     <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg>
-                    Add to Basket
+                    Add to quote
                 </button>
                 <button class="btn btn-outline-dark btn-block" type="button" data-view-basket
-                        onclick="closeModal(); setCartDrawerOpen(true)">
-                    View Basket (${cart.length || 0})
+                        onclick="closeModal(); setCartDrawerOpen(true, 'detail_view_quote')">
+                    Review quote (${cart.length || 0})
                 </button>
             </div>
         </div>`;
@@ -918,16 +943,38 @@ rfqBackBtn.addEventListener('click', () => {
 rfqForm.addEventListener('submit', e => {
     e.preventDefault();
 
+    const addressEl = document.getElementById('rfq-address');
+    let address = (addressEl?.value || '').trim();
+    if (!address) {
+        const cartAddr = getCartShippingAddress();
+        address = formatShippingAddressBlock(cartAddr);
+        if (addressEl && address) addressEl.value = address;
+    }
+    if (!address) {
+        showCheckoutBanner('error', 'Add a delivery address in the quote cart, or enter it on this form.');
+        addressEl?.focus();
+        return;
+    }
+
     const details = {
         name:    document.getElementById('rfq-name').value,
         company: document.getElementById('rfq-company').value,
         email:   document.getElementById('rfq-email').value,
         phone:   document.getElementById('rfq-phone').value,
-        address: document.getElementById('rfq-address').value,
+        address,
         shippingRegion: document.getElementById('rfq-shipping-region').value,
         shippingLabel: ShippingLogistics.getRegion(document.getElementById('rfq-shipping-region').value).label,
         notes:   document.getElementById('rfq-notes').value || 'No special notes.'
     };
+
+    if (window.RoseEmpireTrack?.rfqSubmit) {
+        window.RoseEmpireTrack.rfqSubmit({
+            company: details.company,
+            item_count: cart.length,
+            total_pieces: cart.reduce((a, i) => a + i.quantity, 0),
+            shipping_region: details.shippingRegion,
+        });
+    }
 
     const btnText   = document.getElementById('btn-text');
     const btnLoader = document.getElementById('btn-loader');
@@ -1022,7 +1069,8 @@ if (mobileNavToggle && navMenuEl) {
 // Initialise
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const checkoutState = new URLSearchParams(window.location.search).get('checkout');
+    const params = new URLSearchParams(window.location.search);
+    const checkoutState = params.get('checkout');
     if (checkoutState === 'success') {
         showCheckoutBanner(
             'success',
@@ -1048,6 +1096,20 @@ document.addEventListener('DOMContentLoaded', () => {
     QuoteRequestPricingUI.resetSummary();
     CheckoutTotalsUI.bindShippingSelect(() => CheckoutTotalsUI.refresh(cart));
     renderCartItems();
+
+    // Deep-link from sector pages: /?openQuote=1&from=hotels-hero
+    const openQuote = params.get('openQuote') === '1' || window.location.hash === '#get-quote';
+    if (openQuote) {
+        const from = params.get('from') || 'deep_link';
+        setTimeout(() => {
+            setCartDrawerOpen(true, from);
+            const clean = new URL(window.location.href);
+            clean.searchParams.delete('openQuote');
+            clean.searchParams.delete('from');
+            if (clean.hash === '#get-quote') clean.hash = '';
+            window.history.replaceState({}, '', clean.pathname + clean.search + clean.hash);
+        }, 350);
+    }
 
     const sarahOpenBtn = document.getElementById('sarah-open-btn');
     if (sarahOpenBtn) {
