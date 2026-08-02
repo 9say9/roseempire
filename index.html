@@ -1231,7 +1231,7 @@
                     <p>Provide your business details and shipping preferences. Our sales team will get back to you with custom freight rates and discounts within 24 hours.</p>
                 </div>
 
-                <form id="rfq-submission-form" class="rfq-form">
+                <form id="rfq-submission-form" class="rfq-form" data-form-source="rfq-form" data-track-form="contact">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="rfq-name">Your Full Name <span class="required">*</span></label>
@@ -1376,7 +1376,8 @@
                     </a>
                     <div class="footer-quote-box">
                         <h4>Quick wholesale enquiry</h4>
-                        <form class="quick-enquiry-form quick-enquiry-form--footer" onsubmit="event.preventDefault(); handleQuickEnquiry(this, 'footer');">
+                        <form class="quick-enquiry-form quick-enquiry-form--footer" data-form-source="footer" data-track-form="contact"
+                              onsubmit="event.preventDefault(); handleQuickEnquiry(this, 'footer');">
                             <input type="text" name="name" placeholder="Your name *" autocomplete="name" required>
                             <input type="text" name="company" placeholder="Company / facility" autocomplete="organization">
                             <input type="email" name="email" placeholder="Work email *" autocomplete="email" required>
@@ -1409,11 +1410,11 @@
 
     <script src="rose-icons.js" defer></script>
     <script src="site-config.js?v=20260802e" defer></script>
-    <script src="conversion-analytics.js?v=20260802e" defer></script>
+    <script src="conversion-analytics.js?v=20260802f" defer></script>
     <script src="quote-shipping.js?v=20260727f" defer></script>
     <script src="quote-pricing.js?v=20260727f" defer></script>
     <script src="quote-pdf.js" defer></script>
-    <script src="app.js?v=20260802e" defer></script>
+    <script src="app.js?v=20260802f" defer></script>
     <!-- Sarah wholesale chat — local widget + Cloudflare lead API -->
     <script
       src="sarah-widget.js?v=20260722a"

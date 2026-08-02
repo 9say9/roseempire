@@ -12,6 +12,20 @@ const CATALOG_URL = (location.hostname === "localhost" || location.hostname === 
         ? RoseEmpireConfig.siteUrl.replace(/\/$/, "") + "/catalog-data.json"
         : "catalog-data.json");
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function safeProductId(id) {
+    const s = String(id || '');
+    return /^[a-z0-9_-]+$/i.test(s) ? s : '';
+}
+
 async function loadCatalog() {
     const grid = document.getElementById("products-grid");
     if (grid) {
@@ -289,42 +303,44 @@ function renderProducts() {
             ? `<div class="price-stack">
                     <span class="price-was">Was £${promo.was.toFixed(2)}</span>
                     <span class="price-value price-value--sale">£${promo.now.toFixed(2)}/pc</span>
-                    <span class="price-save">${promo.detail || ('Save £' + promo.save.toFixed(2))}</span>
+                    <span class="price-save">${escapeHtml(promo.detail || ('Save £' + promo.save.toFixed(2)))}</span>
                </div>`
-            : `<span class="price-value">£${product.basePrice.toFixed(2)}/pc</span>`;
+            : `<span class="price-value">£${Number(product.basePrice || 0).toFixed(2)}/pc</span>`;
         const promoBanner = promo
-            ? `<div class="product-promo-banner" role="status"><span>${promo.badge}</span><span>${promo.headline}</span></div>`
+            ? `<div class="product-promo-banner" role="status"><span>${escapeHtml(promo.badge)}</span><span>${escapeHtml(promo.headline)}</span></div>`
             : '';
         const tagLabel = product.promo?.badge || product.tag;
+        const pid = safeProductId(product.id);
+        if (!pid) return;
 
         card.innerHTML = `
             <div class="product-image-container${promo ? ' product-image-container--sale' : ''}">
-                <span class="product-tag ${product.tagClass || ''}">${tagLabel}</span>
-                <img src="${product.image}" alt="${product.title}"
+                <span class="product-tag">${escapeHtml(tagLabel)}</span>
+                <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}"
                      onerror="this.src='https://placehold.co/400x300/0d1f3c/ffffff?text=${encodeURIComponent(product.title)}'">
                 ${promoBanner}
             </div>
             <div class="product-info">
-                <h3 class="product-title">${product.title}</h3>
-                <p class="product-desc">${product.desc}</p>
+                <h3 class="product-title">${escapeHtml(product.title)}</h3>
+                <p class="product-desc">${escapeHtml(product.desc)}</p>
                 <div class="product-specs">
-                    ${product.highlights.slice(0, 3).map(h => `<span class="spec-badge">${h}</span>`).join('')}
+                    ${(product.highlights || []).slice(0, 3).map(h => `<span class="spec-badge">${escapeHtml(h)}</span>`).join('')}
                 </div>
                 <div class="product-pricing-moq">
-                    <div class="moq-box-badge"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg> ${product.boxLabel || product.moq + ' pieces min.'}</div>
+                    <div class="moq-box-badge"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg> ${escapeHtml(product.boxLabel || product.moq + ' pieces min.')}</div>
                     <div class="product-pricing-row">
                     <div class="pricing-info">
                         <span class="moq-label">Min. Order (MOQ)</span>
-                        <span class="price-value">${product.moq} Pieces</span>
+                        <span class="price-value">${Number(product.moq) || 20} Pieces</span>
                     </div>
                     <div class="pricing-info" style="text-align:right">
-                        <span class="moq-label">${promo ? (promo.sizeLabel ? promo.sizeLabel + ' now' : 'Sale from') : 'From'}</span>
+                        <span class="moq-label">${promo ? escapeHtml(promo.sizeLabel ? promo.sizeLabel + ' now' : 'Sale from') : 'From'}</span>
                         ${priceHtml}
                     </div>
                     </div>
                 </div>
                 <div class="product-actions">
-                    <button class="btn btn-navy-sm btn-block" onclick="openProductDetail('${product.id}')">
+                    <button class="btn btn-navy-sm btn-block" onclick="openProductDetail('${pid}')">
                         <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg> View sizes &amp; add
                     </button>
                 </div>
@@ -617,8 +633,11 @@ async function handleQuickEnquiry(form, source) {
         source: `roseempire.co.uk ${source}`,
     };
 
-    if (window.RoseEmpireTrack?.rfqSubmit) {
-        window.RoseEmpireTrack.rfqSubmit({ lead_type: 'quick_enquiry', source });
+    if (window.RoseEmpireTrack?.contactFormSubmit) {
+        window.RoseEmpireTrack.contactFormSubmit({
+            form_type: 'quick_enquiry',
+            source: source || 'unknown',
+        });
     }
 
     const result = await submitLeadToServer(payload);
@@ -640,7 +659,8 @@ window.handleQuickEnquiry = handleQuickEnquiry;
 
 function quickEnquiryFormHTML(source) {
     return `
-        <form class="quick-enquiry-form" onsubmit="event.preventDefault(); handleQuickEnquiry(this, '${source}');">
+        <form class="quick-enquiry-form" data-form-source="${source}" data-track-form="contact"
+              onsubmit="event.preventDefault(); handleQuickEnquiry(this, '${source}');">
             <p class="quick-enquiry-title">Or send a quick enquiry — no sizes needed:</p>
             <input type="text" name="name" placeholder="Your name *" autocomplete="name" required>
             <input type="text" name="company" placeholder="Company / facility" autocomplete="organization">
@@ -1043,8 +1063,10 @@ rfqForm.addEventListener('submit', e => {
         notes:   document.getElementById('rfq-notes').value || 'No special notes.'
     };
 
-    if (window.RoseEmpireTrack?.rfqSubmit) {
-        window.RoseEmpireTrack.rfqSubmit({
+    if (window.RoseEmpireTrack?.contactFormSubmit) {
+        window.RoseEmpireTrack.contactFormSubmit({
+            form_type: 'rfq',
+            source: 'rfq-form',
             company: details.company,
             item_count: cart.length,
             total_pieces: cart.reduce((a, i) => a + i.quantity, 0),

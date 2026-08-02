@@ -445,20 +445,72 @@ function buildLeadAlert(body) {
   };
 }
 
+/** Simple per-isolate rate limit for public lead endpoint (best-effort). */
+const rfqHits = new Map();
+function rfqRateLimited(ip) {
+  const key = String(ip || "unknown").slice(0, 64);
+  const now = Date.now();
+  const windowMs = 60_000;
+  const max = 8;
+  let bucket = rfqHits.get(key);
+  if (!bucket || now - bucket.start > windowMs) {
+    bucket = { start: now, count: 0 };
+    rfqHits.set(key, bucket);
+  }
+  bucket.count += 1;
+  // Cap map growth
+  if (rfqHits.size > 5000) {
+    for (const [k, v] of rfqHits) {
+      if (now - v.start > windowMs) rfqHits.delete(k);
+    }
+  }
+  return bucket.count > max;
+}
+
+function originAllowed(origin) {
+  if (!origin) return true; // same-origin navigations / some clients omit Origin
+  return ALLOWED_ORIGINS.has(origin) || origin.endsWith(".github.io");
+}
+
 async function handleRfqLead(request, env, origin) {
+  if (!originAllowed(origin)) {
+    return json({ status: "error", message: "Origin not allowed." }, 403, origin);
+  }
+
+  const ip =
+    request.headers.get("CF-Connecting-IP") ||
+    request.headers.get("X-Forwarded-For") ||
+    "unknown";
+  if (rfqRateLimited(ip)) {
+    return json({ status: "error", message: "Too many requests. Try again shortly." }, 429, origin);
+  }
+
+  const contentType = String(request.headers.get("Content-Type") || "");
+  if (contentType && !contentType.toLowerCase().includes("application/json")) {
+    return json({ status: "error", message: "Content-Type must be application/json." }, 415, origin);
+  }
+
+  const raw = await request.text();
+  if (raw.length > 20_000) {
+    return json({ status: "error", message: "Payload too large." }, 413, origin);
+  }
+
   let body = {};
   try {
-    body = await request.json();
+    body = JSON.parse(raw);
   } catch {
+    return json({ status: "error", message: "Invalid JSON body." }, 400, origin);
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
     return json({ status: "error", message: "Invalid JSON body." }, 400, origin);
   }
 
   const email = String(body.email || "").trim();
   const name = String(body.name || "").trim();
-  if (!email || !email.includes("@") || email.length > 200) {
+  if (!email || email.length > 200 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return json({ status: "error", message: "A valid email is required." }, 400, origin);
   }
-  if (!name) {
+  if (!name || name.length > 120) {
     return json({ status: "error", message: "Your name is required." }, 400, origin);
   }
   // Honeypot: bots fill every field.
@@ -478,12 +530,12 @@ async function handleRfqLead(request, env, origin) {
     (zapier && zapier.ok) || (ownerEmail && ownerEmail.ok);
   if (!deliveredSomewhere) {
     return json(
-      { status: "error", message: "Lead delivery is not configured.", delivered: { zapier, email: ownerEmail } },
+      { status: "error", message: "Lead delivery is temporarily unavailable. Please email info@roseempire.co.uk." },
       502,
       origin
     );
   }
-  return json({ status: "success", delivered: { zapier, email: ownerEmail } }, 200, origin);
+  return json({ status: "success", delivered: true }, 200, origin);
 }
 
 async function handleStripeWebhook(request, env) {
@@ -603,10 +655,21 @@ async function createStripeSession(env, body) {
     return { status: 400, data: { status: "error", message: err.message } };
   }
 
-  const domain = String(body.domain || env.SITE_URL || "https://www.roseempire.co.uk").replace(
+  const requestedDomain = String(body.domain || env.SITE_URL || "https://www.roseempire.co.uk").replace(
     /\/$/,
     ""
   );
+  const allowedDomains = new Set([
+    "https://www.roseempire.co.uk",
+    "https://roseempire.co.uk",
+    "http://127.0.0.1:5000",
+    "http://localhost:5000",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+  ]);
+  const domain = allowedDomains.has(requestedDomain)
+    ? requestedDomain
+    : "https://www.roseempire.co.uk";
   const discountFactor = 1 - totals.discountPercent / 100;
   const addressBlock = [
     shippingAddress.name,
