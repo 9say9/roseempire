@@ -7,23 +7,45 @@ Sarah is the **Rose Empire wholesale representative** on the site — black/gold
 1. **Engage** — greets trade buyers and asks what they need  
 2. **Answer** — products, MOQ (20/size), volume discounts, certs, UK delivery, from live `catalog-data.json`  
 3. **Qualify** — collects facility type, email, volume, products, business name naturally  
-4. **Close** — steers buyers to **Get A Quote** / checkout and logs emails via the Cloudflare lead API  
+4. **Close** — steers buyers to **Get A Quote** / checkout, or **WhatsApp handoff** to Adeel (`wa.me`) when asked / unsure / fully qualified  
+5. **Hard questions** — falls back to Gemini via `rose-empire-chat` worker  
+6. **CRM** — chat emails go to Cloudflare lead API; Company HQ pulls them into `crm.db` (`POST /api/crm/sync-website`)  
 
 Widget file: `sarah-widget.js` (deployed with GitHub Pages).  
-Lead / owner API: `https://rose-empire-sarah.adeelcolchester.workers.dev`
+Lead / owner API: `https://rose-empire-sarah.adeelcolchester.workers.dev`  
+Chat LLM: `https://rose-empire-chat.adeelcolchester.workers.dev/api/chat`  
+Company HQ: `http://127.0.0.1:5050` — set `SARAH_ADMIN_TOKEN` in `D:\ai\antigravity\.env` to sync website leads.
 
-## Inbound email auto-reply (trade enquiries)
+## Email (free) — Cloudflare Email Routing
 
-When a buyer emails `info@roseempire.co.uk` asking for catalogue / price list / MOQ / lead times / freight / payment / private label, Sarah can **auto-reply** with a short branded answer + wholesale catalog PDF.
+`info@roseempire.co.uk` is on **Cloudflare Email Routing** (not GoDaddy / Microsoft paid mail).
 
-Code lives in the fleet folder (`d:\ai\antigravity`):
+| Piece | Setup |
+|--------|--------|
+| Domain DNS | Cloudflare nameservers |
+| Inbound | MX → `route*.mx.cloudflare.net` |
+| Your inbox | Forward to `adeelcolchester@gmail.com` |
+| Sarah auto-reply | Worker `rose-empire-sarah-inbox` (trade keywords) |
+| Website chat Sarah | Unchanged — `sarah-widget.js` + `rose-empire-sarah` worker |
 
-1. One-time login: `py -3 ms365_graph_auth.py` (as `info@roseempire.co.uk`)  
-2. Test: `py -3 sarah_inbound_auto.py --dry-run`  
-3. Live once: `py -3 sarah_inbound_auto.py`  
-4. Schedule every 10 min: `setup_sarah_inbound_task.bat`
+### Deploy / wire Sarah inbox worker
 
-Only **trade-style** enquiries are answered (keyword match). Newsletters / Stripe / noreply are skipped. Each message is replied to once (logged in `crm.db`).
+```powershell
+cd "d:\rose empire main\cloudflare\sarah-inbox-worker"
+.\deploy-and-wire.ps1
+```
+
+Or manually: `npx wrangler deploy`, then point the Email Routing rule for `info@` to worker `rose-empire-sarah-inbox`.
+
+### Send mail *as* info@ from Gmail (outbound)
+
+1. Gmail → Settings → Accounts → **Send mail as** → Add `info@roseempire.co.uk`  
+2. Use Cloudflare / Gmail verification when prompted  
+3. Set as default if you want replies from `info@`
+
+### Old Microsoft Graph scripts (optional / legacy)
+
+`d:\ai\antigravity\ms365_graph_auth.py` + `sarah_inbound_auto.py` need a live Microsoft mailbox. Prefer the Cloudflare worker above for free inbound Sarah.
 
 ## Tiny yellow grammar dot (not Sarah)
 

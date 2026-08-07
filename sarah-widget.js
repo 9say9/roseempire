@@ -30,7 +30,10 @@
   const config = {
     clientId: script?.dataset?.clientId || "default",
     title: script?.dataset?.title || "Sarah",
-    accent: script?.dataset?.accent || "#8b5cf6",
+    accent: script?.dataset?.accent || "#0d7a6f",
+    chatApi:
+      script?.dataset?.chatApi ||
+      "https://rose-empire-chat.adeelcolchester.workers.dev/api/chat",
     siteName:
       script?.dataset?.siteName ||
       document.title?.split(/[|\-–]/)[0]?.trim() ||
@@ -55,28 +58,28 @@
       id: "hotels",
       test: (p) => /hotels/i.test(p),
       nudge: "Equipping a hotel? I can help with trade pricing, MOQs, and a quick quote.",
-      chips: ["Hotel-grade protectors", "MOQ & pricing", "Request a quote"],
+      chips: ["Hotel-grade protectors", "MOQ & pricing", "Chat on WhatsApp"],
       topic: "sales",
     },
     {
       id: "care-homes",
       test: (p) => /care-homes/i.test(p),
       nudge: "Supplying a care home? Ask me about waterproof protectors, volumes, and trade terms.",
-      chips: ["Care-home bestsellers", "MOQ & pricing", "Request a quote"],
+      chips: ["Care-home bestsellers", "MOQ & pricing", "Chat on WhatsApp"],
       topic: "sales",
     },
     {
       id: "wholesale",
       test: (p) => /wholesale|protector/i.test(p),
       nudge: "Looking at wholesale protectors? I can walk you through products, MOQ, and next steps.",
-      chips: ["Product range", "Volume discounts", "Start a quote"],
+      chips: ["Product range", "Volume discounts", "Chat on WhatsApp"],
       topic: "sales",
     },
     {
       id: "default",
       test: () => true,
       nudge: `Hi — I'm ${config.title} from Rose Empire wholesale. Tell me what you need and I'll help you get a trade quote.`,
-      chips: ["What do you sell?", "MOQ & pricing", "I want a quote"],
+      chips: ["What do you sell?", "MOQ & pricing", "Chat on WhatsApp"],
       topic: "sales",
     },
   ];
@@ -843,11 +846,12 @@
         );
       }
 
-      if (/contact|phone|email|call|speak|human|manager/i.test(q) && !/@/.test(q)) {
-        return (
-          `You can reach Rose Empire on ${CatalogFacts.contact.email} or ${CatalogFacts.contact.phoneDisplay || CatalogFacts.contact.phone}. ` +
-          `Or leave your email here and I'll pass it straight to the wholesale team.`
-        );
+      if (/whatsapp|wa\.me|chat on whatsapp/i.test(q)) {
+        return "__WHATSAPP_HANDOFF__";
+      }
+
+      if (/contact|phone|email|call|speak|human|manager|real person|talk to (?:someone|a person|adeel)/i.test(q) && !/@/.test(q)) {
+        return "__WHATSAPP_HANDOFF__";
       }
 
       if (/what do you (sell|offer)|product(?:s)?|range|catalog|catalogue|what have you got/i.test(q)) {
@@ -917,29 +921,111 @@
       return (
         `You're in good shape for a trade quote.${summary} ` +
         `Next step: tap Request a quote on the site, add your sizes, and submit — or reply with any last sizes and I'll make sure the team prioritises ${lead.email}. ` +
-        `We confirm formal quotes within 24 hours.`
+        `We confirm formal quotes within 24 hours. Prefer WhatsApp? Tap Chat on WhatsApp below and I'll connect you straight away.`
       );
+    },
+
+    waDigits() {
+      const raw = CatalogFacts.contact.phone || "+447999988450";
+      return String(raw).replace(/\D/g, "") || "447999988450";
+    },
+
+    buildWhatsAppUrl(lead, lastMessage) {
+      const lines = [
+        "Hi Adeel — Sarah on roseempire.co.uk connected me.",
+        lead.business ? `Business: ${lead.business}` : "",
+        lead.name ? `Name: ${lead.name}` : "",
+        lead.facilityType ? `Facility: ${lead.facilityType}` : "",
+        lead.email ? `Email: ${lead.email}` : "",
+        lead.phone ? `Phone: ${lead.phone}` : "",
+        lead.volume ? `Volume: ${lead.volume}` : "",
+        lead.products?.length ? `Products: ${lead.products.slice(0, 3).join(", ")}` : "",
+        lead.region ? `Region: ${lead.region}` : "",
+        lastMessage ? `Last message: ${String(lastMessage).slice(0, 220)}` : "",
+      ].filter(Boolean);
+      return `https://wa.me/${this.waDigits()}?text=${encodeURIComponent(lines.join("\n"))}`;
+    },
+
+    async offerWhatsApp(lead, reason, lastMessage) {
+      const url = this.buildWhatsAppUrl(lead, lastMessage);
+      if (lead.email) {
+        await Leads.capture(
+          lead.email,
+          `[whatsapp_handoff] ${reason || ""} | ${String(lastMessage || "").slice(0, 300)}`
+        );
+      }
+      return {
+        text:
+          `Happy to connect you on WhatsApp with Adeel at Rose Empire (${CatalogFacts.contact.phoneDisplay || "+44 7999 988450"}).\n\n` +
+          `Tap the button below — your details are prefilled so he can help straight away.`,
+        waUrl: url,
+      };
+    },
+
+    async askLlm(query) {
+      const history = (state.messages || [])
+        .filter((m) => m.content && (m.role === "user" || m.role === "assistant"))
+        .slice(-8)
+        .map((m) => ({ role: m.role, content: m.content }));
+      try {
+        const res = await fetch(config.chatApi, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: query,
+            context: "sarah",
+            history,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) return null;
+        const reply = String(data.reply || "").trim();
+        return reply || null;
+      } catch {
+        return null;
+      }
     },
 
     async handle(query) {
       const lead = this.extract(query);
       const faq = this.answerFAQ(query);
       const parts = [];
+      let waUrl = null;
+      let usedLlm = false;
+      let lowConfidence = false;
+
+      if (faq === "__WHATSAPP_HANDOFF__") {
+        const handoff = await this.offerWhatsApp(lead, "customer_asked", query);
+        return { text: handoff.text, waUrl: handoff.waUrl };
+      }
 
       if (faq) {
         parts.push(faq);
       } else {
         const siteAnswer = Brain.answer(query);
         const generic =
-          /couldn't find an exact match|Based on .* page:|Here's what I found/i.test(siteAnswer) &&
-          siteAnswer.length < 120;
+          !siteAnswer ||
+          (/couldn't find an exact match|Based on .* page:|Here's what I found|try asking about/i.test(
+            siteAnswer
+          ) &&
+            siteAnswer.length < 220);
         if (siteAnswer && !generic) {
           parts.push(siteAnswer);
         } else {
-          parts.push(
-            `I can help with wholesale products, MOQ (20/size), volume discounts, certifications, UK delivery, and getting your quote started. ` +
-              `What would you like to know — or shall we build your order?`
-          );
+          const llm = await this.askLlm(query);
+          usedLlm = true;
+          if (llm) {
+            parts.push(llm);
+            if (/don'?t (know|have)|not sure|cannot find|i'?m not (entirely )?sure|unable to/i.test(llm)) {
+              lowConfidence = true;
+            }
+          } else {
+            lowConfidence = true;
+            parts.push(
+              `I can help with wholesale products, MOQ (20/size), volume discounts, certifications, UK delivery, and getting your quote started. ` +
+                `What would you like to know — or shall I connect you on WhatsApp with Adeel?`
+            );
+          }
         }
       }
 
@@ -952,6 +1038,13 @@
 
       if (this.qualifyReady(lead)) {
         parts.push(this.closingLine(lead));
+        if (!lead.asked._waQualified) {
+          lead.asked._waQualified = true;
+          SalesLead.save();
+          const handoff = await this.offerWhatsApp(lead, "qualified_interest", query);
+          parts.push(handoff.text);
+          waUrl = handoff.waUrl;
+        }
       } else {
         const field = this.missingField(lead);
         const ask = field ? this.askFor(field, lead) : "";
@@ -961,7 +1054,20 @@
         }
       }
 
-      return parts.filter(Boolean).join("\n\n").slice(0, 1200);
+      if (lowConfidence && !waUrl) {
+        const handoff = await this.offerWhatsApp(
+          lead,
+          usedLlm ? "sarah_unsure" : "no_match",
+          query
+        );
+        parts.push(handoff.text);
+        waUrl = handoff.waUrl;
+      }
+
+      return {
+        text: parts.filter(Boolean).join("\n\n").slice(0, 1600),
+        waUrl,
+      };
     },
   };
 
@@ -1237,6 +1343,12 @@
       transition:all .25s cubic-bezier(.16,1,.3,1);
     }
     .sarah-chip:hover{border-color:rgba(${accentCss},.45);color:#fff;background:rgba(${accentCss},.12);box-shadow:0 0 20px rgba(${accentCss},.15)}
+    .sarah-wa-btn{
+      display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:10px 14px;border-radius:12px;
+      background:#25D366;color:#fff!important;font-weight:700;font-size:13px;text-decoration:none;
+      border:none;cursor:pointer;box-shadow:0 8px 20px rgba(37,211,102,.28)
+    }
+    .sarah-wa-btn:hover{filter:brightness(1.05)}
     #sarah-messages{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
     #sarah-messages::-webkit-scrollbar{width:5px}
     #sarah-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
@@ -1416,7 +1528,10 @@
         .filter((m) => m.content || m.role === "user")
         .map((m) => {
           if (m.role === "assistant") {
-            return `<div class="sarah-msg-row assistant"><div class="sarah-msg-bot">${miniBot}</div><div class="sarah-bubble assistant">${esc(m.content)}</div></div>`;
+            const wa = m.waUrl
+              ? `<a class="sarah-wa-btn" href="${esc(m.waUrl)}" target="_blank" rel="noopener noreferrer">Continue on WhatsApp</a>`
+              : "";
+            return `<div class="sarah-msg-row assistant"><div class="sarah-msg-bot">${miniBot}</div><div class="sarah-bubble assistant">${esc(m.content)}${wa}</div></div>`;
           }
           return `<div class="sarah-bubble user">${esc(m.content)}</div>`;
         })
@@ -1696,8 +1811,18 @@
       if (wantsSiteEdit) {
         reply =
           `I can update your website in owner mode only. Open your admin link or add ?sarah_admin=YOUR-TOKEN to the URL, then try:\n• hide opening hours\n• restore all changes\n• show top bar`;
+      } else if (/^chat on whatsapp$/i.test(q) || /^whatsapp$/i.test(q)) {
+        const handoff = await SalesAgent.offerWhatsApp(SalesLead.data, "chip", q);
+        reply = handoff.text;
+        assistant.waUrl = handoff.waUrl;
       } else {
-        reply = await SalesAgent.handle(q);
+        const result = await SalesAgent.handle(q);
+        if (result && typeof result === "object") {
+          reply = result.text || "";
+          if (result.waUrl) assistant.waUrl = result.waUrl;
+        } else {
+          reply = String(result || "");
+        }
         learnFromExchange(q, reply);
       }
     }
@@ -1713,6 +1838,7 @@
     });
 
     setTyping(false);
+    if (assistant.waUrl) renderMessages();
 
     saveSession();
     state.sending = false;

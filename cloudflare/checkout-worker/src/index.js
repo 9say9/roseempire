@@ -1,21 +1,24 @@
 /**
  * Rose Empire — Stripe Checkout Cloudflare Worker
  * Secrets:
- *   STRIPE_SECRET_KEY          (required)
- *   STRIPE_WEBHOOK_SECRET      (required for order alerts)
- *   ZAPIER_WEBHOOK_URL         (Catch Hook → Email + WhatsApp)
+ *   STRIPE_SECRET_KEY            (required — live sk_live_… for production)
+ *   STRIPE_WEBHOOK_SECRET        (required — live whsec_… for production)
+ *   ZAPIER_WEBHOOK_URL           (Catch Hook → Email + WhatsApp)
  * Optional:
+ *   STRIPE_SECRET_KEY_TEST       (sk_test_… — expands test Checkout sessions)
+ *   STRIPE_WEBHOOK_SECRET_TEST   (whsec_… from Stripe Test mode webhook)
  *   SITE_URL
- *   OWNER_NOTIFY_EMAIL         (default info@roseempire.co.uk)
- *   RESEND_API_KEY             (optional direct owner email)
- *   RESEND_FROM_EMAIL          (default Rose Empire <orders@roseempire.co.uk>)
+ *   OWNER_NOTIFY_EMAIL           (default info@roseempire.co.uk)
+ *   RESEND_API_KEY               (optional direct owner email)
+ *   RESEND_FROM_EMAIL            (default Rose Empire <orders@roseempire.co.uk>)
  *
  * Shipping per trade box: Mainland £10 · Scotland & Northern Ireland £15.
  */
 
 const PIECES_PER_BOX = 20;
 const FEE_PER_BOX_DEFAULT = 10;
-const DEFAULT_OWNER_EMAIL = "info@roseempire.co.uk";
+// Prefer personal Gmail — info@ is Cloudflare Email Routing (forward + Sarah).
+const DEFAULT_OWNER_EMAIL = "adeelcolchester@gmail.com";
 
 const SHIPPING_REGIONS = {
   mainland: { id: "mainland", label: "UK Mainland", feePerBox: 10 },
@@ -159,6 +162,20 @@ function isPlaceholderKey(key) {
   return !key || !key.startsWith("sk_") || /your_|placeholder|example|xxx/i.test(key);
 }
 
+/** Public-safe hint only — never returns the key itself. */
+function secretKeyHint(key) {
+  const k = String(key || "").trim();
+  if (!k) return "empty";
+  if (k.startsWith("sk_live_")) return "sk_live";
+  if (k.startsWith("sk_test_")) return "sk_test";
+  if (k.startsWith("rk_live_")) return "rk_live";
+  if (k.startsWith("rk_test_")) return "rk_test";
+  if (k.startsWith("pk_live_") || k.startsWith("pk_test_")) return "publishable_key_wrong_slot";
+  if (k.startsWith("whsec_")) return "webhook_secret_wrong_slot";
+  if (k.startsWith('"') || k.startsWith("'")) return "quoted_value_remove_quotes";
+  return "unexpected_format";
+}
+
 function timingSafeEqual(a, b) {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
   let out = 0;
@@ -168,6 +185,35 @@ function timingSafeEqual(a, b) {
 
 function bytesToHex(buf) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function stripeKeyMode(key) {
+  const k = String(key || "").trim();
+  if (k.startsWith("sk_live_") || k.startsWith("rk_live_") || k.startsWith("pk_live_")) return "live";
+  if (k.startsWith("sk_test_") || k.startsWith("rk_test_") || k.startsWith("pk_test_")) return "test";
+  return "unknown";
+}
+
+function webhookSecrets(env) {
+  const secrets = [];
+  const primary = String(env.STRIPE_WEBHOOK_SECRET || "").trim();
+  const test = String(env.STRIPE_WEBHOOK_SECRET_TEST || "").trim();
+  if (primary.startsWith("whsec_")) secrets.push(primary);
+  if (test.startsWith("whsec_") && test !== primary) secrets.push(test);
+  return secrets;
+}
+
+function stripeSecretForEvent(env, livemode) {
+  const live = String(env.STRIPE_SECRET_KEY || "").trim();
+  const test = String(env.STRIPE_SECRET_KEY_TEST || "").trim();
+  if (livemode === false) {
+    if (test && !isPlaceholderKey(test)) return test;
+    if (live && stripeKeyMode(live) === "test") return live;
+    return test || live;
+  }
+  if (live && stripeKeyMode(live) === "live") return live;
+  if (live && !isPlaceholderKey(live)) return live;
+  return live || test;
 }
 
 async function verifyStripeSignature(rawBody, signatureHeader, webhookSecret) {
@@ -202,6 +248,13 @@ async function verifyStripeSignature(rawBody, signatureHeader, webhookSecret) {
   );
   const expected = bytesToHex(signed);
   return candidates.some((sig) => timingSafeEqual(sig, expected));
+}
+
+async function verifyStripeSignatureAny(rawBody, signatureHeader, secrets) {
+  for (const secret of secrets) {
+    if (await verifyStripeSignature(rawBody, signatureHeader, secret)) return true;
+  }
+  return false;
 }
 
 function moneyFromStripe(amount, currency) {
@@ -320,6 +373,37 @@ async function expandCheckoutSession(secret, sessionId) {
     throw new Error((data.error && data.error.message) || "Could not load Checkout Session");
   }
   return data;
+}
+
+async function notifyCrmIngest(env, payload) {
+  const url = String(env.CRM_INGEST_URL || "").trim();
+  const token = String(env.CRM_INGEST_TOKEN || "").trim();
+  if (!url || !/^https?:\/\//i.test(url) || !token) {
+    return { skipped: true, reason: "CRM_INGEST_URL / CRM_INGEST_TOKEN not set" };
+  }
+  try {
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CRM-Token": token,
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        email: payload.customer_email || "",
+        name: payload.customer_name || payload.company || "",
+        phone: payload.phone || "",
+        source: payload.lead_type === "quick_enquiry" ? "quick_enquiry" : "rfq",
+        notes: payload.email_body || payload.whatsapp_message || "",
+        website: payload.page_source || "https://www.roseempire.co.uk",
+        address: payload.address || "",
+      }),
+    });
+    const text = await resp.text();
+    return { ok: resp.ok, status: resp.status, body: text.slice(0, 200) };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
 }
 
 async function notifyZapier(env, payload) {
@@ -519,12 +603,19 @@ async function handleRfqLead(request, env, origin) {
   }
 
   const payload = buildLeadAlert(body);
-  const [zapier, ownerEmail] = await Promise.all([
+  const [zapier, ownerEmail, crmIngest] = await Promise.all([
     notifyZapier(env, payload),
     notifyOwnerEmail(env, payload),
+    notifyCrmIngest(env, payload),
   ]);
 
-  console.log("rfq lead", { lead_type: payload.lead_type, email: payload.customer_email, zapier, ownerEmail });
+  console.log("rfq lead", {
+    lead_type: payload.lead_type,
+    email: payload.customer_email,
+    zapier,
+    ownerEmail,
+    crmIngest,
+  });
 
   const deliveredSomewhere =
     (zapier && zapier.ok) || (ownerEmail && ownerEmail.ok);
@@ -539,16 +630,13 @@ async function handleRfqLead(request, env, origin) {
 }
 
 async function handleStripeWebhook(request, env) {
-  const secret = (env.STRIPE_SECRET_KEY || "").trim();
-  const webhookSecret = String(env.STRIPE_WEBHOOK_SECRET || "").trim();
-  if (isPlaceholderKey(secret)) {
-    return json({ status: "error", message: "Stripe secret not configured." }, 503);
-  }
-  if (!webhookSecret || !webhookSecret.startsWith("whsec_")) {
+  const secrets = webhookSecrets(env);
+  if (!secrets.length) {
     return json(
       {
         status: "error",
-        message: "Set STRIPE_WEBHOOK_SECRET (whsec_…) on the checkout worker.",
+        message:
+          "Set STRIPE_WEBHOOK_SECRET (live whsec_…) and optionally STRIPE_WEBHOOK_SECRET_TEST.",
       },
       503
     );
@@ -556,9 +644,21 @@ async function handleStripeWebhook(request, env) {
 
   const rawBody = await request.text();
   const signature = request.headers.get("Stripe-Signature") || "";
-  const valid = await verifyStripeSignature(rawBody, signature, webhookSecret);
+  const valid = await verifyStripeSignatureAny(rawBody, signature, secrets);
   if (!valid) {
-    return json({ status: "error", message: "Invalid Stripe signature." }, 400);
+    console.error("stripe webhook signature failed", {
+      secrets_configured: secrets.length,
+      has_test_secret: Boolean(String(env.STRIPE_WEBHOOK_SECRET_TEST || "").trim()),
+      stripe_key_mode: stripeKeyMode(env.STRIPE_SECRET_KEY),
+    });
+    return json(
+      {
+        status: "error",
+        message:
+          "Invalid Stripe signature. If this is Test mode, set STRIPE_WEBHOOK_SECRET_TEST to the Test endpoint signing secret (whsec_…).",
+      },
+      400
+    );
   }
 
   let event;
@@ -568,48 +668,87 @@ async function handleStripeWebhook(request, env) {
     return json({ status: "error", message: "Invalid JSON." }, 400);
   }
 
-  if (event.type !== "checkout.session.completed") {
-    return json({ status: "ignored", type: event.type }, 200);
-  }
+  // Always acknowledge verified events so Stripe does not disable the endpoint.
+  try {
+    if (event.type !== "checkout.session.completed") {
+      return json({ status: "ignored", type: event.type }, 200);
+    }
 
-  const sessionStub = event.data && event.data.object;
-  if (!sessionStub || !sessionStub.id) {
-    return json({ status: "error", message: "Missing session." }, 400);
-  }
-  if (sessionStub.payment_status && sessionStub.payment_status !== "paid") {
+    const sessionStub = event.data && event.data.object;
+    if (!sessionStub || !sessionStub.id) {
+      return json({ status: "ignored", reason: "missing_session" }, 200);
+    }
+    if (sessionStub.payment_status && sessionStub.payment_status !== "paid") {
+      return json(
+        {
+          status: "ignored",
+          reason: "payment_status not paid",
+          payment_status: sessionStub.payment_status,
+        },
+        200
+      );
+    }
+
+    const apiSecret = stripeSecretForEvent(env, event.livemode);
+    if (isPlaceholderKey(apiSecret)) {
+      console.error("stripe webhook: no API secret for mode", { livemode: event.livemode });
+      return json(
+        {
+          status: "ok",
+          notified: false,
+          reason: "stripe_secret_missing_for_mode",
+          livemode: event.livemode,
+          session_id: sessionStub.id,
+        },
+        200
+      );
+    }
+
+    let session = sessionStub;
+    try {
+      session = await expandCheckoutSession(apiSecret, sessionStub.id);
+    } catch (err) {
+      console.error("expand session failed", {
+        livemode: event.livemode,
+        key_mode: stripeKeyMode(apiSecret),
+        err: String(err && err.message ? err.message : err),
+      });
+    }
+
+    const payload = buildOrderAlert(session);
+    const [zapier, email] = await Promise.all([
+      notifyZapier(env, payload),
+      notifyOwnerEmail(env, payload),
+    ]);
+
+    console.log("order alert", {
+      session_id: payload.session_id,
+      livemode: event.livemode,
+      zapier,
+      email,
+    });
+
     return json(
-      { status: "ignored", reason: "payment_status not paid", payment_status: sessionStub.payment_status },
+      {
+        status: "ok",
+        livemode: event.livemode,
+        notified: { zapier, email },
+        session_id: payload.session_id,
+      },
+      200
+    );
+  } catch (err) {
+    console.error("stripe webhook handler error", err);
+    return json(
+      {
+        status: "ok",
+        acknowledged: true,
+        processing_error: true,
+        type: event && event.type,
+      },
       200
     );
   }
-
-  let session = sessionStub;
-  try {
-    session = await expandCheckoutSession(secret, sessionStub.id);
-  } catch (err) {
-    console.error("expand session failed", err);
-  }
-
-  const payload = buildOrderAlert(session);
-  const [zapier, email] = await Promise.all([
-    notifyZapier(env, payload),
-    notifyOwnerEmail(env, payload),
-  ]);
-
-  console.log("order alert", {
-    session_id: payload.session_id,
-    zapier,
-    email,
-  });
-
-  return json(
-    {
-      status: "ok",
-      notified: { zapier, email },
-      session_id: payload.session_id,
-    },
-    200
-  );
 }
 
 async function createStripeSession(env, body) {
@@ -782,11 +921,17 @@ export default {
       const configured = !isPlaceholderKey((env.STRIPE_SECRET_KEY || "").trim());
       const zapier = Boolean(String(env.ZAPIER_WEBHOOK_URL || "").trim());
       const webhook = Boolean(String(env.STRIPE_WEBHOOK_SECRET || "").trim());
+      const webhookTest = Boolean(String(env.STRIPE_WEBHOOK_SECRET_TEST || "").trim());
+      const secretTest = Boolean(String(env.STRIPE_SECRET_KEY_TEST || "").trim());
       return json(
         {
           status: "ok",
           stripe_configured: configured,
+          stripe_key_mode: stripeKeyMode(env.STRIPE_SECRET_KEY),
+          stripe_secret_hint: secretKeyHint(env.STRIPE_SECRET_KEY),
           webhook_secret_set: webhook,
+          webhook_test_secret_set: webhookTest,
+          stripe_test_key_set: secretTest,
           zapier_webhook_set: zapier,
           shipping: "Mainland £10 / Scotland & NI £15 per box",
         },
@@ -832,6 +977,22 @@ export default {
     if (url.pathname === "/api/stripe/webhook") {
       if (request.method === "GET" || request.method === "HEAD") {
         const webhookReady = Boolean(String(env.STRIPE_WEBHOOK_SECRET || "").trim());
+        const webhookTestReady = Boolean(String(env.STRIPE_WEBHOOK_SECRET_TEST || "").trim());
+        const keyMode = stripeKeyMode(env.STRIPE_SECRET_KEY);
+        let setup;
+        if (!webhookReady && !webhookTestReady) {
+          setup =
+            "Run: npx wrangler secret put STRIPE_WEBHOOK_SECRET (paste whsec_… from Stripe — match Live/Test to your API key).";
+        } else if (keyMode === "test" && !webhookTestReady) {
+          setup =
+            "Worker is on Test API keys. Stripe Test webhook failures usually mean STRIPE_WEBHOOK_SECRET does not match the Test endpoint. Re-copy Signing secret from Stripe (Test mode) → Webhooks → this URL, then: npx wrangler secret put STRIPE_WEBHOOK_SECRET";
+        } else if (keyMode === "live" && !webhookTestReady) {
+          setup =
+            "Live secret is set. For Stripe Test mode webhooks on the same URL, also run: npx wrangler secret put STRIPE_WEBHOOK_SECRET_TEST";
+        } else {
+          setup =
+            "Signing secrets are set for the configured modes. Send a test event from Stripe Dashboard → Webhooks.";
+        }
         return json(
           {
             status: "ok",
@@ -839,11 +1000,10 @@ export default {
               "This URL is a Stripe webhook endpoint. Open it only from Stripe Dashboard → Webhooks (POST). Do not open it in a browser tab.",
             method_required: "POST",
             webhook_secret_set: webhookReady,
+            webhook_test_secret_set: webhookTestReady,
+            stripe_key_mode: keyMode,
             listen_for: ["checkout.session.completed"],
-            setup:
-              webhookReady
-                ? "Secret is set. In Stripe, add this exact URL and send a test event."
-                : "Run: npx wrangler secret put STRIPE_WEBHOOK_SECRET (paste whsec_… from Stripe).",
+            setup,
           },
           200,
           origin
