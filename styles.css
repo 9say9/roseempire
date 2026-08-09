@@ -311,17 +311,25 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     font-family: var(--font-display);
     font-size: 1.42rem;
     font-weight: 600;
-    letter-spacing: 0.01em;
+    letter-spacing: -0.02em;
     line-height: 1.05;
     color: var(--navy);
-    letter-spacing: -0.02em;
 }
 .logo-accent {
     color: var(--rose-deep);
     font-weight: 700;
 }
-.dark-mode .logo-title { color: var(--text-main); }
-.dark-mode .logo-accent { color: var(--rose); }
+/* Light mode locked — ignore any leftover dark-mode preference */
+body.dark-mode,
+body.dark-mode .logo-title,
+.dark-mode .logo-title { color: var(--navy) !important; }
+.dark-mode .logo-accent { color: var(--rose-deep) !important; }
+.dark-mode .section-header h2,
+.dark-mode .section-header--compact h2 {
+    color: var(--navy) !important;
+    -webkit-text-fill-color: var(--navy) !important;
+    background: none !important;
+}
 .footer .logo-accent { color: #f0a0b8; }
 .logo-subtitle {
     font-family: var(--font-body);
@@ -638,10 +646,6 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     color: var(--navy);
     background: none;
     -webkit-text-fill-color: var(--navy);
-}
-.dark-mode .section-header--compact h2 {
-    color: var(--text-main);
-    -webkit-text-fill-color: var(--text-main);
 }
 .section-header--compact p {
     color: var(--text-muted);
@@ -1421,18 +1425,17 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     letter-spacing: 0.5px;
     margin-bottom: 14px;
     color: var(--navy);
-    background: linear-gradient(135deg, var(--navy) 0%, var(--rose-deep) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    background: none;
+    -webkit-text-fill-color: var(--navy);
 }
-@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-    .section-header h2 { -webkit-text-fill-color: var(--navy); color: var(--navy); }
+.section-header--compact h2 {
+    color: var(--navy);
+    background: none;
+    -webkit-text-fill-color: var(--navy);
 }
-.dark-mode .section-header h2 {
-    background: linear-gradient(135deg, #fff 0%, var(--gold-bright) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
+.section-header--compact p {
+    color: var(--text-muted);
+    font-weight: 500;
 }
 .section-header p {
     font-size: 1rem;
@@ -1441,7 +1444,16 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     margin: 0 auto;
 }
 .section-header p strong { color: var(--rose-deep); font-weight: 700; }
-.dark-mode .section-header p strong { color: var(--gold); }
+.logo-title {
+    color: var(--navy);
+}
+.logo-accent {
+    color: var(--gold-on-light, #7a5c18);
+}
+.warehouse-proof-shot figcaption {
+    color: var(--navy);
+}
+.theme-toggle { display: none !important; }
 .accent-line {
     width: 72px;
     height: 4px;

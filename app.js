@@ -219,7 +219,6 @@ const summaryTotalPacks = document.getElementById('summary-total-packs');
 const summaryTotalPrice = document.getElementById('summary-total-price');
 const proceedQuoteBtn   = document.getElementById('proceed-quote-btn');
 const stripeCheckoutBtn = document.getElementById('stripe-checkout-btn');
-const themeToggle       = document.getElementById('theme-toggle');
 const productDetailModal= document.getElementById('product-detail-modal');
 const modalDetailBody   = document.getElementById('modal-detail-body');
 const modalCloseDetail  = document.getElementById('modal-close-detail');
@@ -250,23 +249,13 @@ function roseIcon(name, spin) {
 }
 
 // ==========================================================================
-// Theme Setup
+// Theme Setup — light mode only (readable wholesale copy)
 // ==========================================================================
 function initTheme() {
-    const saved = localStorage.getItem('re-theme') || 'light';
-    document.body.classList.remove('light-mode', 'dark-mode');
-    document.body.classList.add(saved === 'dark' ? 'dark-mode' : 'light-mode');
-    setSvgIcon(themeToggle, saved === 'dark' ? 'sun' : 'moon');
+    try { localStorage.removeItem('re-theme'); } catch (_) {}
+    document.body.classList.remove('dark-mode');
+    document.body.classList.add('light-mode');
 }
-
-themeToggle.addEventListener('click', () => {
-    const isDark = document.body.classList.contains('dark-mode');
-    document.body.classList.toggle('dark-mode', !isDark);
-    document.body.classList.toggle('light-mode', isDark);
-    setSvgIcon(themeToggle, isDark ? 'moon' : 'sun');
-    localStorage.setItem('re-theme', isDark ? 'light' : 'dark');
-});
-
 // ==========================================================================
 // Catalog Rendering
 // ==========================================================================
