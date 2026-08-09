@@ -625,8 +625,15 @@
     <style>
 :root{--navy:#102241;--gold-bright:#b89549;--gold-on-light:#7a5c18;--bg-main:#f6f4f0;--text-main:#0f1f35;--text-white:#fff;--gradient-hero:linear-gradient(145deg,#081424 0%,#133865 40%,#1f4d72 100%);--radius-lg:22px;--font-body:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--font-display:Georgia,'Times New Roman',serif}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font-body);background:var(--bg-main);color:var(--text-main);line-height:1.6}.container{width:min(1200px,92%);margin:0 auto}.ico{display:inline-block;width:1em;height:1em;vertical-align:-.15em;fill:currentColor}.ico-spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.top-bar{background:#0c1b30;color:rgba(255,255,255,.85);font-size:.78rem;padding:8px 0}.top-bar a{color:inherit}.header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid #e2dcd2}.header-container{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}.logo-title{font-weight:700;font-size:1.15rem}.logo-accent{color:var(--gold-on-light)}.logo-subtitle{display:block;font-size:.68rem;opacity:.75}.hero{background:var(--gradient-hero);color:var(--text-white);padding:48px 0 56px;position:relative;overflow:hidden}.hero-container{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}.hero-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);line-height:1.1;margin:.5rem 0}.hero-description{opacity:.92;max-width:56ch;margin:1rem 0}.hero-product-img{width:100%;height:auto;border-radius:var(--radius-lg);display:block}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:999px;border:none;font-weight:600;text-decoration:none;cursor:pointer}.btn-gold{background:linear-gradient(135deg,#a48440,#d7bb72,#b89549);color:#1a1208}@media(max-width:900px){.hero-container{grid-template-columns:1fr}.hero-image-side{order:-1}}
     </style>
-    <link rel="preload" href="styles.min.css?v=20260802h" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles.min.css?v=20260802h"></noscript>
+    <link rel="preload" href="styles.min.css?v=20260809c" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.min.css?v=20260809c"></noscript>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        corePlugins: { preflight: false },
+        important: '.tw-scope'
+      };
+    </script>
 </head>
 <body data-page="wholesale">
 
@@ -710,19 +717,13 @@
                 <div class="hero-content">
                     <span class="hero-tagline">Manchester manufacturer-direct · UK trade only</span>
                     <h1 class="hero-title">Wholesale mattress protectors &amp; pillows</h1>
-                    <p class="hero-description">Trade pricing for hotels, care homes and retailers. <strong>MOQ 20/size</strong>. Protectors from <strong>£3.90/pc</strong> (Terry Trade Sale) · pillows from <strong>£12.49/pc</strong>. <strong>OEKO-TEX</strong> + UK test reports.</p>
-                    <div class="hero-trust-icons">
-                        <span class="trust-icon trust-icon--highlight"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#box"></use></svg> MOQ 20 per size</span>
-                        <span class="trust-icon"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#certificate"></use></svg> OEKO-TEX Standard 100</span>
-                        <span class="trust-icon"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#truck"></use></svg> UK delivery from £10/box</span>
-                        <span class="trust-icon"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#clock"></use></svg> Quotes answered within 1 business day</span>
-                    </div>
+                    <p class="hero-description">Trade pricing for hotels, care homes and retailers. <strong>MOQ 20/size</strong>. Protectors from <strong>£3.90/pc</strong> (Terry Trade Sale) · pillows from <strong>£12.49/pc</strong>. <strong>OEKO-TEX</strong> + UK test reports. Real Manchester warehouse stock — ready to ship.</p>
                     <div class="hero-actions">
                         <button type="button" class="btn btn-gold" id="hero-request-quote"
                                 onclick="document.getElementById('cart-toggle-btn').click();">
                             Request a quote
                         </button>
-                        <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" class="btn btn-outline-light" download
+                        <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809b" class="btn btn-outline-light" download
                            data-track="catalog_download">
                             Download catalog
                         </a>
@@ -732,33 +733,39 @@
                 <div class="hero-image-side hero-image-side--compact">
                     <picture>
                         <source type="image/webp" srcset="assets/mattress_protector-640.webp 640w, assets/mattress_protector.webp 1024w" sizes="(max-width: 768px) 100vw, 520px">
-                        <img src="assets/mattress_protector.png" alt="Rose Empire wholesale mattress protector" class="hero-product-img" width="520" height="520" fetchpriority="high" decoding="async">
+                        <img src="assets/mattress_protector.png" alt="Rose Empire wholesale quilted mattress protector on hotel-style bed" class="hero-product-img" width="520" height="520" fetchpriority="high" decoding="async">
                     </picture>
                 </div>
             </div>
         </section>
 
-        <!-- PRODUCT CATALOG -->
+        <div class="tw-scope trade-proof-strip" aria-label="Trade buying facts">
+            <div class="container flex flex-wrap items-center justify-center gap-x-8 gap-y-2 py-3 text-sm font-semibold tracking-wide text-[#0f1f35]">
+                <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-[#b89549]" aria-hidden="true"></span>MOQ 20 per size</span>
+                <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-[#b89549]" aria-hidden="true"></span>OEKO-TEX Standard 100</span>
+                <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-[#b89549]" aria-hidden="true"></span>UK delivery from £10/box</span>
+            </div>
+        </div>
+
         <section class="feature-strip-section" aria-label="Mattress protector range">
             <div class="container">
                 <div class="section-header section-header--compact">
                     <h2>Our mattress protector range</h2>
-                    <p>Waterproof quilted, quilted comfort, and terry — click any range to view wholesale pricing.</p>
+                    <p>Click any range for wholesale sizes and trade prices.</p>
                 </div>
                 <div class="feature-strip-grid">
                     <a href="#catalog-section" class="feature-strip-item" onclick="setCategoryFilter('all'); openProductDetail('protector-wqmp'); return false;">
                         <picture>
-                            <source type="image/webp" srcset="assets/products/wqmp-waterproof-quilted.webp">
-                            <img src="assets/products/wqmp-waterproof-quilted.jpg" alt="WQMP waterproof quilted mattress protector" loading="lazy" width="400" height="300" decoding="async">
+                            <source type="image/webp" srcset="assets/mattress_protector.webp">
+                            <img src="assets/mattress_protector.png" alt="WQMP waterproof quilted mattress protector" loading="lazy" width="400" height="300" decoding="async">
                         </picture>
                         <h3>WQMP Waterproof Quilted</h3>
+                        <span class="feature-strip-price">From £5.99 · skirt to 40cm</span>
                     </a>
                     <a href="#catalog-section" class="feature-strip-item" onclick="setCategoryFilter('all'); openProductDetail('protector-qmp'); return false;">
-                        <picture>
-                            <source type="image/webp" srcset="assets/products/qmp-quilted.webp">
-                            <img src="assets/products/qmp-quilted.jpg" alt="QMP quilted mattress protector" loading="lazy" width="400" height="300" decoding="async">
-                        </picture>
+                        <img src="assets/warehouse/protector-fitted-lifestyle.jpg?v=20260809b" alt="QMP quilted mattress protector fitted on bed" loading="lazy" width="400" height="300" decoding="async">
                         <h3>QMP Quilted Protector</h3>
+                        <span class="feature-strip-price">From £4.74 · skirt to 35cm</span>
                     </a>
                     <a href="#catalog-section" class="feature-strip-item feature-strip-item--sale" onclick="setCategoryFilter('all'); openProductDetail('protector-terry'); return false;">
                         <picture>
@@ -775,7 +782,31 @@
                             <img src="assets/down_pillows.png" alt="Goose feather and duck down wholesale pillows" loading="lazy" width="400" height="300" decoding="async">
                         </picture>
                         <h3>Feather &amp; Down Pillows</h3>
+                        <span class="feature-strip-price">From £12.49 · pair</span>
                     </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="warehouse-proof" aria-label="Manchester warehouse stock">
+            <div class="container">
+                <div class="section-header section-header--compact">
+                    <h2>In stock · ready to ship</h2>
+                    <p>Real photos from our Manchester warehouse — branded cartons, pallets and packed product.</p>
+                </div>
+                <div class="warehouse-proof-grid">
+                    <figure class="warehouse-proof-shot">
+                        <img src="assets/warehouse/stock-branded-boxes.jpg?v=20260809b" alt="Rose Empire branded wholesale boxes on pallet in Manchester warehouse" loading="lazy" width="600" height="800" decoding="async">
+                        <figcaption>Branded wholesale stock</figcaption>
+                    </figure>
+                    <figure class="warehouse-proof-shot">
+                        <img src="assets/warehouse/ready-to-ship-pallet.jpg?v=20260809b" alt="Shrink-wrapped pallet ready for UK wholesale delivery" loading="lazy" width="600" height="800" decoding="async">
+                        <figcaption>Pallet ready to ship</figcaption>
+                    </figure>
+                    <figure class="warehouse-proof-shot">
+                        <img src="assets/warehouse/pillows-pack-warehouse.jpg?v=20260809b" alt="Rose Empire feather and down pillows packed and ready in warehouse" loading="lazy" width="600" height="800" decoding="async">
+                        <figcaption>Pillows packed for trade</figcaption>
+                    </figure>
                 </div>
             </div>
         </section>
@@ -788,7 +819,7 @@
                 </div>
 
                 <div class="catalog-trust-downloads" aria-label="Procurement downloads">
-                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" class="catalog-trust-link" download data-track="catalog_download">
+                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809a" class="catalog-trust-link" download data-track="catalog_download">
                         <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#pdf"></use></svg>
                         Trade catalog PDF
                     </a>
@@ -813,7 +844,7 @@
                         <button class="filter-tab" data-category="protectors">Mattress Protectors</button>
                         <button class="filter-tab" data-category="pillows">Pillows</button>
                     </div>
-                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" class="btn btn-outline-dark btn-sm catalog-pdf-btn" download data-track="catalog_download">
+                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809a" class="btn btn-outline-dark btn-sm catalog-pdf-btn" download data-track="catalog_download">
                         <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#pdf"></use></svg> Download PDF catalog
                     </a>
                 </div>
@@ -862,7 +893,7 @@
                     <button type="button" class="btn btn-gold" onclick="document.getElementById('cart-toggle-btn').click();">
                         Request a quote
                     </button>
-                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" class="btn btn-outline-dark" download data-track="catalog_download">
+                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809a" class="btn btn-outline-dark" download data-track="catalog_download">
                         Download catalog
                     </a>
                     <a href="tel:+447999988450" class="btn btn-outline-dark quote-next-call">Call +44 7999 988450</a>
@@ -886,7 +917,7 @@
                 </div>
                 <div class="value-strip-item">
                     <svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#pdf"></use></svg>
-                    <div><strong>Trade catalog PDF</strong><span><a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" download>Download wholesale prices</a></span></div>
+                    <div><strong>Trade catalog PDF</strong><span><a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809a" download>Download wholesale prices</a></span></div>
                 </div>
             </div>
         </section>
@@ -931,7 +962,7 @@
                     <p>Trade price catalog, OEKO-TEX-backed protector testing, and pillow BS EN 12935 report — share with facilities and finance.</p>
                 </div>
                 <div class="compliance-downloads">
-                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" class="compliance-card" download>
+                    <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809a" class="compliance-card" download>
                         <span class="compliance-card-icon"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#pdf"></use></svg></span>
                         <span class="compliance-card-body">
                             <strong>Wholesale catalog (PDF)</strong>
@@ -1072,7 +1103,7 @@
                     </details>
                     <details class="faq-item">
                         <summary>How do I request a wholesale quote from Rose Empire?</summary>
-                        <p>Click <strong>Request a quote</strong>, add sizes from the catalog, then submit the RFQ for a PDF — or use Stripe checkout. You can also <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" download>download the trade catalog</a>, call <a href="tel:+447999988450">+44 7999 988450</a>, or email <a href="mailto:info@roseempire.co.uk">info@roseempire.co.uk</a>.</p>
+                        <p>Click <strong>Request a quote</strong>, add sizes from the catalog, then submit the RFQ for a PDF — or use Stripe checkout. You can also <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809a" download>download the trade catalog</a>, call <a href="tel:+447999988450">+44 7999 988450</a>, or email <a href="mailto:info@roseempire.co.uk">info@roseempire.co.uk</a>.</p>
                     </details>
                 </div>
             </div>
@@ -1345,7 +1376,7 @@
                         <li><a href="#hero">Home</a></li>
                         <li><a href="#catalog-section">Products</a></li>
                         <li><a href="#certifications">Certifications</a></li>
-                        <li><a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" download>PDF catalog</a></li>
+                        <li><a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809a" download>PDF catalog</a></li>
                         <li><a href="assets/Rose-Empire-UK-Test-Report.pdf" download>UK protector test report</a></li>
                         <li><a href="assets/Rose-Empire-BS-EN-12935-Pillow-Report.pdf" download id="footer-uk-test-link">BS EN 12935 pillow report</a></li>
                         <li><a href="#faq">FAQ</a></li>
@@ -1407,7 +1438,7 @@
             Request a quote
         </button>
         <a href="tel:+447999988450" class="mobile-quote-bar-btn mobile-quote-bar-btn--call">Call</a>
-        <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260802h" class="mobile-quote-bar-btn" download>Catalog</a>
+        <a href="assets/Rose-Empire-Wholesale-Catalog.pdf?v=20260809a" class="mobile-quote-bar-btn" download>Catalog</a>
     </nav>
 
     <script src="rose-icons.js" defer></script>
@@ -1416,7 +1447,7 @@
     <script src="quote-shipping.js?v=20260727f" defer></script>
     <script src="quote-pricing.js?v=20260727f" defer></script>
     <script src="quote-pdf.js" defer></script>
-    <script src="app.js?v=20260802h" defer></script>
+    <script src="app.js?v=20260809c" defer></script>
     <!-- Sarah wholesale chat — local widget + Cloudflare lead API -->
     <script
       src="sarah-widget.js?v=20260807wa"

@@ -36,6 +36,11 @@ desktop.ini
 # Logs
 *.log
 
+# WhatsApp export junk (keep cleaned assets/warehouse/)
+assets/actual pics/(1) WhatsApp Business*
+assets/actual pics/(1) WhatsApp Business.html
+assets/actual pics/(1) WhatsApp Business_files/
+
 # Cloudflare Worker local
 .dev.vars
 .wrangler/

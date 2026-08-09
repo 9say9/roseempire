@@ -32,7 +32,7 @@ async function loadCatalog() {
         grid.innerHTML = '<div class="no-results">' + roseIcon('spinner', true) + '<h3>Loading catalog…</h3></div>';
     }
     try {
-        const res = await fetch(CATALOG_URL + "?v=20260802h");
+        const res = await fetch(CATALOG_URL + "?v=20260809c");
         if (!res.ok) throw new Error("HTTP " + res.status);
         catalogData = await res.json();
         products = catalogData.products || [];

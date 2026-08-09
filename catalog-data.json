@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-01",
+  "updatedAt": "2026-08-09",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -33,10 +33,10 @@
       "image": "assets/mattress_protector.png",
       "gallery": [
         "assets/mattress_protector.png",
-        "assets/products/protector-lifestyle.png",
-        "assets/products/wqmp-layers.png"
+        "assets/products/wqmp-waterproof-quilted.jpg",
+        "assets/warehouse/stock-branded-boxes.jpg"
       ],
-      "desc": "The ultimate combination of protection and comfort. A soft quilted top layer paired with our 100% waterproof TPU backing that is completely silent. Machine washable, OEKO-TEX Standard 100 certified, with independent UK test report available for trade buyers.",
+      "desc": "Soft quilted top with silent 100% waterproof TPU backing. Deep elasticated skirt fits mattresses up to 40cm. Machine washable, OEKO-TEX Standard 100 certified, with independent UK test report for trade buyers.",
       "specs": [
         "Type: Waterproof Quilted Mattress Protector (WQMP)",
         "Top Layer: Soft quilted microfiber surface (150 GSM)",
@@ -102,17 +102,18 @@
       "category": "protectors",
       "tag": "Essential",
       "tagClass": "",
-      "image": "assets/products/protector-lifestyle.png",
+      "image": "assets/warehouse/protector-fitted-lifestyle.jpg",
       "gallery": [
-        "assets/products/protector-lifestyle.png",
-        "assets/products/qmp-folded.png"
+        "assets/warehouse/protector-fitted-lifestyle.jpg",
+        "assets/products/qmp-quilted.jpg",
+        "assets/warehouse/stock-branded-boxes.jpg"
       ],
-      "desc": "A premium non-waterproof quilted protector for everyday comfort and hygiene. Breathable polycotton shell with a soft microfiber quilted fill. Ideal for homes and guest houses.",
+      "desc": "Premium non-waterproof quilted protector for everyday comfort and hygiene. Breathable polycotton shell with soft microfiber fill and deep elasticated skirt up to 35cm. Ideal for guest houses and retailers.",
       "specs": [
         "Type: Quilted Mattress Protector (QMP)",
-        "Top Layer: Soft quilted polycotton surface",
+        "Top Layer: Soft quilted polycotton / microfibre surface",
         "Fill: Lightweight microfiber padding (120 GSM)",
-        "Backing: Breathable non-waterproof polycotton base",
+        "Backing: Breathable non-waterproof base",
         "Hypoallergenic: Dust mite and allergen resistant",
         "Fit: Deep elasticated fitted skirt — fits up to 35cm mattress depth",
         "Washable: Machine washable at 60°C"
@@ -161,7 +162,7 @@
       ],
       "highlights": [
         "Quilted Surface",
-        "Elastic Fitted Skirt",
+        "Skirt up to 35cm",
         "Breathable",
         "Hypoallergenic"
       ],
@@ -268,10 +269,11 @@
       "tag": "Wholesale",
       "tagClass": "tag-gold",
       "image": "assets/down_pillows.png",
-      "desc": "Wholesale feather and down pillows with goose feather or duck down filling. Down-proof cover, medium loft, sold as a pair of 2 pillows per piece. Standard size only. Full boxes only — 5 pieces per box.",
+      "desc": "Wholesale feather and down pillows with goose feather or duck down filling. Down-proof pure cotton cambric cover, hotel quality loft, sold as a pair of 2 pillows per piece. Made to British Standard BS5335 requirements. Full boxes only — 5 pieces per box.",
       "specs": [
         "Sold as: Pair of 2 pillows per piece",
         "Fill options: Goose feather & down, or duck feather & down",
+        "Standard: Made to the requirements of BS5335",
         "Goose fill: 85% white goose feather, 15% soft goose down",
         "Duck fill: 80% duck feather, 20% soft duck down",
         "Size: Standard (50×75cm) only",
@@ -302,7 +304,12 @@
         "5 per box",
         "Set of 2 Pieces"
       ],
-      "stockStatus": "In stock"
+      "stockStatus": "In stock",
+      "gallery": [
+        "assets/down_pillows.png",
+        "assets/warehouse/pillows-pack-warehouse.jpg",
+        "assets/warehouse/pillows-2pack-warehouse.jpg"
+      ]
     }
   ]
 }

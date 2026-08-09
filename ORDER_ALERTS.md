@@ -14,7 +14,9 @@ Webhook URL (already in the worker):
 
 ## 1. Stripe webhook (required)
 
-1. Open [Stripe Webhooks](https://dashboard.stripe.com/webhooks) (live mode)
+### Live mode (production orders)
+
+1. Open [Stripe Webhooks](https://dashboard.stripe.com/webhooks) (**live** mode)
 2. **Add endpoint** → paste the URL above
 3. Listen to: **`checkout.session.completed`**
 4. Copy **Signing secret** (`whsec_…`)
@@ -25,6 +27,34 @@ cd "d:\rose empire main\cloudflare\checkout-worker"
 npx wrangler secret put STRIPE_WEBHOOK_SECRET
 ```
 
+### Test mode (sandbox / “Send test webhook”)
+
+Stripe Test mode uses a **different** signing secret. If you keep a Test endpoint on the same URL, also set:
+
+```powershell
+cd "d:\rose empire main\cloudflare\checkout-worker"
+npx wrangler secret put STRIPE_WEBHOOK_SECRET_TEST
+```
+
+Paste the **Test** endpoint signing secret (`whsec_…` from Stripe → Test mode → Webhooks).
+
+Optional (only if you run test Checkout and need line-item expand):
+
+```powershell
+npx wrangler secret put STRIPE_SECRET_KEY_TEST
+```
+
+Paste `sk_test_…`.
+
+Check readiness:
+
+```powershell
+Invoke-RestMethod "https://rose-empire-checkout.adeelcolchester.workers.dev/health"
+```
+
+You want `webhook_secret_set: true`. For Test webhooks also `webhook_test_secret_set: true`.
+
+If you do **not** need Test webhooks, delete the Test endpoint in Stripe Dashboard instead — that also stops the failure emails.
 ---
 
 ## 2. Zapier Zap (email + WhatsApp)

@@ -45,6 +45,12 @@ npx wrangler secret put STRIPE_WEBHOOK_SECRET
 
 Paste the **new** `whsec_…`.
 
+If you also keep a **Test mode** webhook on the same URL, set its signing secret separately:
+
+```powershell
+npx wrangler secret put STRIPE_WEBHOOK_SECRET_TEST
+```
+
 ---
 
 ## 4. New account settings (do once)

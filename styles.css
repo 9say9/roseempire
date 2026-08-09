@@ -485,6 +485,38 @@ button { font-family: inherit; border: none; background: transparent; cursor: po
     background-size: 48px 48px;
     mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 75%);
 }
+.hero-diamond-mesh {
+    position: absolute;
+    inset: -20%;
+    opacity: 0.22;
+    background-image:
+        linear-gradient(45deg, rgba(232, 185, 35, 0.14) 1px, transparent 1px),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: radial-gradient(ellipse 75% 65% at 55% 40%, black 15%, transparent 72%);
+    animation: diamondDrift 28s linear infinite;
+}
+.hero-light-sweep {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        115deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.06) 48%,
+        rgba(232, 185, 35, 0.08) 52%,
+        transparent 65%
+    );
+    background-size: 220% 100%;
+    animation: lightSweep 14s ease-in-out infinite;
+}
+@keyframes diamondDrift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(36px, 18px); }
+}
+@keyframes lightSweep {
+    0%, 100% { background-position: 120% 0; }
+    50% { background-position: -20% 0; }
+}
 @keyframes orbFloat {
     0%, 100% { transform: translate(0, 0) scale(1); }
     50% { transform: translate(20px, -15px) scale(1.05); }
@@ -1003,6 +1035,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     border-radius: calc(var(--radius-lg) + 8px);
     border: 1px solid rgba(232, 185, 35, 0.25);
     pointer-events: none;
+    z-index: 3;
     animation: framePulse 4s ease-in-out infinite;
 }
 @keyframes framePulse {
@@ -1017,9 +1050,48 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 50%, rgba(10, 22, 40, 0.5) 100%);
+    background: linear-gradient(180deg, transparent 55%, rgba(10, 22, 40, 0.35) 100%);
     z-index: 1;
     pointer-events: none;
+}
+.trade-proof-strip {
+    background: linear-gradient(90deg, #efe9df 0%, #faf8f4 50%, #efe9df 100%);
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    z-index: 5;
+}
+.warehouse-proof {
+    padding: 48px 0 56px;
+    background: linear-gradient(180deg, #f8f6f2 0%, #fff 100%);
+    border-bottom: 1px solid var(--border-color);
+}
+.warehouse-proof-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+.warehouse-proof-shot {
+    margin: 0;
+}
+.warehouse-proof-shot img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+    border-radius: 14px;
+    border: 1px solid rgba(16, 34, 65, 0.1);
+    box-shadow: 0 10px 28px rgba(16, 34, 65, 0.08);
+}
+.warehouse-proof-shot figcaption {
+    margin-top: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.01em;
+}
+@media (max-width: 768px) {
+    .warehouse-proof-grid { grid-template-columns: 1fr; }
+    .warehouse-proof-shot img { height: 220px; }
 }
 .hero-product-img {
     width: 100%;
@@ -1722,13 +1794,14 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     font-weight: 800;
 }
 .product-tag.tag-sale {
-    background: #b42318;
-    color: #fff;
+    background: linear-gradient(135deg, var(--navy) 0%, #1a3a5c 100%);
+    color: var(--gold-bright);
     font-weight: 800;
     letter-spacing: 0.4px;
+    border: 1px solid rgba(232, 185, 35, 0.45);
 }
 .product-image-container--sale {
-    box-shadow: inset 0 0 0 2px rgba(180, 35, 24, 0.35);
+    box-shadow: inset 0 0 0 2px rgba(184, 149, 73, 0.45);
 }
 .product-promo-banner {
     position: absolute;
@@ -1736,7 +1809,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     right: 0;
     bottom: 0;
     padding: 9px 12px;
-    background: linear-gradient(90deg, #7a1c14, #b42318);
+    background: linear-gradient(90deg, #0c1b30, #163456 55%, #1a3a5c);
     color: #fff;
     font-size: 0.72rem;
     font-weight: 700;
@@ -1746,6 +1819,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     flex-direction: column;
     gap: 2px;
     line-height: 1.25;
+    border-top: 1px solid rgba(232, 185, 35, 0.35);
 }
 .product-promo-banner span:first-child {
     font-size: 0.68rem;
@@ -1768,7 +1842,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     font-weight: 600;
 }
 .price-value--sale {
-    color: #b42318;
+    color: var(--rose-deep);
     font-size: 1.15rem;
 }
 .price-save {
@@ -1776,16 +1850,16 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     margin-top: 2px;
     padding: 2px 8px;
     border-radius: 999px;
-    background: rgba(180, 35, 24, 0.1);
-    color: #b42318;
+    background: rgba(184, 149, 73, 0.18);
+    color: var(--gold-on-light, #7a5c18);
     font-size: 0.72rem;
     font-weight: 700;
 }
 .detail-promo-note {
     margin: 0 0 12px;
     padding: 12px 14px;
-    border-left: 4px solid #b42318;
-    background: rgba(180, 35, 24, 0.08);
+    border-left: 4px solid var(--gold);
+    background: rgba(16, 34, 65, 0.05);
     color: var(--navy);
     font-size: 0.92rem;
     display: flex;
@@ -1794,7 +1868,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
 }
 .dark-mode .detail-promo-note {
     color: var(--text-main);
-    background: rgba(180, 35, 24, 0.18);
+    background: rgba(232, 185, 35, 0.12);
 }
 .detail-size-price--sale {
     display: flex;
@@ -1804,7 +1878,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     line-height: 1.2;
 }
 .detail-size-price--sale .price-now {
-    color: #b42318;
+    color: var(--rose-deep);
     font-size: 0.95rem;
 }
 .detail-size-price--sale .price-box-meta {
@@ -1815,10 +1889,10 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
 
 /* Homepage offer bar — visible on landing */
 .site-offer-bar {
-    background: linear-gradient(90deg, #6f1711 0%, #b42318 45%, #8f1f16 100%);
+    background: linear-gradient(90deg, #0a1628 0%, #14305a 48%, #1a3a5c 100%);
     color: #fff;
     padding: 11px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(232, 185, 35, 0.35);
 }
 .site-offer-bar-inner {
     display: flex;
@@ -1862,8 +1936,8 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     justify-content: center;
     padding: 9px 16px;
     border-radius: 999px;
-    background: #fff;
-    color: #7a1c14;
+    background: linear-gradient(135deg, #a48440, #d7bb72, #b89549);
+    color: #1a1208;
     font-size: 0.85rem;
     font-weight: 800;
     text-decoration: none;
@@ -1871,14 +1945,15 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
 }
 .site-offer-cta:hover {
     background: #ffe3a1;
-    color: #5c120d;
+    color: #0c1b30;
 }
 .feature-strip-item--sale {
     position: relative;
 }
 .feature-strip-item--sale .feature-strip-badge {
-    background: #b42318;
-    color: #fff;
+    background: linear-gradient(135deg, #0c1b30, #1a3a5c);
+    color: var(--gold-bright);
+    border: 1px solid rgba(232, 185, 35, 0.45);
 }
 .feature-strip-price {
     display: block;
@@ -1893,7 +1968,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     margin-right: 6px;
 }
 .feature-strip-price strong {
-    color: #b42318;
+    color: var(--rose-deep);
 }
 @media (max-width: 700px) {
     .site-offer-bar-inner {
@@ -2041,6 +2116,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     box-shadow: var(--shadow-lux);
     transform: scale(1.02);
 }
+.feature-strip-item h3,
 .feature-strip-item h4 {
     font-size: 0.9rem;
     font-weight: 700;
@@ -2991,12 +3067,17 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
 
 @media (prefers-reduced-motion: reduce) {
     .hero-orb,
+    .hero-diamond-mesh,
+    .hero-light-sweep,
+    .hero-quilt-sheen,
+    .hero-image-frame,
     .hero-product-img,
     .category-card-img-wrap img,
     .product-image-container img {
         animation: none !important;
         transition: none !important;
     }
+    .hero:hover .hero-product-img { transform: none; }
 }
 
 /* ==========================================================================
@@ -3366,6 +3447,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
 .manufacturer-trust,
 .process-section,
 .feature-strip-section,
+.warehouse-proof,
 .catalog-section,
 .compliance-section,
 .sector-hub-section,
