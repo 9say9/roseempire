@@ -4,6 +4,7 @@
   "description": "Rose Empire wholesale site — GitHub Pages + Sarah + Stripe checkout",
   "scripts": {
     "serve": "py -3 server.py",
-    "deploy": "git push origin main"
+    "deploy": "git push origin main",
+    "optimize-videos": "py -3 scripts/optimize-videos.py"
   }
 }

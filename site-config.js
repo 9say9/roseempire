@@ -16,6 +16,19 @@
         checkoutApiUrl: cloudflareCheckoutApi,
         sarahApiBase: 'https://rose-empire-sarah.adeelcolchester.workers.dev',
         // Paste your GA4 Measurement ID (G-XXXXXXXX) to enable Analytics. Leave blank to keep events in dataLayer only.
-        gaMeasurementId: 'G-N6ZTN6HE16'
+        gaMeasurementId: 'G-N6ZTN6HE16',
+        /**
+         * Optional CDN / Stream URLs for large videos.
+         * When set, these override local assets/videos/* paths.
+         * Example:
+         * videos: {
+         *   'warehouse-tour': {
+         *     mp4: 'https://customer-xxx.cloudflarestream.com/.../manifest/video.mp4',
+         *     webm: '',
+         *     poster: 'assets/videos/warehouse-tour-poster.jpg'
+         *   }
+         * }
+         */
+        videos: {}
     };
 })();

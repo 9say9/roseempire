@@ -36,6 +36,11 @@ desktop.ini
 # Logs
 *.log
 
+# Raw mobile video sources (optimize before committing)
+assets/videos/raw/*
+!assets/videos/raw/README.txt
+assets/actual pics/mp4/*
+
 # WhatsApp export junk (keep cleaned assets/warehouse/)
 assets/actual pics/(1) WhatsApp Business*
 assets/actual pics/(1) WhatsApp Business.html

@@ -1310,4 +1310,147 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         setTimeout(startCatalog, 250);
     }
+
+    initTrustVideos();
 });
+
+/**
+ * Performance-safe trust videos:
+ * - poster only until click
+ * - preload="none"
+ * - sources attached when near viewport (or on click)
+ * - no autoplay
+ */
+function initTrustVideos() {
+    const nodes = document.querySelectorAll('[data-video-lazy]');
+    if (!nodes.length) return;
+
+    const cfgVideos = (typeof RoseEmpireConfig !== 'undefined' && RoseEmpireConfig.videos) || {};
+
+    const resolveSources = (el) => {
+        const key = (el.getAttribute('data-mp4') || '').split('/').pop()?.replace(/\.mp4$/i, '') || '';
+        const override = cfgVideos[key] || cfgVideos['warehouse-tour'] || null;
+        return {
+            mp4: (override && override.mp4) || el.getAttribute('data-mp4') || '',
+            webm: (override && override.webm) || el.getAttribute('data-webm') || '',
+            poster: (override && override.poster) || el.getAttribute('data-poster') || '',
+            posterFallback: el.getAttribute('data-poster-fallback') || '',
+        };
+    };
+
+    const probeUrl = async (url) => {
+        if (!url) return false;
+        try {
+            const res = await fetch(url, { method: 'HEAD', cache: 'no-cache' });
+            return res.ok;
+        } catch (_) {
+            return false;
+        }
+    };
+
+    const ensurePoster = async (el, sources) => {
+        const img = el.querySelector('.trust-video-poster');
+        if (!img) return;
+        if (sources.poster && sources.poster !== img.getAttribute('src')) {
+            const ok = await probeUrl(sources.poster);
+            if (ok) {
+                img.src = sources.poster;
+                return;
+            }
+        }
+        if (sources.posterFallback && !img.getAttribute('src')) {
+            img.src = sources.posterFallback;
+        }
+    };
+
+    const attachSources = (video, sources) => {
+        video.innerHTML = '';
+        if (sources.webm) {
+            const sWebm = document.createElement('source');
+            sWebm.src = sources.webm;
+            sWebm.type = 'video/webm';
+            video.appendChild(sWebm);
+        }
+        if (sources.mp4) {
+            const sMp4 = document.createElement('source');
+            sMp4.src = sources.mp4;
+            sMp4.type = 'video/mp4';
+            video.appendChild(sMp4);
+        }
+    };
+
+    const prepareNearViewport = async (el) => {
+        if (el.dataset.videoPrepared === '1') return;
+        el.dataset.videoPrepared = '1';
+        const sources = resolveSources(el);
+        await ensurePoster(el, sources);
+        const mp4Ok = await probeUrl(sources.mp4);
+        if (!mp4Ok && !(sources.mp4 || '').startsWith('http')) {
+            el.classList.add('is-unavailable');
+            const badge = el.querySelector('.trust-video-play-badge');
+            if (badge) badge.textContent = 'Video coming soon';
+            const btn = el.querySelector('.trust-video-play');
+            if (btn) btn.disabled = true;
+            el.dataset.videoMissing = '1';
+        }
+    };
+
+    const playOnClick = async (el) => {
+        if (el.dataset.videoMissing === '1') return;
+        const sources = resolveSources(el);
+        const frame = el.querySelector('.trust-video-frame');
+        if (!frame) return;
+
+        let video = frame.querySelector('video');
+        if (!video) {
+            video = document.createElement('video');
+            video.setAttribute('controls', '');
+            video.setAttribute('playsinline', '');
+            video.setAttribute('preload', 'none');
+            video.setAttribute('controlslist', 'nodownload');
+            if (sources.poster) video.setAttribute('poster', sources.poster);
+            attachSources(video, sources);
+            frame.appendChild(video);
+        }
+
+        el.classList.add('is-playing');
+        try {
+            video.load();
+            await video.play();
+        } catch (err) {
+            console.warn('Video play blocked or failed', err);
+        }
+
+        if (typeof trackEvent === 'function') {
+            trackEvent('trust_video_play', { title: el.getAttribute('data-title') || 'warehouse-video' });
+        } else if (window.dataLayer) {
+            window.dataLayer.push({ event: 'trust_video_play', title: el.getAttribute('data-title') || 'warehouse-video' });
+        }
+    };
+
+    nodes.forEach((el) => {
+        const btn = el.querySelector('.trust-video-play');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                playOnClick(el);
+            });
+        }
+
+        if ('IntersectionObserver' in window) {
+            const io = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            prepareNearViewport(el);
+                            io.disconnect();
+                        }
+                    });
+                },
+                { rootMargin: '240px 0px' }
+            );
+            io.observe(el);
+        } else {
+            prepareNearViewport(el);
+        }
+    });
+}

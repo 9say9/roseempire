@@ -1,0 +1,39 @@
+{
+  "updatedAt": "2026-08-09",
+  "selfHostMaxMb": 6.0,
+  "videos": [
+    {
+      "slot": "warehouse-tour",
+      "source": "assets/actual pics/mp4/IMG_2232.MOV",
+      "source_mb": 73.15,
+      "mp4": "assets/videos/warehouse-tour.mp4",
+      "mp4_mb": 3.17,
+      "webm": null,
+      "webm_mb": null,
+      "poster": "assets/videos/warehouse-tour-poster.jpg",
+      "duration_s": 28.0,
+      "width": 720,
+      "height": 1280,
+      "orientation": "portrait",
+      "cdn_required": false,
+      "self_host_ok": true
+    },
+    {
+      "slot": "product-explainer",
+      "source": "assets/actual pics/mp4/IMG_2234.MOV",
+      "source_mb": 55.77,
+      "mp4": "assets/videos/product-explainer.mp4",
+      "mp4_mb": 3.41,
+      "webm": null,
+      "webm_mb": null,
+      "poster": "assets/videos/product-explainer-poster.jpg",
+      "duration_s": 28.0,
+      "width": 720,
+      "height": 1280,
+      "orientation": "portrait",
+      "cdn_required": false,
+      "self_host_ok": true
+    }
+  ],
+  "homepagePrimary": "warehouse-tour"
+}
