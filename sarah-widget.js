@@ -823,8 +823,8 @@
 
       if (/deliver|shipping|freight|post(?:age)?|uk\s*wide/i.test(q)) {
         return (
-          `We deliver UK-wide. Freight is quoted by destination and volume — mainland, Scottish Highlands, and Northern Ireland each have different rates in the quote cart. ` +
-          `Add your lines to "Request a quote" and you'll see logistics + VAT on the estimate.`
+          `Yes — we deliver UK-wide. Shipping is £10 per trade box on the UK mainland (England & Wales) and £15 per box for Scotland and Northern Ireland. VAT applies to products and shipping. ` +
+          `Add your lines to Request a quote and you'll see the exact freight + VAT before you submit.`
         );
       }
 
@@ -1434,9 +1434,26 @@
     }
     @keyframes sarah-launcher-breathe{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
     .sarah-launcher-bot{position:relative;z-index:1;display:grid;place-items:center}
-    @media(max-width:480px){
-      #sarah-panel{bottom:0;${config.position === "left" ? "left:0" : "right:0"};width:100vw;height:100vh;max-height:100vh;border-radius:0}
-      #sarah-nudge{bottom:96px;width:calc(100vw - 32px)}
+    html.sarah-chat-open,html.sarah-chat-open body{overflow:hidden!important;overscroll-behavior:none}
+    @media(max-width:768px){
+      #sarah-widget{
+        bottom:max(12px, env(safe-area-inset-bottom, 0px));
+        ${config.position === "left" ? "left:max(12px, env(safe-area-inset-left, 0px));right:auto;" : "right:max(12px, env(safe-area-inset-right, 0px));left:auto;"}
+      }
+      #sarah-panel{
+        position:fixed!important;inset:0;top:env(safe-area-inset-top, 0px);
+        left:0;right:0;bottom:0;width:auto!important;height:auto!important;
+        max-width:none!important;max-height:none!important;border-radius:0;
+        transform:none;
+      }
+      #sarah-panel.open{transform:none}
+      #sarah-nudge{
+        position:fixed;left:12px;right:12px;width:auto!important;
+        bottom:calc(96px + env(safe-area-inset-bottom, 0px));
+      }
+      #sarah-widget.sarah-open #sarah-launcher{visibility:hidden;pointer-events:none}
+      #sarah-input{font-size:16px}
+      #sarah-form{padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px))}
     }
     @media(prefers-reduced-motion:reduce){
       #sarah-panel,#sarah-nudge,.sarah-bubble,.sarah-launcher-orbit,.sarah-bot-ring,.sarah-status-dot,.sarah-launcher-pulse{animation:none!important;transition:none!important}
@@ -1547,6 +1564,8 @@
   function setOpen(open) {
     state.open = open;
     panel.classList.toggle("open", open);
+    root.classList.toggle("sarah-open", open);
+    document.documentElement.classList.toggle("sarah-chat-open", open);
     const launcher = root.querySelector("#sarah-launcher");
     if (launcher) launcher.classList.toggle("open", open);
     if (open) {
