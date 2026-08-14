@@ -43,6 +43,8 @@
     premiumFx: script?.dataset?.fx === "true" || script?.dataset?.premiumFx === "true",
   };
 
+  const PUBLIC_STATUS = "Wholesale sales assistant · online";
+
   function hexToRgb(hex) {
     const h = String(hex || "#8b5cf6").replace("#", "");
     const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
@@ -502,7 +504,7 @@
       state.crawlDone = true;
       state.siteIndex.updatedAt = Date.now();
       persistSite();
-      setStatus(`Learned ${state.siteIndex.chunks.length} sections from ${config.siteName}`);
+      setStatus(PUBLIC_STATUS);
     },
   };
 
@@ -907,6 +909,63 @@
       return null;
     },
 
+    /** Adeel-style local tools — instant answers before LLM (no API cost). */
+    runPowerTools(q, lead) {
+      const lower = q.toLowerCase();
+
+      if (/compare|vs|versus|difference between|which (?:is )?better/.test(lower)) {
+        return (
+          `Quick trade comparison:\n` +
+          `• **WQMP** — waterproof + quilted (hotels/care, silent TPU, OEKO-TEX)\n` +
+          `• **QMP** — quilted, non-waterproof (lighter budget properties)\n` +
+          `• **Terry** — waterproof terry (care homes, heavy laundry)\n` +
+          `• **Pillows** — goose feather & duck down sets\n\n` +
+          `Tell me your facility type and I'll narrow it to one line.`
+        );
+      }
+
+      if (/recommend|best (?:for|product)|what should (?:i|we) (?:buy|order)|suitable for/.test(lower)) {
+        const ft = lead.facilityType || "";
+        if (/care|nursing/.test(lower + " " + ft)) {
+          return `For **care homes**, we usually start with **Terry waterproof** or **WQMP** — washable at 60°C, OEKO-TEX, trade MOQ 20/size. How many beds are you covering?`;
+        }
+        if (/hotel|hospitality/.test(lower + " " + ft)) {
+          return `For **hotels**, **WQMP** plus **feather & down pillows** are the usual pair — protects mattresses and lifts guest feel. What's your room count?`;
+        }
+        if (/guest|bnb|airbnb/.test(lower + " " + ft)) {
+          return `For **guest houses / short lets**, **WQMP** in trade boxes keeps turn costs down vs replacing mattresses. Which sizes do you need?`;
+        }
+        return `Tell me if you're supplying a **hotel, care home, guest house, or retailer** and I'll recommend the right trade line + MOQ.`;
+      }
+
+      if (/ready to quote|am i qualified|have you got (?:my|enough)|what (?:else )?do you need/.test(lower)) {
+        const missing = [];
+        if (!lead.facilityType) missing.push("facility type");
+        if (!lead.email) missing.push("business email");
+        if (!lead.volume && !lead.products?.length) missing.push("volume or products");
+        if (!missing.length) {
+          return this.closingLine(lead);
+        }
+        return `Almost there — I still need your ${missing.join(" and ")} to prioritise a trade quote.`;
+      }
+
+      if (/contact|phone|email|call|speak|human|manager|real person|talk to (?:someone|a person)/i.test(lower) && !/@/.test(lower)) {
+        return (
+          `For a fast trade quote, WhatsApp Adeel at ${CatalogFacts.contact.phoneDisplay || "+44 7999 988450"} ` +
+          `or email ${CatalogFacts.contact.email || "info@roseempire.co.uk"}. I can also help here with products and MOQ.`
+        );
+      }
+
+      if (/sample|try before|feel the product|test pack/.test(lower)) {
+        return (
+          `We can arrange **sample boxes** for serious trade buyers — reply with facility type, sizes, and business email, ` +
+          `or WhatsApp Adeel with those details. MOQ on full orders stays 20 pieces per size.`
+        );
+      }
+
+      return null;
+    },
+
     qualifyReady(lead) {
       return Boolean(lead.facilityType && lead.email && (lead.volume || lead.products.length));
     },
@@ -965,8 +1024,9 @@
     async askLlm(query) {
       const history = (state.messages || [])
         .filter((m) => m.content && (m.role === "user" || m.role === "assistant"))
-        .slice(-8)
+        .slice(-10)
         .map((m) => ({ role: m.role, content: m.content }));
+      const lead = { ...SalesLead.data, products: [...(SalesLead.data.products || [])] };
       try {
         const res = await fetch(config.chatApi, {
           method: "POST",
@@ -975,6 +1035,10 @@
             message: query,
             context: "sarah",
             history,
+            tools: true,
+            lead,
+            pageUrl: location.href,
+            siteName: config.siteName,
           }),
         });
         const data = await res.json().catch(() => ({}));
@@ -1002,6 +1066,10 @@
       if (faq) {
         parts.push(faq);
       } else {
+        const power = this.runPowerTools(query, lead);
+        if (power) {
+          parts.push(power);
+        } else {
         const siteAnswer = Brain.answer(query);
         const generic =
           !siteAnswer ||
@@ -1026,6 +1094,7 @@
                 `What would you like to know — or shall I connect you on WhatsApp with Adeel?`
             );
           }
+        }
         }
       }
 
@@ -1485,7 +1554,7 @@
                 <span class="sarah-header-title">${esc(config.title)}</span>
                 <span id="sarah-owner-badge" style="display:none">OWNER</span>
               </div>
-              <div id="sarah-subtitle"><span class="sarah-status-dot"></span><span id="sarah-status-text">Reading website…</span></div>
+              <div id="sarah-subtitle"><span class="sarah-status-dot"></span><span id="sarah-status-text">Wholesale sales assistant · online</span></div>
             </div>
           </div>
         </div>
@@ -1523,7 +1592,12 @@
   }
 
   function setStatus(text) {
-    if (subtitleEl) subtitleEl.textContent = text;
+    if (!subtitleEl) return;
+    if (state.ownerMode) {
+      subtitleEl.textContent = text;
+      return;
+    }
+    subtitleEl.textContent = PUBLIC_STATUS;
   }
 
   function updateNudge() {
@@ -1953,7 +2027,7 @@
 
   SiteControl.load().then(() => {
     if (!state.ownerMode) {
-      setStatus(`Wholesale ready · ${state.siteIndex.chunks.length} sections`);
+      setStatus(PUBLIC_STATUS);
     }
   });
 
