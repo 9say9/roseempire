@@ -98,8 +98,8 @@ const RoseEmpireQuotePDF = {
         doc.setTextColor(220, 228, 240);
         doc.setFontSize(8);
         const rightX = pageW - margin;
-        doc.text('Unit 4, Manchester Wholesale Centre', rightX, 12, { align: 'right' });
-        doc.text('Manchester, United Kingdom', rightX, 17, { align: 'right' });
+        doc.text('5 Sagar Street, Manchester M8 8EU', rightX, 12, { align: 'right' });
+        doc.text('United Kingdom', rightX, 17, { align: 'right' });
         doc.text('info@roseempire.co.uk  |  +44 7999 988450', rightX, 22, { align: 'right' });
 
         let y = 52;
