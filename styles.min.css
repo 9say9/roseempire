@@ -1064,6 +1064,41 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     position: relative;
     z-index: 5;
 }
+.trade-proof-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 32px;
+    padding: 12px 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #0f1f35;
+}
+.trade-proof-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.trade-proof-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #b89549;
+    flex: 0 0 6px;
+}
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
 .warehouse-proof {
     padding: 48px 0 56px;
     background: linear-gradient(180deg, #f8f6f2 0%, #fff 100%);

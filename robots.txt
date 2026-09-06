@@ -13,3 +13,5 @@ User-agent: Bingbot
 Allow: /
 
 Sitemap: https://www.roseempire.co.uk/sitemap.xml
+# Machine-readable site summary for AI agents (Lighthouse Agentic Browsing)
+# https://www.roseempire.co.uk/llms.txt
