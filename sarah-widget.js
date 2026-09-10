@@ -74,7 +74,7 @@
       id: "wholesale",
       test: (p) => /wholesale|protector/i.test(p),
       nudge: "Looking at wholesale protectors? I can walk you through products, MOQ, and next steps.",
-      chips: ["Product range", "Volume discounts", "Chat on WhatsApp"],
+      chips: ["Product range", "Trade pricing", "Chat on WhatsApp"],
       topic: "sales",
     },
     {
@@ -646,10 +646,8 @@
     wholesale: {
       moqPerSize: 20,
       boxLabel: "1 trade box = 20 pieces",
-      volumeDiscounts: [
-        { minPieces: 50, percent: 10 },
-        { minPieces: 200, percent: 20 },
-      ],
+      volumeDiscounts: [],
+      tradeNote: "Trade list prices by size. Container rates on request.",
     },
     products: [],
     async load() {
@@ -784,7 +782,7 @@
         email:
           "What's the best business email to send your trade quote to?",
         volume:
-          "Roughly how many pieces are you looking at (per size)? Our MOQ is 20 per size — 50+ unlocks 10% off, 200+ unlocks 20%.",
+          "Roughly how many pieces are you looking at (per size)? Our MOQ is 20 per size. Container / half-container rates quoted separately.",
         products:
           "Which lines are you interested in — waterproof quilted (WQMP), quilted (QMP), terry waterproof, or feather & down pillows?",
         business: "And what's the business / facility name for the quote?",
@@ -809,17 +807,15 @@
         const moq = CatalogFacts.wholesale.moqPerSize || 20;
         return (
           `Our MOQ is ${moq} pieces per product size (${CatalogFacts.wholesale.boxLabel || "1 trade box"}). ` +
-          `Volume discounts: 10% off at 50+ pieces, 20% off at 200+ pieces. ` +
           `Want me to help you build a quote on the site?`
         );
       }
 
       if (/discount|volume|bulk\s*pric|tier/i.test(q)) {
         return (
-          `Trade volume discounts on the wholesale cart:\n` +
-          `• 10% off at 50+ pieces\n` +
-          `• 20% off at 200+ pieces\n` +
-          `MOQ stays at 20 per size. Tell me your rough volume and I'll point you to the best next step.`
+          `Trade prices are listed by size on the site.\n` +
+          `MOQ stays at 20 per size. For container or half-container orders we quote separately.\n` +
+          `Tell me your rough volume and I'll help you start a quote.`
         );
       }
 
@@ -868,7 +864,7 @@
             .map((s) => `• ${s.name}: £${Number(s.price).toFixed(2)}`)
             .join("\n");
           return (
-            `Trade pricing for ${product.title} (ex-VAT, before volume discount):\n${lines}\n` +
+            `Trade pricing for ${product.title} (ex-VAT):\n${lines}\n` +
             `MOQ ${product.moq || 20} per size. Add to Request a quote for freight + VAT, or tell me your volume and I'll help you close it.`
           );
         }
@@ -878,11 +874,11 @@
             .join("\n");
           return (
             `Guide trade prices (ex-VAT):\n${lines}\n` +
-            `Discounts apply at 50+ / 200+ pieces. Which product and size do you need?`
+            `Which product and size do you need?`
           );
         }
         return (
-          `Trade pricing starts from around £4.40–£8.97 per piece depending on product and size, with volume discounts at 50+ and 200+. ` +
+          `Trade pricing starts from around £1.92–£7.27 per piece depending on product and size. ` +
           `Tell me the product and size and I'll give the trade figure, or open Request a quote on the page for a full estimate.`
         );
       }
@@ -1090,7 +1086,7 @@
           } else {
             lowConfidence = true;
             parts.push(
-              `I can help with wholesale products, MOQ (20/size), volume discounts, certifications, UK delivery, and getting your quote started. ` +
+              `I can help with wholesale products, MOQ (20/size), trade pricing, certifications, UK delivery, and getting your quote started. ` +
                 `What would you like to know — or shall I connect you on WhatsApp with Adeel?`
             );
           }
@@ -2009,7 +2005,7 @@
     state.messages.push({
       role: "assistant",
       content:
-        "Hi — I'm Sarah, your Rose Empire wholesale representative. I can answer product questions, explain MOQs and volume discounts, take your details, and help you start a quote on this site. What are you looking for today?",
+        "Hi — I'm Sarah, your Rose Empire wholesale representative. I can answer product questions, explain MOQs and trade pricing, take your details, and help you start a quote on this site. What are you looking for today?",
     });
     saveSession();
     renderMessages();

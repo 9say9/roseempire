@@ -1,12 +1,15 @@
 /* ==========================================================================
-   Rose Empire — Quote Request List volume pricing + checkout totals
+   Rose Empire — Quote Request List (trade prices + checkout totals)
    ========================================================================== */
 
 const QuotePricing = {
     TIERS: [
-        { minPacks: 1, maxPacks: 49, discountPercent: 0, label: 'Standard rate (1–49 pieces)' },
-        { minPacks: 50, maxPacks: 199, discountPercent: 10, label: '10% volume discount (50–199 pieces)' },
-        { minPacks: 200, maxPacks: Infinity, discountPercent: 20, label: '20% premium volume discount (200+ pieces)', premiumBadge: true }
+        {
+            minPacks: 1,
+            maxPacks: Infinity,
+            discountPercent: 0,
+            label: 'Trade list rate',
+        },
     ],
 
     getTotalPacks(cart) {
@@ -22,9 +25,7 @@ const QuotePricing = {
         }, 0);
     },
 
-    getTier(totalPacks) {
-        if (totalPacks >= 200) return this.TIERS[2];
-        if (totalPacks >= 50) return this.TIERS[1];
+    getTier(_totalPacks) {
         return this.TIERS[0];
     },
 
@@ -32,24 +33,22 @@ const QuotePricing = {
         const totalPacks = this.getTotalPacks(cart);
         const tier = this.getTier(totalPacks);
         const grossSubtotal = this.cartGrossSubtotal(cart);
-        const discountAmount = grossSubtotal * (tier.discountPercent / 100);
-        const estimatedSubtotal = grossSubtotal - discountAmount;
 
         return {
             totalPacks,
             grossSubtotal,
-            discountPercent: tier.discountPercent,
-            discountAmount,
-            estimatedSubtotal,
+            discountPercent: 0,
+            discountAmount: 0,
+            estimatedSubtotal: grossSubtotal,
             tierLabel: tier.label,
-            showPremiumBadge: Boolean(tier.premiumBadge),
-            hasDiscount: tier.discountPercent > 0
+            showPremiumBadge: false,
+            hasDiscount: false,
         };
     },
 
     calculateFullCheckout(cart, shippingRegionId) {
         const product = this.calculate(cart);
-        const shipping = ShippingLogistics.calculate(shippingRegionId, product.totalPacks, cart);
+        const shipping = ShippingLogistics.calculate(shippingRegionId, product.totalPacks);
         const netExVat = product.estimatedSubtotal + shipping.logisticsCost;
         const vatRate = 0.2;
         const vatAmount = netExVat * vatRate;
@@ -113,9 +112,7 @@ const QuoteRequestPricingUI = (function () {
         if (e.grossSubtotal) e.grossSubtotal.textContent = QuotePricing.formatGBP(0);
         if (e.discountRow) e.discountRow.classList.add('hidden');
         if (e.productNet) e.productNet.textContent = QuotePricing.formatGBP(0);
-        if (e.shippingRow) e.shippingRow.classList.remove('hidden');
-        if (e.shippingLabel) e.shippingLabel.textContent = 'Shipping (Mainland £10 / Scotland & NI £15):';
-        if (e.shippingAmount) e.shippingAmount.textContent = QuotePricing.formatGBP(0);
+        if (e.shippingRow) e.shippingRow.classList.add('hidden');
         if (e.netExVat) e.netExVat.textContent = QuotePricing.formatGBP(0);
         if (e.vatAmount) e.vatAmount.textContent = QuotePricing.formatGBP(0);
         e.totalPrice.textContent = QuotePricing.formatGBP(0);
@@ -124,7 +121,8 @@ const QuoteRequestPricingUI = (function () {
             e.volumeBadge.classList.add('hidden');
         }
         if (e.tierHint) {
-            e.tierHint.textContent = 'Size-specific wholesale rates · 50+ pieces = 10% off · 200+ = 20% off';
+            e.tierHint.textContent =
+                'Trade prices · MOQ 20 per size · container rates on request';
         }
     }
 
@@ -160,9 +158,7 @@ const QuoteRequestPricingUI = (function () {
 
         if (e.shippingRow && e.shippingLabel && e.shippingAmount) {
             e.shippingRow.classList.remove('hidden');
-            const boxes = totals.boxCount || 0;
-            const fee = totals.feePerBox || ShippingLogistics.feePerBox(totals.regionId);
-            e.shippingLabel.textContent = `Shipping (${boxes} box${boxes === 1 ? '' : 'es'} × £${fee}):`;
+            e.shippingLabel.textContent = `Est. Logistics (${totals.regionLabel}):`;
             e.shippingAmount.textContent = QuotePricing.formatGBP(totals.logisticsCost);
         }
 
@@ -176,30 +172,13 @@ const QuoteRequestPricingUI = (function () {
         e.totalPrice.textContent = QuotePricing.formatGBP(totals.grandTotalIncVat);
 
         if (e.volumeBadge) {
-            if (totals.showPremiumBadge) {
-                e.volumeBadge.textContent = 'Premium Volume Discount Applied!';
-                e.volumeBadge.classList.remove('hidden');
-            } else {
-                e.volumeBadge.textContent = '';
-                e.volumeBadge.classList.add('hidden');
-            }
+            e.volumeBadge.textContent = '';
+            e.volumeBadge.classList.add('hidden');
         }
 
         if (e.tierHint) {
-            if (totals.showPremiumBadge) {
-                e.tierHint.textContent = `${totals.tierLabel} · ${totals.breakdown}`;
-                e.tierHint.classList.add('tier-hint--premium');
-            } else if (totals.hasDiscount) {
-                e.tierHint.textContent = totals.tierLabel;
-                e.tierHint.classList.remove('tier-hint--premium');
-            } else if (totals.totalPacks < 50) {
-                const packsToNext = 50 - totals.totalPacks;
-                e.tierHint.textContent = `${packsToNext} more piece${packsToNext === 1 ? '' : 's'} to unlock 10% off.`;
-                e.tierHint.classList.remove('tier-hint--premium');
-            } else {
-                e.tierHint.textContent = totals.tierLabel;
-                e.tierHint.classList.remove('tier-hint--premium');
-            }
+            e.tierHint.textContent = totals.tierLabel;
+            e.tierHint.classList.remove('tier-hint--premium');
         }
 
         return totals;

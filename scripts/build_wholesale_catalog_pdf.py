@@ -154,8 +154,9 @@ def main() -> None:
     story.append(
         Paragraph(
             "Trade MOQ: 20 pieces per product size (1 trade box = 20 pieces; "
-            "pillow-cover pairs may differ). Volume discounts: 10% off at 50+ pieces, "
-            "20% off at 200+ pieces. Prices ex VAT. UK shipping: Mainland £10 / "
+            "pillow-cover pairs may differ). Trade list prices by size. "
+            "Container / half-container rates quoted separately. "
+            "Prices ex VAT. UK shipping: Mainland £10 / "
             "Scotland &amp; NI £15 per trade box. Formal quotes via website RFQ or email.",
             styles["Meta"],
         )
@@ -264,9 +265,9 @@ def main() -> None:
     print(f"wrote {OUT} ({OUT.stat().st_size} bytes)")
 
     text = "\n".join((p.extract_text() or "") for p in PdfReader(str(OUT)).pages)
-    for needle in ("TRADE SALE", "4.70", "5.20", "3.90", "Terry"):
+    for needle in ("1.92", "2.83", "3.18", "3.84", "Terry", "WQMP"):
         assert needle in text, f"missing {needle}"
-    print("verified Terry sale prices present in PDF")
+    print("verified new trade prices present in PDF")
 
 
 if __name__ == "__main__":

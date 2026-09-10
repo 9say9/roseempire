@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-09",
+  "updatedAt": "2026-09-10",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -9,18 +9,8 @@
   "wholesale": {
     "moqPerSize": 20,
     "boxLabel": "Sold in full trade boxes only (no open boxes)",
-    "volumeDiscounts": [
-      {
-        "minPieces": 50,
-        "percent": 10,
-        "label": "10% off at 50+ pieces"
-      },
-      {
-        "minPieces": 200,
-        "percent": 20,
-        "label": "20% off at 200+ pieces"
-      }
-    ],
+    "volumeDiscounts": [],
+    "tradeNote": "Trade list prices by size. Container / half-container rates quoted separately on request.",
     "quoteNote": "Formal quotes confirmed within 24 hours via RFQ form or email.",
     "shippingNote": "UK Mainland (England & Wales) £10 per trade box; Scotland and Northern Ireland £15 per box. VAT applies to products and shipping."
   },
@@ -50,41 +40,41 @@
       "moq": 20,
       "piecesPerBox": 20,
       "boxLabel": "1 box = 20 pieces (mattress sizes)",
-      "basePrice": 6.99,
+      "basePrice": 3.18,
       "sizes": [
         {
           "name": "Pillow Cover Pair",
-          "price": 5.99,
+          "price": 3.18,
           "moq": 40,
           "piecesPerBox": 40
         },
         {
           "name": "Single (90×190cm)",
-          "price": 6.99,
+          "price": 3.84,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "4ft / Small Double (120×190cm)",
-          "price": 8.99,
+          "price": 4.88,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Double (135×190cm)",
-          "price": 9.49,
+          "price": 5.28,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "King (150×200cm)",
-          "price": 10.99,
+          "price": 6.02,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Super King (180×200cm)",
-          "price": 12.99,
+          "price": 7.27,
           "moq": 20,
           "piecesPerBox": 20
         }
@@ -122,41 +112,41 @@
       "moq": 20,
       "piecesPerBox": 20,
       "boxLabel": "1 box = 20 pieces (mattress sizes)",
-      "basePrice": 5.4,
+      "basePrice": 2.33,
       "sizes": [
         {
           "name": "Pillow Cover Pair",
-          "price": 4.74,
+          "price": 2.33,
           "moq": 40,
           "piecesPerBox": 40
         },
         {
           "name": "Single (90×190cm)",
-          "price": 5.4,
+          "price": 3.08,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "4ft / Small Double (120×190cm)",
-          "price": 5.95,
+          "price": 3.71,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Double (135×190cm)",
-          "price": 6.19,
+          "price": 3.98,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "King (150×200cm)",
-          "price": 6.54,
+          "price": 4.49,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Super King (180×200cm)",
-          "price": 7.21,
+          "price": 5.14,
           "moq": 20,
           "piecesPerBox": 20
         }
@@ -173,25 +163,15 @@
       "id": "protector-terry",
       "title": "Terry Waterproof Mattress Protector",
       "category": "protectors",
-      "tag": "Trade Sale",
-      "tagClass": "tag-sale",
-      "promo": {
-        "label": "Trade Sale",
-        "headline": "Terry Waterproof Trade Sale",
-        "detail": "Save £0.50 on every size",
-        "amountOff": 0.5,
-        "badge": "SAVE £0.50",
-        "exampleSize": "Single",
-        "exampleWas": 5.2,
-        "exampleNow": 4.7
-      },
+      "tag": "Hotel favourite",
+      "tagClass": "",
       "image": "assets/products/terry-lifestyle-bed.jpg",
       "gallery": [
         "assets/products/terry-lifestyle-bed.jpg",
         "assets/products/terry-elastic-skirt.jpg",
         "assets/products/terry-waterproof-product.jpg"
       ],
-      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent cotton loop pile, deep elastic fitted skirt on every size, and industrial-laundry durability — the preferred choice for hotels and care homes. Trade sale: save £0.50 on every size.",
+      "desc": "Classic terry towelling surface with a 100% waterproof backing. Highly absorbent cotton loop pile, deep elastic fitted skirt on every size, and industrial-laundry durability — the preferred choice for hotels and care homes.",
       "specs": [
         "Type: Terry Towelling Waterproof Mattress Protector",
         "Surface: 100% Cotton Terry loop pile top layer",
@@ -203,63 +183,56 @@
       "moq": 20,
       "piecesPerBox": 20,
       "boxLabel": "1 box = 20 pieces (mattress sizes)",
-      "basePrice": 3.9,
+      "basePrice": 1.92,
       "sizes": [
         {
           "name": "Pillow Cover Pair",
-          "price": 3.9,
-          "wasPrice": 4.4,
+          "price": 1.92,
           "moq": 40,
           "piecesPerBox": 40
         },
         {
           "name": "Cot",
-          "price": 3.9,
-          "wasPrice": 4.4,
+          "price": 1.92,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Single (90×190cm)",
-          "price": 4.7,
-          "wasPrice": 5.2,
+          "price": 2.83,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "4ft / Small Double (120×190cm)",
-          "price": 5.1,
-          "wasPrice": 5.6,
+          "price": 3.28,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Double (135×190cm)",
-          "price": 5.2,
-          "wasPrice": 5.7,
+          "price": 3.39,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "King (150×200cm)",
-          "price": 5.8,
-          "wasPrice": 6.3,
+          "price": 4.01,
           "moq": 20,
           "piecesPerBox": 20
         },
         {
           "name": "Super King (180×200cm)",
-          "price": 6.35,
-          "wasPrice": 6.85,
+          "price": 4.69,
           "moq": 20,
           "piecesPerBox": 20
         }
       ],
       "highlights": [
-        "Trade Sale",
         "Terry Cotton Surface",
         "Deep Elastic Skirt",
-        "100% Waterproof"
+        "100% Waterproof",
+        "Hotel & care favourite"
       ],
       "stockStatus": "In stock"
     },
@@ -270,7 +243,7 @@
       "tag": "Wholesale",
       "tagClass": "tag-gold",
       "image": "assets/down_pillows.png",
-      "desc": "Goose feather and duck down wholesale pillows. Down-proof pure cotton cambric cover, hotel quality loft, sold as a pair of 2 pillows per piece. Made to British Standard BS5335 requirements. Full boxes only — 5 pieces per box.",
+      "desc": "Goose feather and duck down wholesale pillows, vacuum packed. Down-proof cotton cover, hotel loft, pair of 2 pillows per piece. Trade from £7 (duck) / £8 (goose). Full boxes only — 5 pieces per box.",
       "specs": [
         "Sold as: Pair of 2 pillows per piece",
         "Fill options: Goose feather & down, or duck feather & down",
@@ -279,31 +252,32 @@
         "Duck fill: 80% duck feather, 20% soft duck down",
         "Size: Standard (50×75cm) only",
         "Box: 5 pieces per trade box (no open boxes)",
+        "Pack: Vacuum packed",
         "Care: Machine washable at 40°C"
       ],
       "moq": 5,
       "piecesPerBox": 5,
       "boxLabel": "1 box = 5 pieces",
-      "basePrice": 12.49,
+      "basePrice": 7.0,
       "sizes": [
         {
           "name": "Standard (50×75cm) – Goose – 2 Piece",
-          "price": 12.49,
+          "price": 8.0,
           "moq": 5,
           "piecesPerBox": 5
         },
         {
           "name": "Standard (50×75cm) – Duck – 2 Piece",
-          "price": 12.49,
+          "price": 7.0,
           "moq": 5,
           "piecesPerBox": 5
         }
       ],
       "highlights": [
+        "Vacuum packed",
         "Goose Feather & Down",
         "Duck Feather & Down",
-        "5 per box",
-        "Set of 2 Pieces"
+        "Trade from £7"
       ],
       "stockStatus": "In stock",
       "gallery": [
