@@ -652,7 +652,7 @@
     products: [],
     async load() {
       try {
-        const res = await fetch("catalog-data.json", { credentials: "same-origin" });
+        const res = await fetch("catalog-data.json?v=20260910c", { credentials: "same-origin" });
         if (!res.ok) return;
         const data = await res.json();
         if (data.contact) this.contact = { ...this.contact, ...data.contact };

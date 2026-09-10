@@ -6,11 +6,13 @@
 let products = [];
 let catalogData = null;
 
+const CATALOG_VERSION = "20260910c";
+const CATALOG_PATH = "catalog-data.json?v=" + CATALOG_VERSION;
 const CATALOG_URL = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-    ? "catalog-data.json"
+    ? CATALOG_PATH
     : ((typeof RoseEmpireConfig !== "undefined" && RoseEmpireConfig.siteUrl)
-        ? RoseEmpireConfig.siteUrl.replace(/\/$/, "") + "/catalog-data.json"
-        : "catalog-data.json");
+        ? RoseEmpireConfig.siteUrl.replace(/\/$/, "") + "/" + CATALOG_PATH
+        : CATALOG_PATH);
 
 function escapeHtml(value) {
     return String(value ?? '')
