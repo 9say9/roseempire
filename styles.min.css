@@ -3661,3 +3661,63 @@ iframe[src*="quillbot.com"] {
   color: #f5f0e6;
   border-color: rgba(184, 149, 73, 0.7);
 }
+
+/* Sample pack conversion strip */
+.sample-pack-strip {
+    background: linear-gradient(90deg, #102241 0%, #1a3a5c 55%, #0d7a6f 100%);
+    color: #fff;
+    padding: 18px 0;
+}
+.sample-pack-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.sample-pack-copy strong {
+    display: block;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+}
+.sample-pack-copy p {
+    margin: 0;
+    opacity: 0.92;
+    font-size: 0.95rem;
+    max-width: 52ch;
+}
+.sample-pack-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.sample-pack-strip .btn-outline-dark {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+}
+.sample-pack-strip .btn-outline-dark:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #ffe3a1;
+    color: #ffe3a1;
+}
+.sector-product-hero-fig {
+    margin: 0 0 24px;
+    max-width: 520px;
+}
+.sector-product-hero-fig img {
+    width: 100%;
+    height: auto;
+    border-radius: 14px;
+    display: block;
+}
+.sector-product-hero-fig figcaption {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: var(--text-muted, #5a6478);
+}
+@media (max-width: 700px) {
+    .sample-pack-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
