@@ -29,7 +29,7 @@
 
   const config = {
     clientId: script?.dataset?.clientId || "default",
-    title: script?.dataset?.title || "Sarah",
+    title: script?.dataset?.title || "Vera",
     accent: script?.dataset?.accent || "#0d7a6f",
     chatApi:
       script?.dataset?.chatApi ||
