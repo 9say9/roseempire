@@ -737,6 +737,14 @@ body.dark-mode .logo-title,
     line-height: 1.6;
 }
 .faq-item a { color: var(--gold-dark); }
+.sector-landing .faq-section.sector-faq {
+    padding: 28px 0 8px;
+    background: transparent;
+}
+.sector-landing .faq-section.sector-faq .faq-list {
+    margin-top: 16px;
+    margin-left: 0;
+}
 
 .process-grid {
     display: grid;

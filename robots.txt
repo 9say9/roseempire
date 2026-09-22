@@ -1,12 +1,17 @@
 # Rose Empire — https://www.roseempire.co.uk
 User-agent: *
 Allow: /
+Allow: /llms.txt
+Allow: /sitemap.xml
 Disallow: /pipeline/
 Disallow: /m365_browser_profile/
 Disallow: /linkedin-outreach/
 Disallow: /demo-recordings/
 
 User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
 Allow: /
 
 User-agent: Bingbot
