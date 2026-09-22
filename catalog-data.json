@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-10",
+  "updatedAt": "2026-09-14",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -21,10 +21,12 @@
       "category": "protectors",
       "tag": "Bestseller",
       "tagClass": "",
-      "image": "assets/mattress_protector.png",
+      "image": "assets/products/wqmp-skirt-fitted.jpg",
       "gallery": [
-        "assets/mattress_protector.png",
-        "assets/products/wqmp-waterproof-quilted.jpg",
+        "assets/products/wqmp-skirt-fitted.jpg",
+        "assets/products/wqmp-folded-detail.jpg",
+        "assets/products/wqmp-features-skirt.jpg",
+        "assets/products/wqmp-layers-skirt.jpg",
         "assets/warehouse/stock-branded-boxes.jpg"
       ],
       "desc": "Soft quilted top with silent 100% waterproof TPU backing. Deep elasticated skirt fits mattresses up to 40cm. Machine washable, OEKO-TEX Standard 100 certified, with independent UK test report for trade buyers.",
@@ -242,8 +244,8 @@
       "category": "pillows",
       "tag": "Wholesale",
       "tagClass": "tag-gold",
-      "image": "assets/down_pillows.png",
-      "desc": "Goose feather and duck down wholesale pillows, vacuum packed. Down-proof cotton cover, hotel loft, pair of 2 pillows per piece. Trade from £7 (duck) / £8 (goose). Full boxes only — 5 pieces per box.",
+      "image": "assets/products/pillow-zip-pack.jpg",
+      "desc": "Goose feather and duck down wholesale pillows in cotton zip-bag trade packs. Down-proof cotton cover, hotel loft, pair of 2 pillows per piece. Trade from £7 (duck) / £8 (goose). Full boxes only — 5 pieces per box.",
       "specs": [
         "Sold as: Pair of 2 pillows per piece",
         "Fill options: Goose feather & down, or duck feather & down",
@@ -252,7 +254,7 @@
         "Duck fill: 80% duck feather, 20% soft duck down",
         "Size: Standard (50×75cm) only",
         "Box: 5 pieces per trade box (no open boxes)",
-        "Pack: Vacuum packed",
+        "Pack: Cotton zip-bag trade pack",
         "Care: Machine washable at 40°C"
       ],
       "moq": 5,
@@ -274,13 +276,14 @@
         }
       ],
       "highlights": [
-        "Vacuum packed",
+        "Cotton zip-bag trade pack",
         "Goose Feather & Down",
         "Duck Feather & Down",
         "Trade from £7"
       ],
       "stockStatus": "In stock",
       "gallery": [
+        "assets/products/pillow-zip-pack.jpg",
         "assets/down_pillows.png",
         "assets/warehouse/pillows-pack-warehouse.jpg",
         "assets/warehouse/pillows-2pack-warehouse.jpg"
