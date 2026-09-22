@@ -1,10 +1,13 @@
-# Rose Empire — order alerts (email + WhatsApp)
+# Rose Empire — order alerts (email + WhatsApp + CRM)
 
 When a customer pays on the website, Stripe hits our checkout worker webhook. The worker then:
 
 1. Builds an order summary (items, total, delivery address, boxes)
 2. POSTs it to your **Zapier Catch Hook** → Email + WhatsApp
 3. Optionally emails you via **Resend** if `RESEND_API_KEY` is set
+4. POSTs the **full paid order** to Company HQ CRM (`/api/crm/orders/ingest`)
+
+RFQ / enquiry leads still use the separate lead ingest (`CRM_INGEST_URL`). Paid orders must not go through that lead-shaped body.
 
 Webhook URL (already in the worker):
 
@@ -104,7 +107,59 @@ Turn the Zap **ON**.
 
 ---
 
-## 3. Optional: Resend (direct email without Zapier)
+## 3. Company HQ CRM (paid orders)
+
+HQ is adding `POST /api/crm/orders/ingest` (sibling repo `rose-empire-company-hq`). The checkout worker posts the paid order there **in parallel** with Zapier and Resend. Do **not** remove Zapier/Resend.
+
+### Worker secrets
+
+```powershell
+cd "d:\rose empire main\cloudflare\checkout-worker"
+npx wrangler secret put CRM_ORDERS_INGEST_URL
+npx wrangler secret put CRM_INGEST_TOKEN
+```
+
+Example URL (replace with the live HQ host):
+
+`https://<hq-host>/api/crm/orders/ingest`
+
+Auth (same as lead ingest): send the token as both `X-CRM-Token` and `Authorization: Bearer`.
+
+### Fallback if you only have the HQ base URL
+
+If `CRM_ORDERS_INGEST_URL` is unset, the worker can derive the orders path from `CRM_INGEST_URL`:
+
+| `CRM_INGEST_URL` value | Orders POST goes to |
+|------------------------|---------------------|
+| `https://<hq-host>` (base / origin only) | `https://<hq-host>/api/crm/orders/ingest` |
+| `https://<hq-host>/api/crm/ingest` or `/api/crm/leads/ingest` | rewritten to `/api/crm/orders/ingest` |
+| already `/api/crm/orders/ingest` | used as-is |
+| any other path | **skipped** — set `CRM_ORDERS_INGEST_URL` explicitly |
+
+The lead endpoint (`notifyCrmIngest` on `/api/rfq`) is unchanged: it still POSTs the lead-shaped body to `CRM_INGEST_URL`.
+
+### Payload (idempotent on Stripe session id)
+
+The CRM body is the full order, not a lead. Key fields:
+
+| Field | Use |
+|--------|-----|
+| `session_id` / `stripe_session_id` / `idempotency_key` | Stripe Checkout Session id — **idempotency key** |
+| `payment_intent` | Stripe PaymentIntent id |
+| `livemode` | `true` live / `false` test |
+| `created` / `created_iso` | Stripe session timestamp |
+| `amount_total` / `currency` / `amount_formatted` | Paid total |
+| `customer_name` / `customer_email` / `customer_phone` | Buyer |
+| `shipping` | Delivery address object |
+| `line_items` | `{ name, quantity, amount }` |
+| `box_count` / `total_packs` / `shipping_region` / `summary` | Boxes + short print line |
+| `email_subject` / `email_body` | Same text as the owner email |
+
+`GET /health` shows `crm_orders_ingest_configured` (URL resolvable + token set). The webhook JSON includes `notified.crm`.
+
+---
+
+## 4. Optional: Resend (direct email without Zapier)
 
 If you prefer email from the worker as well:
 
@@ -116,7 +171,7 @@ npx wrangler secret put OWNER_NOTIFY_EMAIL
 
 ---
 
-## 4. Deploy after code changes
+## 5. Deploy after code changes
 
 ```powershell
 cd "d:\rose empire main\cloudflare\checkout-worker"
@@ -124,13 +179,25 @@ npx wrangler deploy
 ```
 
 Check: `https://rose-empire-checkout.adeelcolchester.workers.dev/health`  
-Should show `webhook_secret_set` and `zapier_webhook_set` as `true` once secrets are set.
+Should show `webhook_secret_set` and `zapier_webhook_set` as `true` once secrets are set. After CRM secrets: `crm_orders_ingest_configured: true`.
 
 ---
 
 ## Quick test
 
 1. Stripe Dashboard → Webhooks → your endpoint → **Send test webhook** (`checkout.session.completed`), **or**
-2. Place a small live/test order
+2. Stripe CLI (forwards a signed event to the live or local worker):
+
+```powershell
+stripe listen --forward-to https://rose-empire-checkout.adeelcolchester.workers.dev/api/stripe/webhook
+# other terminal:
+stripe trigger checkout.session.completed
+```
+
+Use Test-mode CLI with `STRIPE_WEBHOOK_SECRET_TEST` (and optionally `STRIPE_SECRET_KEY_TEST`) so live/test dual secrets stay intact.
+
+3. Place a small live/test order
 
 You should get Zapier email + WhatsApp within seconds. Customer still gets the Stripe receipt email separately.
+
+**CRM check:** the worker webhook JSON should include `notified.crm` (`ok: true` or `skipped` with a reason). Company HQ should create a **paid order** (session id, line items, shipping, totals) — not a lead. Re-sending the same `checkout.session.completed` must not duplicate the order (`session_id` is the idempotency key).

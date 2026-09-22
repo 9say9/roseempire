@@ -9,5 +9,11 @@ compatibility_date = "2024-11-01"
 # Optional:
 #   npx wrangler secret put RESEND_API_KEY
 #   npx wrangler secret put OWNER_NOTIFY_EMAIL
+# Optional CRM (Company HQ paid-order ingest — keep Zapier/Resend as-is):
+#   npx wrangler secret put CRM_ORDERS_INGEST_URL
+#     → https://<hq-host>/api/crm/orders/ingest
+#   npx wrangler secret put CRM_INGEST_TOKEN
+#   If CRM_ORDERS_INGEST_URL is unset, a base CRM_INGEST_URL (HQ origin only)
+#   is rewritten to /api/crm/orders/ingest. Lead ingest stays on CRM_INGEST_URL.
 # Optional: SITE_URL=https://www.roseempire.co.uk
 # See ORDER_ALERTS.md in the repo root.

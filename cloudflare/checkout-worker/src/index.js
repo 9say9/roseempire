@@ -11,6 +11,10 @@
  *   OWNER_NOTIFY_EMAIL           (default info@roseempire.co.uk)
  *   RESEND_API_KEY               (optional direct owner email)
  *   RESEND_FROM_EMAIL            (default Rose Empire <orders@roseempire.co.uk>)
+ * Optional CRM (Company HQ — paid orders, not leads):
+ *   CRM_ORDERS_INGEST_URL        (https://<hq-host>/api/crm/orders/ingest)
+ *   CRM_INGEST_URL               (lead ingest, or HQ base URL — orders path is derived)
+ *   CRM_INGEST_TOKEN             (X-CRM-Token + Authorization: Bearer)
  *
  * Shipping per trade box: Mainland £10 · Scotland & Northern Ireland £15.
  */
@@ -264,7 +268,58 @@ function moneyFromStripe(amount, currency) {
   return `${major.toFixed(2)} ${code}`;
 }
 
-function buildOrderAlert(session) {
+function stripeRefId(value) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && value.id) return String(value.id);
+  return "";
+}
+
+const CRM_ORDERS_INGEST_PATH = "/api/crm/orders/ingest";
+
+/**
+ * Prefer CRM_ORDERS_INGEST_URL.
+ * If only CRM_INGEST_URL is set:
+ *   - HQ base URL (path `/`) → append /api/crm/orders/ingest
+ *   - already the orders path → use as-is
+ *   - known lead ingest path on the same host → rewrite to orders (never POST orders to leads)
+ * Unknown paths are not guessed.
+ */
+function resolveCrmOrdersIngestUrl(env) {
+  const dedicated = String(env.CRM_ORDERS_INGEST_URL || "").trim();
+  if (dedicated && /^https?:\/\//i.test(dedicated)) return dedicated;
+
+  const ingest = String(env.CRM_INGEST_URL || "").trim();
+  if (!ingest || !/^https?:\/\//i.test(ingest)) return "";
+
+  try {
+    const u = new URL(ingest);
+    const path = (u.pathname || "/").replace(/\/+$/, "") || "/";
+    if (path === "/") {
+      u.pathname = CRM_ORDERS_INGEST_PATH;
+      u.search = "";
+      u.hash = "";
+      return u.toString();
+    }
+    if (path === CRM_ORDERS_INGEST_PATH) return ingest;
+    if (
+      path === "/api/crm/ingest" ||
+      path === "/api/crm/leads/ingest" ||
+      path === "/api/crm/leads"
+    ) {
+      u.pathname = CRM_ORDERS_INGEST_PATH;
+      u.search = "";
+      u.hash = "";
+      return u.toString();
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
+
+function buildOrderAlert(session, extras) {
+  extras = extras && typeof extras === "object" ? extras : {};
   const meta = session.metadata || {};
   const email = session.customer_details?.email || session.customer_email || "";
   const name =
@@ -292,7 +347,28 @@ function buildOrderAlert(session) {
     quantity: li.quantity || 0,
     amount: moneyFromStripe(li.amount_total, session.currency),
   }));
-  const total = moneyFromStripe(session.amount_total, session.currency);
+  const amountMinor = Number(session.amount_total) || 0;
+  const total = moneyFromStripe(amountMinor, session.currency);
+  const livemode =
+    typeof session.livemode === "boolean"
+      ? session.livemode
+      : typeof extras.livemode === "boolean"
+        ? extras.livemode
+        : null;
+  const createdUnix = Number(session.created);
+  const created = Number.isFinite(createdUnix) && createdUnix > 0 ? createdUnix : 0;
+  const created_iso = created ? new Date(created * 1000).toISOString() : "";
+  const boxCount = meta.box_count || "";
+  const totalPacks = meta.total_packs || "";
+  const shippingRegion = meta.shipping_region || "";
+  const summary = [
+    `Total ${total}`,
+    boxCount ? `${boxCount} box${String(boxCount) === "1" ? "" : "es"}` : "",
+    totalPacks ? `${totalPacks} pieces` : "",
+    shippingRegion ? `region ${shippingRegion}` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
   const linesText = lineItems.length
     ? lineItems.map((li) => `• ${li.quantity}× ${li.name} — ${li.amount}`).join("\n")
     : "(See Stripe Dashboard for line items)";
@@ -337,22 +413,34 @@ function buildOrderAlert(session) {
     addressText || "—",
     "",
     `Checkout session: ${session.id}`,
-    `Payment intent: ${session.payment_intent || "—"}`,
+    `Payment intent: ${stripeRefId(session.payment_intent) || "—"}`,
     "Open Stripe Dashboard → Payments for full details.",
   ].join("\n");
 
   return {
     event: "rose_empire.order_paid",
+    kind: "order",
     source: "rose-empire-checkout-webhook",
     session_id: session.id,
-    payment_intent: session.payment_intent || "",
+    stripe_session_id: session.id,
+    idempotency_key: session.id,
+    payment_intent: stripeRefId(session.payment_intent),
     payment_status: session.payment_status || "",
-    amount_total: (Number(session.amount_total) || 0) / 100,
+    livemode,
+    created,
+    created_iso,
+    amount_total: amountMinor / 100,
+    amount_total_minor: amountMinor,
     currency: session.currency || "gbp",
     amount_formatted: total,
     customer_email: email,
     customer_name: name || ship.name,
+    customer_phone: phone,
     shipping: ship,
+    box_count: boxCount,
+    total_packs: totalPacks,
+    shipping_region: shippingRegion,
+    summary,
     metadata: meta,
     line_items: lineItems,
     whatsapp_message,
@@ -398,6 +486,33 @@ async function notifyCrmIngest(env, payload) {
         website: payload.page_source || "https://www.roseempire.co.uk",
         address: payload.address || "",
       }),
+    });
+    const text = await resp.text();
+    return { ok: resp.ok, status: resp.status, body: text.slice(0, 200) };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+}
+
+/** Paid Stripe order → Company HQ CRM (receipt / print). Never posts to the lead ingest body. */
+async function notifyCrmOrder(env, payload) {
+  const url = resolveCrmOrdersIngestUrl(env);
+  const token = String(env.CRM_INGEST_TOKEN || "").trim();
+  if (!url || !token) {
+    return {
+      skipped: true,
+      reason: "CRM_ORDERS_INGEST_URL (or base CRM_INGEST_URL) / CRM_INGEST_TOKEN not set",
+    };
+  }
+  try {
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CRM-Token": token,
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
     });
     const text = await resp.text();
     return { ok: resp.ok, status: resp.status, body: text.slice(0, 200) };
@@ -715,10 +830,11 @@ async function handleStripeWebhook(request, env) {
       });
     }
 
-    const payload = buildOrderAlert(session);
-    const [zapier, email] = await Promise.all([
+    const payload = buildOrderAlert(session, { livemode: event.livemode });
+    const [zapier, email, crm] = await Promise.all([
       notifyZapier(env, payload),
       notifyOwnerEmail(env, payload),
+      notifyCrmOrder(env, payload),
     ]);
 
     console.log("order alert", {
@@ -726,13 +842,14 @@ async function handleStripeWebhook(request, env) {
       livemode: event.livemode,
       zapier,
       email,
+      crm,
     });
 
     return json(
       {
         status: "ok",
         livemode: event.livemode,
-        notified: { zapier, email },
+        notified: { zapier, email, crm },
         session_id: payload.session_id,
       },
       200
@@ -923,6 +1040,9 @@ export default {
       const webhook = Boolean(String(env.STRIPE_WEBHOOK_SECRET || "").trim());
       const webhookTest = Boolean(String(env.STRIPE_WEBHOOK_SECRET_TEST || "").trim());
       const secretTest = Boolean(String(env.STRIPE_SECRET_KEY_TEST || "").trim());
+      const crmToken = Boolean(String(env.CRM_INGEST_TOKEN || "").trim());
+      const crmLeadUrl = Boolean(String(env.CRM_INGEST_URL || "").trim());
+      const crmOrdersUrl = Boolean(resolveCrmOrdersIngestUrl(env));
       return json(
         {
           status: "ok",
@@ -933,6 +1053,8 @@ export default {
           webhook_test_secret_set: webhookTest,
           stripe_test_key_set: secretTest,
           zapier_webhook_set: zapier,
+          crm_lead_ingest_configured: crmLeadUrl && crmToken,
+          crm_orders_ingest_configured: crmOrdersUrl && crmToken,
           shipping: "Mainland £10 / Scotland & NI £15 per box",
         },
         200,
