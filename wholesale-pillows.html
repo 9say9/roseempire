@@ -30,7 +30,7 @@
     <link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
     <link rel="icon" type="image/png" href="assets/favicon-192.png" sizes="192x192">
     <link rel="apple-touch-icon" href="assets/favicon-192.png">
-    <link rel="stylesheet" href="styles.css?v=20260914a">
+    <link rel="stylesheet" href="styles.css?v=20260922s">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="application/ld+json">
     {
@@ -41,7 +41,7 @@
                 "@id": "https://www.roseempire.co.uk/wholesale-pillows.html#page",
                 "name": "Wholesale Pillows UK",
                 "url": "https://www.roseempire.co.uk/wholesale-pillows.html",
-                "description": "Wholesale goose feather and duck down pillows for UK hotels, care homes and retailers. MOQ 5 per box, BS EN 12935 tested.",
+                "description": "Wholesale goose feather and duck down pillows in cotton zip-bag trade packs for UK hotels, care homes and retailers. MOQ 5 per box, BS EN 12935 tested. Not vacuum-packed.",
                 "isPartOf": { "@id": "https://www.roseempire.co.uk/#website" },
                 "dateModified": "2026-09-22",
                 "inLanguage": "en-GB"
@@ -66,7 +66,7 @@
                     "priceCurrency": "GBP",
                     "price": "8.00",
                     "availability": "https://schema.org/InStock",
-                    "priceValidUntil": "2026-12-31",
+                    "priceValidUntil": "2027-12-31",
                     "eligibleQuantity": {
                         "@type": "QuantitativeValue",
                         "minValue": 5,
@@ -74,6 +74,36 @@
                     },
                     "seller": { "@id": "https://www.roseempire.co.uk/#wholesale-store" }
                 }
+            },
+            {
+                "@type": "FAQPage",
+                "@id": "https://www.roseempire.co.uk/wholesale-pillows.html#faq",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "Are Rose Empire wholesale pillows vacuum packed?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "No. Pillows ship in cotton zip-bag trade packs, not vacuum-only bags. Each piece is a pair of standard 50×75cm pillows."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What is the pillow minimum order quantity?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Pillows are sold in full boxes of 5 pieces (each piece is a pair). Trade from £7 duck / £8 goose. Manchester warehouse stock."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Do you have a pillow test report for procurement?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes. A BS EN 12935 pillow test report is available to download for trade buyers. Call +44 7999 988450 or request a wholesale quote."
+                        }
+                    }
+                ]
             }
         ]
     }
@@ -93,7 +123,8 @@
                 <a href="/#catalog-section" class="nav-link">Catalog</a>
                 <a href="/wholesale-mattress-protectors.html" class="nav-link">Mattress Protectors</a>
                 <a href="/wholesale-pillows.html" class="nav-link" aria-current="page">Pillows</a>
-                <a href="/#footer" class="nav-link">Contact</a>
+                <a href="/hotels.html" class="nav-link">Hotels</a>
+                <a href="/care-homes.html" class="nav-link">Care Homes</a>
             </nav>
         </div>
     </header>
@@ -145,6 +176,24 @@
 
                 <h2>How to order</h2>
                 <p>Add sizes in the catalog quote cart, then pay by <strong>Stripe checkout</strong> or submit an RFQ for invoice / bank transfer. Trade list prices by size. Container / half-container rates quoted separately on request.</p>
+
+                <section class="faq-section sector-faq" id="faq" aria-label="Wholesale pillow questions">
+                    <h2>Pillow trade FAQs</h2>
+                    <div class="faq-list">
+                        <details class="faq-item" open>
+                            <summary>Are Rose Empire wholesale pillows vacuum packed?</summary>
+                            <p>No. Pillows ship in <strong>cotton zip-bag trade packs</strong>, not vacuum-only bags. Each piece is a pair of standard 50×75cm pillows.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary>What is the pillow minimum order quantity?</summary>
+                            <p>Pillows are sold in full boxes of <strong>5 pieces</strong> (each piece is a pair). Trade from £7 duck / £8 goose. Manchester warehouse stock.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Do you have a pillow test report for procurement?</summary>
+                            <p>Yes. A <a href="assets/Rose-Empire-BS-EN-12935-Pillow-Report.pdf" download>BS EN 12935 pillow test report</a> is available to download for trade buyers. Call <a href="tel:+447999988450">+44 7999 988450</a> or <a href="/?openQuote=1&amp;from=pillows-faq">request a wholesale quote</a>.</p>
+                        </details>
+                    </div>
+                </section>
 
                 <div class="sector-cta-box">
                     <h3>Need pillows for your next replenishment?</h3>
