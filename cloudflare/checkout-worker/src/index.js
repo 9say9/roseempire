@@ -342,12 +342,17 @@ function buildOrderAlert(session, extras) {
     postcode: meta.ship_postcode || session.shipping_details?.address?.postal_code || "",
     full: meta.ship_address_full || "",
   };
-  const lineItems = (session.line_items?.data || []).map((li) => ({
-    name: li.description || li.price?.product?.name || "Item",
-    quantity: li.quantity || 0,
-    amount: moneyFromStripe(li.amount_total, session.currency),
-  }));
-  const amountMinor = Number(session.amount_total) || 0;
+  const lineItems = (session.line_items?.data || []).map((li) => {
+    const lineAmountMinor = Math.round(Number(li.amount_total) || 0);
+    return {
+      name: li.description || li.price?.product?.name || "Item",
+      quantity: li.quantity || 0,
+      amount: lineAmountMinor,
+      amount_total: lineAmountMinor,
+      amount_formatted: moneyFromStripe(lineAmountMinor, session.currency),
+    };
+  });
+  const amountMinor = Math.round(Number(session.amount_total) || 0);
   const total = moneyFromStripe(amountMinor, session.currency);
   const livemode =
     typeof session.livemode === "boolean"
@@ -370,7 +375,7 @@ function buildOrderAlert(session, extras) {
     .filter(Boolean)
     .join(" · ");
   const linesText = lineItems.length
-    ? lineItems.map((li) => `• ${li.quantity}× ${li.name} — ${li.amount}`).join("\n")
+    ? lineItems.map((li) => `• ${li.quantity}× ${li.name} — ${li.amount_formatted}`).join("\n")
     : "(See Stripe Dashboard for line items)";
   const addressText =
     ship.full ||
@@ -429,7 +434,7 @@ function buildOrderAlert(session, extras) {
     livemode,
     created,
     created_iso,
-    amount_total: amountMinor / 100,
+    amount_total: amountMinor,
     amount_total_minor: amountMinor,
     currency: session.currency || "gbp",
     amount_formatted: total,

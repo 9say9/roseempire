@@ -97,11 +97,11 @@ Turn the Zap **ON**.
 | `email_subject` | Email subject |
 | `email_body` | Full email text |
 | `whatsapp_message` | Ready WhatsApp text |
-| `amount_formatted` | e.g. £123.45 |
+| `amount_formatted` | e.g. £123.45 (use this for humans) |
 | `customer_email` | Buyer email |
 | `customer_name` | Buyer name |
 | `shipping` | Address object |
-| `line_items` | Product lines |
+| `line_items` | Product lines (`amount` / `amount_total` = pence; `amount_formatted` = £x.xx) |
 | `metadata` | boxes, region, postcode, etc. |
 | `session_id` | Stripe session id |
 
@@ -148,10 +148,12 @@ The CRM body is the full order, not a lead. Key fields:
 | `payment_intent` | Stripe PaymentIntent id |
 | `livemode` | `true` live / `false` test |
 | `created` / `created_iso` | Stripe session timestamp |
-| `amount_total` / `currency` / `amount_formatted` | Paid total |
+| `amount_total` / `amount_total_minor` | Paid total in Stripe **minor units** (integer pence). HQ `format_money` divides by 100. |
+| `currency` | e.g. `gbp` |
+| `amount_formatted` | Human pounds string, e.g. `£192.00` (Zapier/email; do not use for CRM maths) |
 | `customer_name` / `customer_email` / `customer_phone` | Buyer |
 | `shipping` | Delivery address object |
-| `line_items` | `{ name, quantity, amount }` |
+| `line_items` | `{ name, quantity, amount, amount_total }` — `amount` / `amount_total` are integer pence; `amount_formatted` is £x.xx |
 | `box_count` / `total_packs` / `shipping_region` / `summary` | Boxes + short print line |
 | `email_subject` / `email_body` | Same text as the owner email |
 
