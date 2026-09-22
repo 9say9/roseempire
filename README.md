@@ -58,7 +58,7 @@ npx wrangler deploy
 
 2. Confirm `site-config.js` still points at `rose-empire-checkout.adeelcolchester.workers.dev`.
 3. **Customer receipt** — in Stripe: Settings → Business → [Customer emails](https://dashboard.stripe.com/settings/emails) → turn on **Successful payments**. Checkout also sets `receipt_email` so live payments email the buyer.
-4. **Your order alert** — Stripe webhook → Zapier (email + WhatsApp). Follow **[ORDER_ALERTS.md](ORDER_ALERTS.md)** to set `STRIPE_WEBHOOK_SECRET` and `ZAPIER_WEBHOOK_URL`.
+4. **Your order alert** — Stripe webhook → Zapier (email + WhatsApp) and Company HQ CRM (`CRM_ORDERS_INGEST_URL` + `CRM_INGEST_TOKEN`). Follow **[ORDER_ALERTS.md](ORDER_ALERTS.md)** to set `STRIPE_WEBHOOK_SECRET`, `ZAPIER_WEBHOOK_URL`, and the CRM secrets.
 
 Checkout totals include volume discount, UK logistics, and 20% VAT (same rules as the on-page estimate).
 
