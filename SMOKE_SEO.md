@@ -22,7 +22,7 @@ Also confirm on each page:
 - `hreflang="en-gb"` and `hreflang="x-default"`
 - JSON-LD has **no** `aggregateRating`
 - WQMP Product `@id` is `https://www.roseempire.co.uk/#product-wqmp`
-- Pillow Product `@id` is `https://www.roseempire.co.uk/#product-pillow-feather-down`
+- Pillow Product `@id`s are `https://www.roseempire.co.uk/#product-pillow-microfibre-feather` and `https://www.roseempire.co.uk/#product-pillow-cotton-shell-feather`
 - Phone CTAs use `tel:+447999988450` / display `+44 7999 988450`
 
 `https://www.roseempire.co.uk/robots.txt` should allow `/` and list `Sitemap: https://www.roseempire.co.uk/sitemap.xml`.

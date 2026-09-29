@@ -1,7 +1,7 @@
 # Rose Empire project instructions
 
 ## Business
-Rose Empire is a UK B2B wholesale bedding supplier focused on mattress protectors and pillows.
+Rose Empire is a UK B2B wholesale bedding supplier focused on mattress protectors and pillows (microfibre value line and cotton shell premium zip-bag line).
 
 ## Audience
 Hotels, care homes, retailers, procurement teams, guest houses, distributors.

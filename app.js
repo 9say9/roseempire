@@ -261,6 +261,16 @@ function initTheme() {
 // ==========================================================================
 // Catalog Rendering
 // ==========================================================================
+function productImageHtml(imagePath, alt, extraAttrs = '') {
+    const src = escapeHtml(imagePath || '');
+    const webp = src.replace(/\.jpe?g$/i, '.webp');
+    return `<picture>
+                <source type="image/webp" srcset="${webp}">
+                <img src="${src}" alt="${escapeHtml(alt || '')}" ${extraAttrs}
+                     onerror="this.closest('picture').style.display='none'">
+            </picture>`;
+}
+
 function renderProducts() {
     productsGrid.innerHTML = '';
 
@@ -296,23 +306,23 @@ function renderProducts() {
                     <span class="price-value price-value--sale">£${promo.now.toFixed(2)}/pc</span>
                     <span class="price-save">${escapeHtml(promo.detail || ('Save £' + promo.save.toFixed(2)))}</span>
                </div>`
-            : `<span class="price-value">£${Number(product.basePrice || 0).toFixed(2)}/pc</span>`;
+            : `<span class="price-value price-value--unit">FROM £${Number(product.basePrice || 0).toFixed(2)} PER UNIT</span>`;
         const promoBanner = promo
             ? `<div class="product-promo-banner" role="status"><span>${escapeHtml(promo.badge)}</span><span>${escapeHtml(promo.headline)}</span></div>`
             : '';
         const tagLabel = product.promo?.badge || product.tag;
+        const tagClass = product.tagClass ? ` ${escapeHtml(product.tagClass)}` : '';
         const pid = safeProductId(product.id);
         if (!pid) return;
 
         card.innerHTML = `
             <div class="product-image-container${promo ? ' product-image-container--sale' : ''}">
-                <span class="product-tag">${escapeHtml(tagLabel)}</span>
-                <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}"
-                     onerror="this.src='https://placehold.co/400x300/0d1f3c/ffffff?text=${encodeURIComponent(product.title)}'">
+                <span class="product-tag${tagClass}">${escapeHtml(tagLabel)}</span>
+                ${productImageHtml(product.image, product.title, 'loading="lazy" decoding="async"')}
                 ${promoBanner}
             </div>
             <div class="product-info">
-                <h3 class="product-title">${escapeHtml(product.title)}</h3>
+                <h3 class="product-title">${escapeHtml(product.title).toUpperCase()}</h3>
                 <p class="product-desc">${escapeHtml(product.desc)}</p>
                 <div class="product-specs">
                     ${(product.highlights || []).slice(0, 3).map(h => `<span class="spec-badge">${escapeHtml(h)}</span>`).join('')}
@@ -846,7 +856,12 @@ function setCartQty(idx, val) {
 // ==========================================================================
 // Product Detail Modal
 // ==========================================================================
+const LEGACY_PRODUCT_IDS = {
+    'pillow-feather-down': 'pillow-microfibre-feather',
+};
+
 function openProductDetail(productId) {
+    if (LEGACY_PRODUCT_IDS[productId]) productId = LEGACY_PRODUCT_IDS[productId];
     const p = products.find(x => x.id === productId);
     if (!p) return;
 
@@ -1246,13 +1261,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Deep-link straight to a product: /?openProduct=protector-terry&from=hotels
     const openProduct = params.get('openProduct');
     if (openProduct) {
+        const resolvedProduct = LEGACY_PRODUCT_IDS[openProduct] || openProduct;
         // Catalog loads async on idle — poll briefly until the product exists.
         let attempts = 0;
         const tryOpen = () => {
             attempts += 1;
-            if (products.some(p => p.id === openProduct)) {
+            if (products.some(p => p.id === resolvedProduct)) {
                 document.getElementById('catalog-section')?.scrollIntoView();
-                openProductDetail(openProduct);
+                openProductDetail(resolvedProduct);
                 const clean = new URL(window.location.href);
                 clean.searchParams.delete('openProduct');
                 clean.searchParams.delete('from');
