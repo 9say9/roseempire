@@ -1,4 +1,6 @@
 # Rose Empire — https://www.roseempire.co.uk
+# Canonical host is www. Prefer https://www.roseempire.co.uk URLs (not apex, not trailing-slash variants of .html files).
+
 User-agent: *
 Allow: /
 Allow: /llms.txt
@@ -17,6 +19,28 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
+# GEO: allow major answer-engine crawlers to read public pages and llms.txt
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
 Sitemap: https://www.roseempire.co.uk/sitemap.xml
-# Machine-readable site summary for AI agents (Lighthouse Agentic Browsing)
+# Machine-readable site summary for AI agents
 # https://www.roseempire.co.uk/llms.txt

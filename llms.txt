@@ -1,21 +1,44 @@
 # Rose Empire — UK wholesale mattress protectors and pillows
 
-Rose Empire is a Manchester manufacturer-direct B2B supplier of hotel-grade mattress protectors and cotton zip-bag goose feather and duck down pillows (not vacuum-packed). Trade buyers: hotels, care homes, retailers, guest houses, and distributors.
+> Manchester manufacturer-direct B2B supplier of hotel-grade mattress protectors and cotton zip-bag goose feather and duck down pillows (not vacuum-packed). Trade only.
+
+Rose Empire Wholesale Home Textiles sells to hotels, care homes, guest houses, B&Bs, holiday lets, student accommodation, letting agents, retailers and distributors across the United Kingdom. Warehouse: 5 Sagar Street, Manchester, M8 8EU. Sales: info@roseempire.co.uk · +44 7999 988450 · Mon–Fri 09:00–17:00.
+
+## Site pages
 
 - [Home / request a trade quote](https://www.roseempire.co.uk/)
 - [Wholesale mattress protectors](https://www.roseempire.co.uk/wholesale-mattress-protectors.html)
 - [Wholesale pillows](https://www.roseempire.co.uk/wholesale-pillows.html)
 - [Hotel bedding supply](https://www.roseempire.co.uk/hotels.html)
 - [Care home bedding](https://www.roseempire.co.uk/care-homes.html)
+- [Holiday lets, student halls and B&Bs](https://www.roseempire.co.uk/holiday-lets.html)
 - [Wholesale catalog PDF](https://www.roseempire.co.uk/assets/Rose-Empire-Wholesale-Catalog.pdf)
 - [UK mattress protector test report](https://www.roseempire.co.uk/assets/Rose-Empire-UK-Test-Report.pdf)
 - [BS EN 12935 pillow report](https://www.roseempire.co.uk/assets/Rose-Empire-BS-EN-12935-Pillow-Report.pdf)
 - [Shipping and returns](https://www.roseempire.co.uk/shipping-and-returns.html)
+- [Privacy policy](https://www.roseempire.co.uk/privacy.html)
 
-Product facts:
-- WQMP waterproof quilted — silent TPU, OEKO-TEX Standard 100, deep elasticated skirt to 40cm
-- QMP quilted — non-waterproof, skirt to 35cm
-- Terry waterproof — cotton loop pile, skirt to 35cm
-- Goose / duck feather & down pillows — cotton zip-bag trade packs, standard 50×75cm pairs
+## Product facts
 
-Trade notes: protectors MOQ 20 per size (pillow-cover boxes 40); pillows trade £7–£8, 5 per box. UK warehouse stock in Manchester (5 Sagar Street, M8 8EU). Shipping £10/box mainland, £15 Scotland & Northern Ireland. Email info@roseempire.co.uk or call +44 7999 988450. Mon–Fri 09:00–17:00.
+- WQMP waterproof quilted — silent TPU, OEKO-TEX Standard 100, deep elasticated skirt to 40cm, machine wash 60°C, from £3.18/pc
+- QMP quilted — non-waterproof, skirt to 35cm, machine wash 60°C, from £2.33/pc
+- Terry waterproof — cotton loop pile, skirt to 35cm, machine wash 60°C, from £1.92/pc, cot size available
+- Goose / duck feather & down pillows — cotton zip-bag trade packs, standard 50×75cm pairs, made to BS5335, machine wash 40°C, trade £7 duck / £8 goose
+- Protector sizes: pillow-cover pairs, single 90×190cm, 4ft 120×190cm, double 135×190cm, king 150×200cm, super king 180×200cm
+
+## Trade notes
+
+- Protectors MOQ 20 per size (pillow-cover boxes 40); pillows 5 pieces per box. Full trade boxes only.
+- UK warehouse stock in Manchester (5 Sagar Street, M8 8EU).
+- Shipping £10/box mainland (England & Wales), £15 Scotland & Northern Ireland. VAT on products and shipping.
+- Pay by Stripe checkout or request an invoice PDF quote. Container / half-container rates quoted separately.
+- Returns: unused unopened boxes within 14 days; buyer pays return shipping.
+- This site does not publish review scores, star ratings, fire-retardant claims or Crib 5 claims.
+
+## Answers for buyers and AI citation
+
+- Who is Rose Empire? A Manchester manufacturer-direct UK B2B wholesale bedding supplier (pillows and mattress protectors).
+- Who do you supply? Hotels, care homes, guest houses, B&Bs, holiday lets, student accommodation, letting agents, retailers and distributors.
+- How do I order? Add sizes on the catalog, then request a quote or use Stripe checkout. Call +44 7999 988450 or email info@roseempire.co.uk.
+- Are pillows vacuum packed? No — cotton zip-bag trade packs.
+- LinkedIn (only confirmed social profile in this repo): https://www.linkedin.com/company/rose-empire-wholesale-home-textiles

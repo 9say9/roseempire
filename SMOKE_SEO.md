@@ -13,6 +13,7 @@ Open each money URL and confirm:
 | `/wholesale-pillows.html` | cotton zip-bag | vacuum-only packing |
 | `/hotels.html` | protectors & pillows | — |
 | `/care-homes.html` | OEKO-TEX / care protectors | “tier discounts (50+ / 200+)” |
+| `/holiday-lets.html` | holiday lets / student / B&B | invented social handles |
 
 Also confirm on each page:
 

@@ -10,6 +10,10 @@
         siteUrl: 'https://www.roseempire.co.uk',
         linkedInCompanyUrl: 'https://www.linkedin.com/company/rose-empire-wholesale-home-textiles',
         linkedInPersonalUrl: 'https://www.linkedin.com/in/rose-empire-wholesale',
+        // TODO(SMO): set these only when a real public profile exists. Do not guess handles.
+        twitterProfileUrl: '',
+        facebookPageUrl: '',
+        instagramProfileUrl: '',
         email: 'info@roseempire.co.uk',
         phone: '+447999988450',
         phoneDisplay: '+44 7999 988450',

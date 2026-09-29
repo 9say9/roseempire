@@ -8,6 +8,8 @@
  *   catalog_download     — trade catalog PDF download
  *   phone_click          — tel: link clicks
  *   email_click          — mailto: link clicks
+ *   whatsapp_click       — wa.me / WhatsApp handoff clicks (including Sarah)
+ *   checkout_start       — Stripe checkout session start (also sends GA4 begin_checkout)
  *
  * Also kept for funnel detail: add_to_quote | quote_open
  *
@@ -95,6 +97,15 @@
     return (el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80);
   }
 
+  function isWhatsAppHref(href) {
+    const h = String(href || "").toLowerCase();
+    return (
+      h.indexOf("wa.me/") !== -1 ||
+      h.indexOf("api.whatsapp.com") !== -1 ||
+      h.indexOf("whatsapp.com/send") !== -1
+    );
+  }
+
   function inferCatalogDownload(href) {
     const h = String(href || "").toLowerCase();
     return (
@@ -164,6 +175,14 @@
         if (href.indexOf("tel:") === 0) {
           track("phone_click", {
             phone: href.replace(/^tel:/i, ""),
+            link_text: linkText(el),
+          });
+          return;
+        }
+
+        if (isWhatsAppHref(href)) {
+          track("whatsapp_click", {
+            link_url: href.split("?")[0],
             link_text: linkText(el),
           });
           return;
@@ -244,6 +263,19 @@
 
     addToQuote: function (meta) {
       track("add_to_quote", meta || {});
+    },
+
+    checkoutStart: function (meta) {
+      const payload = Object.assign({ currency: "GBP" }, meta || {});
+      track("checkout_start", payload);
+      // GA4 recommended ecommerce event name (in addition to checkout_start).
+      if (typeof window.gtag === "function") {
+        try {
+          window.gtag("event", "begin_checkout", payload);
+        } catch (_) {
+          /* ignore */
+        }
+      }
     },
 
     /** @deprecated use contactFormSubmit — kept so older call sites still work */

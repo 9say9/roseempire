@@ -691,6 +691,13 @@ async function startStripeCheckout() {
 
     syncCartAddressToRfq(shippingAddress, customerEmail);
 
+    if (window.RoseEmpireTrack && typeof window.RoseEmpireTrack.checkoutStart === "function") {
+        window.RoseEmpireTrack.checkoutStart({
+            item_count: cart.length,
+            shipping_region: shippingRegion,
+        });
+    }
+
     if (stripeCheckoutBtn) {
         stripeCheckoutBtn.disabled = true;
         stripeCheckoutBtn.innerHTML = '<svg class="ico ico-spin" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><use href="assets/icons.svg#spinner"></use></svg> Preparing checkout…';

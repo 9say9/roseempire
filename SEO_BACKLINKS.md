@@ -11,7 +11,7 @@ Run every Monday. Tick in a notes file or spreadsheet.
    - `https://www.roseempire.co.uk/wholesale-mattress-protectors.html`
    - `https://www.roseempire.co.uk/wholesale-pillows.html`
    - `https://www.roseempire.co.uk/hotels.html`
-   - `https://www.roseempire.co.uk/care-homes.html`
+   - `https://www.roseempire.co.uk/holiday-lets.html`
 2. **Bing Webmaster Tools** — import/verify if needed, then resubmit the same sitemap after a GSC resubmit. Spot-check the five URLs.
 3. **Google Business Profile** — website still `https://www.roseempire.co.uk`; NAP matches 5 Sagar Street, Manchester M8 8EU, `+44 7999 988450`; category Bedding supplier / Wholesaler; hours Mon–Fri 09:00–17:00. Reply to real questions only. **Do not add fake reviews.**
 4. **LinkedIn Company Page** — website field is `https://www.roseempire.co.uk` on [Rose Empire Wholesale Home Textiles](https://www.linkedin.com/company/rose-empire-wholesale-home-textiles). Optional: one true trade post (stock, catalog, hotel/care offer) — no invented ratings.
