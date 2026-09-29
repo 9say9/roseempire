@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-14",
+  "updatedAt": "2026-09-29",
   "contact": {
     "email": "info@roseempire.co.uk",
     "phone": "+447999988450",
@@ -21,13 +21,13 @@
       "category": "protectors",
       "tag": "Bestseller",
       "tagClass": "",
-      "image": "assets/products/wqmp-skirt-fitted.jpg",
+      "image": "assets/products/quilted-waterproof-mattress-protector.jpg",
       "gallery": [
-        "assets/products/wqmp-skirt-fitted.jpg",
+        "assets/products/quilted-waterproof-mattress-protector.jpg",
+        "assets/products/mattress-protector-3-ply-quilting.jpg",
         "assets/products/wqmp-folded-detail.jpg",
         "assets/products/wqmp-features-skirt.jpg",
-        "assets/products/wqmp-layers-skirt.jpg",
-        "assets/warehouse/stock-branded-boxes.jpg"
+        "assets/products/wqmp-layers-skirt.jpg"
       ],
       "desc": "Soft quilted top with silent 100% waterproof TPU backing. Deep elasticated skirt fits mattresses up to 40cm. Machine washable, OEKO-TEX Standard 100 certified, with independent UK test report for trade buyers.",
       "specs": [
@@ -95,11 +95,10 @@
       "category": "protectors",
       "tag": "Essential",
       "tagClass": "",
-      "image": "assets/warehouse/protector-fitted-lifestyle.jpg",
+      "image": "assets/products/qmp-quilted.jpg",
       "gallery": [
-        "assets/warehouse/protector-fitted-lifestyle.jpg",
         "assets/products/qmp-quilted.jpg",
-        "assets/warehouse/stock-branded-boxes.jpg"
+        "assets/products/mattress-protector-3-ply-quilting.jpg"
       ],
       "desc": "Premium non-waterproof quilted protector for everyday comfort and hygiene. Breathable polycotton shell with soft microfiber fill and deep elasticated skirt up to 35cm. Ideal for guest houses and retailers.",
       "specs": [
@@ -167,9 +166,9 @@
       "category": "protectors",
       "tag": "Hotel favourite",
       "tagClass": "",
-      "image": "assets/products/terry-lifestyle-bed.jpg",
+      "image": "assets/products/terry-waterproof-mattress-protector.jpg",
       "gallery": [
-        "assets/products/terry-lifestyle-bed.jpg",
+        "assets/products/terry-waterproof-mattress-protector.jpg",
         "assets/products/terry-elastic-skirt.jpg",
         "assets/products/terry-waterproof-product.jpg"
       ],
@@ -239,22 +238,23 @@
       "stockStatus": "In stock"
     },
     {
-      "id": "pillow-feather-down",
-      "title": "Goose Feather & Duck Down Pillows (2-Piece)",
+      "id": "pillow-microfibre-feather",
+      "title": "Microfibre Shell Feather & Down Pillows (Value)",
       "category": "pillows",
-      "tag": "Wholesale",
-      "tagClass": "tag-gold",
-      "image": "assets/products/pillow-zip-pack.jpg",
-      "desc": "Goose feather and duck down wholesale pillows in cotton zip-bag trade packs. Down-proof cotton cover, hotel loft, pair of 2 pillows per piece. Trade from £7 (duck) / £8 (goose). Full boxes only — 5 pieces per box.",
+      "tag": "Value",
+      "tagClass": "",
+      "image": "assets/products/feather-pillow-quilted-lifestyle.jpg",
+      "desc": "Value-line goose or duck feather & down pillows with microfibre shell, vacuum packed in standard trade packaging. Pair of 2 pillows per piece — trade £7.00 each (goose or duck). Full boxes only: 5 pieces per box.",
       "specs": [
         "Sold as: Pair of 2 pillows per piece",
         "Fill options: Goose feather & down, or duck feather & down",
+        "Shell: Microfibre (value line)",
+        "Pack: Vacuum packed — standard trade packaging",
         "Standard: Made to the requirements of BS5335",
         "Goose fill: 85% white goose feather, 15% soft goose down",
         "Duck fill: 80% duck feather, 20% soft duck down",
         "Size: Standard (50×75cm) only",
         "Box: 5 pieces per trade box (no open boxes)",
-        "Pack: Cotton zip-bag trade pack",
         "Care: Machine washable at 40°C"
       ],
       "moq": 5,
@@ -264,7 +264,7 @@
       "sizes": [
         {
           "name": "Standard (50×75cm) – Goose – 2 Piece",
-          "price": 8.0,
+          "price": 7.0,
           "moq": 5,
           "piecesPerBox": 5
         },
@@ -276,17 +276,64 @@
         }
       ],
       "highlights": [
-        "Cotton zip-bag trade pack",
-        "Goose Feather & Down",
-        "Duck Feather & Down",
-        "Trade from £7"
+        "Vacuum packed",
+        "Microfibre shell",
+        "Goose or duck fill",
+        "£7.00 per piece"
       ],
       "stockStatus": "In stock",
       "gallery": [
-        "assets/products/pillow-zip-pack.jpg",
-        "assets/down_pillows.png",
-        "assets/warehouse/pillows-pack-warehouse.jpg",
-        "assets/warehouse/pillows-2pack-warehouse.jpg"
+        "assets/products/feather-pillow-quilted-lifestyle.jpg"
+      ]
+    },
+    {
+      "id": "pillow-cotton-shell-feather",
+      "title": "Cotton Shell Feather & Down Pillows (Premium)",
+      "category": "pillows",
+      "tag": "Premium",
+      "tagClass": "tag-gold",
+      "image": "assets/products/cotton-shell-feather-pillow-zip-bag.jpg",
+      "desc": "Premium-line goose or duck feather & down pillows with cotton shell, presented in a Rose Empire branded zip bag. Pair of 2 pillows per piece — trade £8.00 each (goose or duck). Full boxes only: 5 pieces per box.",
+      "specs": [
+        "Sold as: Pair of 2 pillows per piece",
+        "Fill options: Goose feather & down, or duck feather & down",
+        "Shell: Cotton shell (premium line)",
+        "Pack: Rose Empire branded zip bag",
+        "Standard: Made to the requirements of BS5335",
+        "Goose fill: 85% white goose feather, 15% soft goose down",
+        "Duck fill: 80% duck feather, 20% soft duck down",
+        "Size: Standard (50×75cm) only",
+        "Box: 5 pieces per trade box (no open boxes)",
+        "Care: Machine washable at 40°C"
+      ],
+      "moq": 5,
+      "piecesPerBox": 5,
+      "boxLabel": "1 box = 5 pieces",
+      "basePrice": 8.0,
+      "sizes": [
+        {
+          "name": "Standard (50×75cm) – Goose – 2 Piece",
+          "price": 8.0,
+          "moq": 5,
+          "piecesPerBox": 5
+        },
+        {
+          "name": "Standard (50×75cm) – Duck – 2 Piece",
+          "price": 8.0,
+          "moq": 5,
+          "piecesPerBox": 5
+        }
+      ],
+      "highlights": [
+        "Branded zip bag",
+        "Cotton shell",
+        "Goose or duck fill",
+        "£8.00 per piece"
+      ],
+      "stockStatus": "In stock",
+      "gallery": [
+        "assets/products/cotton-shell-feather-pillow-zip-bag.jpg",
+        "assets/products/feather-pillow-quilted-lifestyle.jpg"
       ]
     }
   ]

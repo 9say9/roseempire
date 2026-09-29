@@ -5,7 +5,7 @@ Sarah is the **Rose Empire wholesale representative** on the site — black/gold
 ## How she works for customers
 
 1. **Engage** — greets trade buyers and asks what they need  
-2. **Answer** — products, MOQ (20/size), volume discounts, certs, UK delivery, from live `catalog-data.json`  
+2. **Answer** — products, MOQ (20/size), volume discounts, certs, UK delivery, from live `catalog-data.json` (pillows: microfibre value £7 vacuum packed; cotton shell premium £8 zip bag)  
 3. **Qualify** — collects facility type, email, volume, products, business name naturally  
 4. **Close** — steers buyers to **Get A Quote** / checkout, or **WhatsApp handoff** to Adeel (`wa.me`) when asked / unsure / fully qualified  
 5. **Hard questions** — falls back to Gemini via `rose-empire-chat` worker  

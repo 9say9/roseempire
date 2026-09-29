@@ -346,22 +346,12 @@
         };
         replies.push(`${m[1]} price set to ${m[2].trim()}.`);
       }
-      if ((m = t.match(/hide (?:the )?(?:section )?#?([\w-]+)/i)) && !/(?:opening|closing)\s*hours?/i.test(t)) {
+      if ((m = t.match(/hide (?:the )?(?:section )?#?([\w-]+)/i))) {
         mutations.sections = {
           ...(state.siteConfig?.sections || {}),
           [m[1]]: { hidden: true },
         };
         replies.push(`Section "${m[1]}" hidden on your site.`);
-      }
-      if (
-        /(?:remove|hide|delete|take\s+off).*(?:opening|closing|business)\s*(?:hours?|timing|time)/i.test(t) ||
-        /(?:opening|closing).*(?:hours?|timing|time).*(?:remove|hide|delete|take\s+off)/i.test(t)
-      ) {
-        mutations.sections = {
-          ...(state.siteConfig?.sections || {}),
-          "opening-hours": { hidden: true },
-        };
-        replies.push(`Opening hours hidden — contact details in the top bar stay visible.`);
       }
       if (/(?:remove|hide|delete)\s+(?:the\s+)?(?:entire\s+)?top\s*bar/i.test(t)) {
         mutations.sections = {
@@ -376,16 +366,6 @@
           [m[1]]: { hidden: false },
         };
         replies.push(`Section "${m[1]}" is visible again.`);
-      }
-      if (
-        /(?:show|restore|bring\s+back|unhide).*(?:opening|closing)\s*(?:hours?|timing|time)/i.test(t) ||
-        /(?:opening|closing)\s*(?:hours?|timing).*(?:show|restore|back)/i.test(t)
-      ) {
-        mutations.sections = {
-          ...(state.siteConfig?.sections || {}),
-          "opening-hours": { hidden: false },
-        };
-        replies.push(`Opening hours are visible again.`);
       }
       if (/(?:show|restore|bring\s+back).*(?:top\s*bar|top\s+panel)/i.test(t)) {
         mutations.sections = {
@@ -437,7 +417,7 @@
         return {
           ok: false,
           reply:
-            'Owner mode commands:\n• hide opening hours\n• restore all changes\n• show top bar\n• set color to #ff5500\n• set starter price to $249\n• show leads / export leads\n• learn: paste FAQ or product data',
+            'Owner mode commands:\n• restore all changes\n• show top bar\n• set color to #ff5500\n• set starter price to $249\n• show leads / export leads\n• learn: paste FAQ or product data',
         };
       }
       return { ok: true, mutations, reply: replies.join(" ") };
@@ -670,7 +650,8 @@
           "• WQMP — Waterproof Quilted Mattress Protector (silent TPU, OEKO-TEX)\n" +
           "• QMP — Quilted Mattress Protector (breathable, non-waterproof)\n" +
           "• Terry Waterproof Mattress Protector (limited offer −50p all sizes)\n" +
-          "• Goose Feather & Duck Down Pillows (2-piece sets, standard 50×75cm)"
+          "• Microfibre shell feather & down pillows (value, vacuum packed) — £7.00/pc\n" +
+          "• Cotton shell feather & down pillows (premium zip bag) — £8.00/pc"
         );
       }
       return (
@@ -803,6 +784,18 @@
         );
       }
 
+      if (
+        /(?:opening|closing|office)\s*hours?|what\s*time.*(?:open|close)|when\s+are\s+you\s+open|are\s+you\s+open\b/i.test(
+          q
+        )
+      ) {
+        return (
+          `For the fastest response, call ${CatalogFacts.contact.phoneDisplay || "+44 7999 988450"}, ` +
+          `WhatsApp us, or email ${CatalogFacts.contact.email || "info@roseempire.co.uk"} — ` +
+          `the team will get back to you as soon as possible.`
+        );
+      }
+
       if (/moq|minimum\s*order|min(?:imum)?\s*qty|how many (?:do i|must i) (?:need|order)/i.test(q)) {
         const moq = CatalogFacts.wholesale.moqPerSize || 20;
         return (
@@ -915,7 +908,8 @@
           `• **WQMP** — waterproof + quilted (hotels/care, silent TPU, OEKO-TEX)\n` +
           `• **QMP** — quilted, non-waterproof (lighter budget properties)\n` +
           `• **Terry** — waterproof terry (care homes, heavy laundry)\n` +
-          `• **Pillows** — goose feather & duck down sets\n\n` +
+          `• **Pillows (value)** — microfibre shell, vacuum packed, £7/pc duck or goose\n` +
+          `• **Pillows (premium)** — cotton shell, branded zip bag, £8/pc duck or goose\n\n` +
           `Tell me your facility type and I'll narrow it to one line.`
         );
       }
@@ -1885,12 +1879,10 @@
       }
     } else {
       const wantsSiteEdit =
-        /(?:remove|hide|delete|change|update|edit|set|rename|restore|undo|revert|show|bring\s+back)\b.+(?:website|site|page|header|top|hours?|timing|price|color|section|changes?|panel)/i.test(q) ||
-        (/(?:opening|closing).*(?:hours?|timing|time)/i.test(q) && /(?:remove|hide|delete|take\s+off|restore|show|bring\s+back)/i.test(q)) ||
-        /(?:remove|hide|delete|take\s+off|restore|undo).*(?:opening|closing|business)?\s*(?:hours?|timing|time)/i.test(q);
+        /(?:remove|hide|delete|change|update|edit|set|rename|restore|undo|revert|show|bring\s+back)\b.+(?:website|site|page|header|top|price|color|section|changes?|panel)/i.test(q);
       if (wantsSiteEdit) {
         reply =
-          `I can update your website in owner mode only. Open your admin link or add ?sarah_admin=YOUR-TOKEN to the URL, then try:\n• hide opening hours\n• restore all changes\n• show top bar`;
+          `I can update your website in owner mode only. Open your admin link or add ?sarah_admin=YOUR-TOKEN to the URL, then try:\n• restore all changes\n• show top bar`;
       } else if (/^chat on whatsapp$/i.test(q) || /^whatsapp$/i.test(q)) {
         const handoff = await SalesAgent.offerWhatsApp(SalesLead.data, "chip", q);
         reply = handoff.text;
@@ -1988,7 +1980,7 @@
       state.messages.push({
         role: "assistant",
         content:
-          "Owner mode active. Try:\n• hide opening hours\n• restore all changes\n• rename bot to Alex\n• set color to #22c55e\n• show leads\n• Paste FAQ or pricing (no prefix needed)",
+          "Owner mode active. Try:\n• restore all changes\n• rename bot to Alex\n• set color to #22c55e\n• show leads\n• Paste FAQ or pricing (no prefix needed)",
       });
       saveSession();
     }
