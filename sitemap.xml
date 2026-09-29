@@ -55,6 +55,14 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://www.roseempire.co.uk/student-accommodation.html</loc>
+    <xhtml:link rel="alternate" hreflang="en-gb" href="https://www.roseempire.co.uk/student-accommodation.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.roseempire.co.uk/student-accommodation.html"/>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://www.roseempire.co.uk/shipping-and-returns.html</loc>
     <xhtml:link rel="alternate" hreflang="en-gb" href="https://www.roseempire.co.uk/shipping-and-returns.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.roseempire.co.uk/shipping-and-returns.html"/>

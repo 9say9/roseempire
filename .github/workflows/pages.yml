@@ -36,8 +36,9 @@ jobs:
       - name: Build public site folder
         run: |
           mkdir -p site/assets/products
-          cp index.html 404.html care-homes.html hotels.html holiday-lets.html wholesale-mattress-protectors.html wholesale-pillows.html privacy.html shipping-and-returns.html site/
+          cp index.html 404.html care-homes.html hotels.html holiday-lets.html student-accommodation.html wholesale-mattress-protectors.html wholesale-pillows.html privacy.html shipping-and-returns.html site/
           cp styles.css styles.min.css app.js site-config.js conversion-analytics.js quote-pdf.js quote-pricing.js quote-shipping.js rose-icons.js catalog-data.json sarah-widget.js sitemap.xml robots.txt llms.txt site.webmanifest CNAME .nojekyll site/
+          cp f8c2a19e4b3d6075ae9210c4d5e6f7a8.txt site/
           cp -r assets/* site/assets/
 
       - name: Setup Pages

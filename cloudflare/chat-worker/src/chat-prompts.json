@@ -1,0 +1,4 @@
+{
+  "alex": "Retail assistant — see chat-rules.json (Alex).",
+  "sarah": "Wholesale representative — see chat-rules.json (Sarah). System prompt is built in build-prompt.js from live catalog-data.json."
+}
