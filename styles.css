@@ -1245,6 +1245,19 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     display: block;
     transition: transform 8s ease;
 }
+.hero-image-side--compact {
+    background: #fff;
+}
+.hero-image-side--compact::before {
+    display: none;
+}
+.hero-image-side--compact .hero-product-img {
+    height: auto;
+    aspect-ratio: 1400 / 933;
+    object-fit: contain;
+    background: #fff;
+}
+.hero:hover .hero-image-side--compact .hero-product-img { transform: none; }
 .hero:hover .hero-product-img { transform: scale(1.03); }
 .hero-img-badge {
     position: absolute;
@@ -2291,6 +2304,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     z-index: 1;
 }
 .feature-strip-item {
+    position: relative;
     text-align: center;
     transition: var(--transition);
     background: #ffffff;
@@ -2345,10 +2359,21 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     padding: 4px 10px;
     border-radius: 999px;
 }
+.feature-strip-item .feature-strip-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    margin-top: 0;
+    z-index: 2;
+    font-size: 0.65rem;
+    padding: 5px 11px;
+    letter-spacing: 0.08em;
+    box-shadow: 0 2px 8px rgba(16, 34, 65, 0.12);
+}
 .sector-product-card .feature-strip-badge {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 14px;
+    left: 14px;
     margin-top: 0;
     z-index: 2;
     font-size: 0.65rem;
@@ -3278,6 +3303,11 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
     .hero-title { font-size: 2rem; }
     .hero-image-side { order: -1; }
     .hero-product-img { height: 280px; }
+    .hero-image-side--compact .hero-product-img {
+        height: auto;
+        aspect-ratio: 1400 / 933;
+        object-fit: contain;
+    }
     .categories-grid { grid-template-columns: 1fr; }
     .features-grid { grid-template-columns: 1fr; }
     .product-detail-layout { grid-template-columns: 1fr; }
@@ -3669,6 +3699,7 @@ details.cart-delivery-details[open] > summary.cart-delivery-summary::before {
 .sector-product-card a { display: block; margin: 0 16px 16px; font-weight: 600; }
 .pillow-compare-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: 40px;
     margin-bottom: 32px;
 }
 .pillow-compare-grid .sector-product-card img {
