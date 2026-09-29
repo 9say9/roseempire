@@ -14,6 +14,7 @@ Open each money URL and confirm:
 | `/hotels.html` | protectors & pillows | — |
 | `/care-homes.html` | OEKO-TEX / care protectors | “tier discounts (50+ / 200+)” |
 | `/holiday-lets.html` | holiday lets / student / B&B | invented social handles |
+| `/student-accommodation.html` | student / PBSA / halls protectors | invented delivery promises |
 
 Also confirm on each page:
 
@@ -46,4 +47,15 @@ Then **Sitemaps** → submit or resubmit `https://www.roseempire.co.uk/sitemap.x
 
 Live HTML matches this repo; GSC live test shows the new title; sitemap HTTP 200; indexing requested if the cached version was stale.
 
-Bing: same five URLs + sitemap if GSC was updated (`SEO_BACKLINKS.md` weekly list).
+Bing: same money URLs + sitemap if GSC was updated (`SEO_BACKLINKS.md` weekly list).
+
+## 4. IndexNow (optional, after deploy)
+
+1. Confirm the key file is live: `https://www.roseempire.co.uk/f8c2a19e4b3d6075ae9210c4d5e6f7a8.txt` (HTTP 200, body = key only).
+2. From repo root (operator only — do not run in CI): `node scripts/indexnow-ping.js`  
+   Submits all `<loc>` URLs from `sitemap.xml` to `https://api.indexnow.org/indexnow` with `host=www.roseempire.co.uk`.
+3. Or pass explicit URLs: `node scripts/indexnow-ping.js https://www.roseempire.co.uk/student-accommodation.html`
+
+## 5. Local link check (before commit)
+
+`node scripts/check-internal-links.js` — verifies every local `href`/`src` in HTML files resolves on disk.

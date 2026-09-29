@@ -1308,13 +1308,13 @@
     </svg>`;
   }
 
-  const launcherBot = botFaceSvg("launcher", 52);
+  const launcherBot = botFaceSvg("launcher", 30);
   const headerBot = botFaceSvg("header", 44);
 
   /* ─── Premium UI (Luma-inspired glass + motion) ─── */
   let subtitleEl, nudgeEl, chipsEl, messagesEl, input, sendBtn, panel, typingEl, ambientCanvas;
 
-  const posSide = config.position === "left" ? "left:24px" : "right:24px";
+  const posSide = config.position === "left" ? "left:16px" : "right:16px";
   const panelSide = config.position === "left" ? "left:0" : "right:0";
 
   const styles = `
@@ -1327,7 +1327,7 @@
       --sw-text:#fafafa;
       --sw-muted:#a1a1aa;
       --sw-glow:rgba(${accentCss},0.35);
-      position:fixed;bottom:24px;${posSide};z-index:2147483647;
+      position:fixed;bottom:max(16px, env(safe-area-inset-bottom, 0px));${posSide};z-index:2147483647;
       font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sw-text);
       -webkit-font-smoothing:antialiased;
     }
@@ -1339,7 +1339,7 @@
       border:1px solid var(--sw-border);
     }
     #sarah-nudge{
-      position:absolute;${panelSide};bottom:88px;width:min(340px,calc(100vw - 48px));
+      position:absolute;${panelSide};bottom:80px;width:min(340px,calc(100vw - 48px));
       padding:18px;border-radius:20px;
       box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.04) inset;
       opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);
@@ -1352,7 +1352,7 @@
     .sarah-btn-ghost:hover{border-color:rgba(255,255,255,.2);color:#fff}
     .sarah-btn-primary{padding:8px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--sw-accent),color-mix(in srgb,var(--sw-accent) 70%,#fff));color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px var(--sw-glow)}
     #sarah-panel{
-      position:absolute;${panelSide};bottom:80px;width:min(400px,calc(100vw - 32px));height:min(600px,calc(100vh - 100px));
+      position:absolute;${panelSide};bottom:72px;width:min(400px,calc(100vw - 32px));height:min(600px,calc(100vh - 100px));
       display:flex;flex-direction:column;border-radius:24px;overflow:hidden;
       background:rgba(6,6,10,0.88);
       box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06) inset,0 0 60px rgba(${accentCss},0.08);
@@ -1468,37 +1468,25 @@
     #sarah-send:hover:not(:disabled){transform:scale(1.05);box-shadow:0 6px 28px rgba(${accentCss},.45)}
     #sarah-send:disabled{opacity:.5;cursor:not-allowed}
     #sarah-launcher{
-      position:relative;width:72px;height:72px;padding:0;border:none;border-radius:50%;cursor:pointer;
-      background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.14),rgba(4,4,8,0.96) 52%,rgba(${accentCss},0.22));
+      position:relative;width:56px;height:56px;padding:0;border:none;border-radius:50%;cursor:pointer;
+      background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.12),rgba(4,4,8,0.96) 55%,rgba(${accentCss},0.18));
       border:1px solid rgba(255,255,255,0.14);
-      box-shadow:0 14px 48px rgba(${accentCss},0.45),0 0 0 1px rgba(255,255,255,0.06) inset;
-      transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s;
-      display:grid;place-items:center;overflow:visible;
+      box-shadow:0 6px 20px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,0.06) inset;
+      transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;
+      display:grid;place-items:center;overflow:hidden;
     }
-    #sarah-launcher:hover{transform:scale(1.08) translateY(-3px);box-shadow:0 20px 56px rgba(${accentCss},0.55),0 0 40px rgba(${accentCss},0.2)}
-    #sarah-launcher.open{transform:scale(.92);box-shadow:0 8px 32px rgba(${accentCss},0.35)}
+    #sarah-launcher:hover{transform:scale(1.05);box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 12px rgba(${accentCss},0.2)}
+    #sarah-launcher.open{transform:scale(.94);box-shadow:0 4px 16px rgba(0,0,0,.3)}
     #sarah-launcher.thinking .sarah-bot-eye{animation:sarah-eye-think .5s ease-in-out infinite alternate}
     @keyframes sarah-eye-think{from{opacity:.5;transform:scaleY(.6)}to{opacity:1;transform:scaleY(1)}}
     .sarah-launcher-orbit{
       position:absolute;border-radius:50%;pointer-events:none;
       border:1px solid rgba(${accentCss},0.3);
     }
-    .sarah-launcher-orbit-1{inset:3px;animation:sarah-orbit-spin 9s linear infinite}
-    .sarah-launcher-orbit-2{
-      inset:-8px;border-style:dashed;border-color:rgba(${accentCss},0.25);
-      animation:sarah-orbit-spin 14s linear infinite reverse;
-    }
-    .sarah-launcher-orbit-3{
-      inset:-14px;border:1px solid rgba(255,255,255,0.06);
-      animation:sarah-orbit-spin 20s linear infinite;
-    }
-    .sarah-launcher-pulse{
-      position:absolute;inset:-4px;border-radius:50%;
-      background:radial-gradient(circle,rgba(${accentCss},0.25),transparent 70%);
-      animation:sarah-launcher-breathe 3s ease-in-out infinite;z-index:0;
-    }
-    @keyframes sarah-launcher-breathe{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+    .sarah-launcher-orbit-1{inset:4px;opacity:.35;animation:sarah-orbit-spin 12s linear infinite}
+    .sarah-launcher-orbit-2,.sarah-launcher-orbit-3,.sarah-launcher-pulse{display:none}
     .sarah-launcher-bot{position:relative;z-index:1;display:grid;place-items:center}
+    #sarah-launcher .sarah-bot-svg{width:30px;height:30px}
     html.sarah-chat-open,html.sarah-chat-open body{overflow:hidden!important;overscroll-behavior:none}
     @media(max-width:768px){
       #sarah-widget{
@@ -1514,8 +1502,11 @@
       #sarah-panel.open{transform:none}
       #sarah-nudge{
         position:fixed;left:12px;right:12px;width:auto!important;
-        bottom:calc(96px + env(safe-area-inset-bottom, 0px));
+        bottom:calc(68px + env(safe-area-inset-bottom, 0px));
       }
+      #sarah-launcher{width:48px;height:48px}
+      #sarah-launcher .sarah-bot-svg{width:26px;height:26px}
+      #sarah-panel.open{opacity:1;pointer-events:auto}
       #sarah-widget.sarah-open #sarah-launcher{visibility:hidden;pointer-events:none}
       #sarah-input{font-size:16px}
       #sarah-form{padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px))}
