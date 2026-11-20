@@ -671,7 +671,53 @@ function quickEnquiryFormHTML(source) {
         </form>`;
 }
 
+// Online-orders switch: window.RoseEmpireConfig.ordersEnabled === false turns card checkout off (see site-config.js).
+const ORDERS_ENABLED = !(window.RoseEmpireConfig && window.RoseEmpireConfig.ordersEnabled === false);
+const ORDERS_OFF_MESSAGE = (window.RoseEmpireConfig && window.RoseEmpireConfig.ordersOffMessage) ||
+    'We are not taking online orders at the moment. For trade enquiries email info@roseempire.co.uk.';
+
+function applyOrdersOffNotice() {
+    if (ORDERS_ENABLED) return;
+    if (!document.getElementById('orders-off-style')) {
+        const st = document.createElement('style');
+        st.id = 'orders-off-style';
+        st.textContent = '#stripe-checkout-btn,#cart-delivery-details,.cart-checkout-panel,.cart-checkout-actions .vat-note{display:none!important}' +
+            '.orders-off-notice{background:#102241;color:#fff;text-align:center;padding:10px 16px;font-size:15px;line-height:1.4}' +
+            '.orders-off-notice a{color:#e8c76a;text-decoration:underline}' +
+            '.orders-off-notice--cart{border-radius:8px;margin:0 0 12px;background:#fff6e0;color:#102241;border:1px solid #e8c76a}';
+        document.head.appendChild(st);
+    }
+    const html = ORDERS_OFF_MESSAGE.replace('info@roseempire.co.uk', '<a href="mailto:info@roseempire.co.uk">info@roseempire.co.uk</a>');
+    if (!document.getElementById('orders-off-banner')) {
+        const b = document.createElement('div');
+        b.id = 'orders-off-banner';
+        b.className = 'orders-off-notice';
+        b.setAttribute('role', 'status');
+        b.innerHTML = html;
+        document.body.insertBefore(b, document.body.firstChild);
+    }
+    const actions = document.querySelector('.cart-checkout-actions');
+    if (actions && !document.getElementById('orders-off-cart-notice')) {
+        const c = document.createElement('div');
+        c.id = 'orders-off-cart-notice';
+        c.className = 'orders-off-notice orders-off-notice--cart';
+        c.innerHTML = html;
+        actions.insertBefore(c, actions.firstChild);
+    }
+    if (stripeCheckoutBtn) { stripeCheckoutBtn.disabled = true; stripeCheckoutBtn.hidden = true; }
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyOrdersOffNotice);
+} else {
+    applyOrdersOffNotice();
+}
+
 async function startStripeCheckout() {
+    if (!ORDERS_ENABLED) {
+        applyOrdersOffNotice();
+        showCheckoutBanner('error', ORDERS_OFF_MESSAGE);
+        return;
+    }
     if (!cart.length) {
         showCheckoutBanner('error', 'Add products to your quote list before starting checkout.');
         return;

@@ -1068,7 +1068,9 @@ export default {
     }
 
     if (url.pathname === "/api/checkout/config" && request.method === "GET") {
-      const configured = !isPlaceholderKey((env.STRIPE_SECRET_KEY || "").trim());
+      const configured =
+        !isPlaceholderKey((env.STRIPE_SECRET_KEY || "").trim()) &&
+        String(env.ORDERS_ENABLED || "").trim().toLowerCase() === "true";
       return json(
         {
           status: "success",
@@ -1086,7 +1088,22 @@ export default {
       );
     }
 
+    // ONLINE ORDERS SWITCH: orders are OFF unless the var ORDERS_ENABLED is exactly "true" (wrangler.toml [vars]).
+    const ordersEnabled = String(env.ORDERS_ENABLED || "").trim().toLowerCase() === "true";
+
     if (url.pathname === "/api/checkout/create" && request.method === "POST") {
+      if (!ordersEnabled) {
+        return json(
+          {
+            status: "error",
+            code: "orders_closed",
+            message:
+              "We are not taking online orders at the moment. For trade enquiries email info@roseempire.co.uk.",
+          },
+          503,
+          origin
+        );
+      }
       let body = {};
       try {
         body = await request.json();

@@ -17,3 +17,7 @@ compatibility_date = "2024-11-01"
 #   is rewritten to /api/crm/orders/ingest. Lead ingest stays on CRM_INGEST_URL.
 # Optional: SITE_URL=https://www.roseempire.co.uk
 # See ORDER_ALERTS.md in the repo root.
+
+# ONLINE ORDERS SWITCH. "false" = checkout refuses to create Stripe sessions. Set to "true" and redeploy to take orders again.
+[vars]
+ORDERS_ENABLED = "false"
